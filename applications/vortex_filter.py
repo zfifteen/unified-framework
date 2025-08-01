@@ -9,6 +9,7 @@ from sympy import isprime  # For validation; replace with efficient primality te
 UNIVERSAL = math.e  # Invariant limit c
 PHI = (1 + math.sqrt(5)) / 2  # Golden ratio for vortex resonance
 PI = math.pi  # Circular invariant for spiral geometry
+FSC = 1/137
 
 def compute_frame_shift(n: int, max_n: int) -> float:
     """Universal Frame Shift Transformer: Δₙ = log(n) / log(max_n)"""
@@ -33,7 +34,7 @@ def vortex_projection(numbers: np.array, max_n: int) -> np.array:
         coords.append((n, z, curvature))
     return np.array(coords)
 
-def find_optimal_threshold(projected, target_elim=0.713):
+def find_optimal_threshold(projected, target_elim=FSC):
     """Dynamically tune threshold via binary search to achieve target elimination rate."""
     low = 0
     high = np.max(projected[:, 2])
@@ -50,14 +51,14 @@ def find_optimal_threshold(projected, target_elim=0.713):
             low = mid
     return mid  # Converged approximate threshold
 
-def vortex_filter(numbers: np.array, max_n: int, target_elim: float = 0.713) -> list:
+def vortex_filter(numbers: np.array, max_n: int, target_elim: float = FSC) -> list:
     """Vortex Filter: Self-tune threshold and eliminate high-curvature points."""
     projected = vortex_projection(numbers, max_n)
     curvature_threshold = find_optimal_threshold(projected, target_elim)
     candidates = [int(row[0]) for row in projected if row[2] <= curvature_threshold]
     return candidates, curvature_threshold
 
-def demo_vortex_filter(start_n: int = 1, end_n: int = 10000):
+def demo_vortex_filter(start_n: int = 1, end_n: int = 100000):
     """Demo the self-tuning vortex filter: Apply to range, compute stats."""
     numbers = np.arange(start_n, end_n + 1)
     candidates, threshold = vortex_filter(numbers, end_n)
