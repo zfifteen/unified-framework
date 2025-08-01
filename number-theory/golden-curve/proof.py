@@ -103,6 +103,7 @@ def plot_fourier_signature(theta_vals):
     plt.xlabel("Frequency")
     plt.ylabel("|Amplitude|")
     plt.grid(True)
+    plt.savefig('fourier_spectrum.png')
     plt.show()
 
 # Main Execution Loop
@@ -147,6 +148,7 @@ if __name__ == "__main__":
     plt.title('Curvature-Graph Metrics vs k')
     plt.legend()
     plt.grid(True)
+    plt.savefig('curvature_graph_metrics.png')
     plt.show()
 
     # Fourier Plot at estimated k*
