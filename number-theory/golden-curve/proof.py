@@ -20,7 +20,7 @@ for higher fidelity in future analyses to reduce spectral leakage.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.linalg import eigvals
+from scipy.linalg import eig
 from scipy.sparse.csgraph import shortest_path, connected_components
 from sympy import isprime
 import pandas as pd
@@ -45,15 +45,15 @@ def build_transition_matrix(primes, k):
 # Metric Calculators
 def compute_stationary_distribution(T):
     """Compute stationary distribution via eigenvalue method."""
-    eigvals, eigvecs = eigvals(T.T), np.real(eigvals(T.T))
-    idx = np.argmax(np.real(eigvals))
-    pi = np.real(eigvecs[:, idx])
-    return pi / pi.sum()
+    eigenvalues, eigenvectors = eig(T.T)  # Use eig to get both eigenvalues and eigenvectors
+    idx = np.argmax(np.real(eigenvalues))  # Find the index of the eigenvalue with the largest real part
+    pi = np.real(eigenvectors[:, idx])  # Access the corresponding eigenvector
+    return pi / pi.sum()  # Normalize to get the stationary distribution
 
 def compute_metrics(T):
     """Compute spectral gap, entropy, and average shortest path."""
-    eigvals = np.real(eigvals(T))
-    eigvals_sorted = sorted(eigvals, reverse=True)
+    eigenvalues = np.real(eig(T)[0])  # Get eigenvalues using eig
+    eigvals_sorted = sorted(eigenvalues, reverse=True)
     delta_lambda = eigvals_sorted[0] - eigvals_sorted[1]
     pi = compute_stationary_distribution(T)
     entropy = -np.sum(pi * np.log(pi + 1e-12))  # Avoid log(0)
