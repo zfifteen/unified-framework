@@ -63,16 +63,17 @@ def test_irreducibility(primes, k_vals):
     return irreducible_status
 
 # Main Execution Loop
+# Main Execution Loop
 if __name__ == "__main__":
     # Generate a list of prime numbers in a specified range
-    primes = [p for p in range(5, 50000) if isprime(p)]  # Using a broader prime range for statistical robustness
+    primes = [p for p in range(5, 50001) if isprime(p)]  # Extended range to 50,000 for enhanced analysis
 
     # Run irreducibility test for all k values
     results = test_irreducibility(primes, K_RANGE)
 
     # Falsification check: hypothesis fails if any matrix is reducible (graph has >1 component)
     is_falsified = any(not status[1] for status in results)
-    print("Irreducibility Falsification Test:", "FAIL" if is_falsified else "PASS")
+    print("\nIrreducibility Falsification Test:", "FAIL" if is_falsified else "PASS")
 
     # Print irreducibility status for each tested k
     for k, irreducible in results:
@@ -80,6 +81,15 @@ if __name__ == "__main__":
 
     # Final hypothesis conclusion
     if is_falsified:
-        print("Hypothesis falsified: Transition matrix becomes reducible at some k, indicating frame-dependent disconnection.")
+        print("\nHypothesis falsified: Transition matrix becomes reducible at some k, indicating frame-dependent disconnection.")
     else:
-        print("Hypothesis passes: Transition matrix remains irreducible across all tested k, supporting invariant connectivity.")
+        print("\nHypothesis passes: Transition matrix remains irreducible across all tested k, supporting invariant connectivity.")
+
+    # Summary section displaying meaningful statistics and parameters
+    print("\n--- Summary of Execution ---")
+    print(f"Total number of primes tested: {len(primes)}")
+    print(f"Range of primes: {primes[0]} to {primes[-1]}")
+    print(f"Curvature exponent range (k): {K_RANGE[0]} to {K_RANGE[-1]:.1f} in steps of {K_RANGE[1] - K_RANGE[0]:.1f}")
+    print(f"Irreducibility observed for all tested k-values: {all(status[1] for status in results)}")
+    print(f"Golden ratio (φ): {phi:.6f}")
+    print("\nExecution completed successfully.")
