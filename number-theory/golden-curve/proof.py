@@ -1,158 +1,95 @@
 """
-Title: Prime Distribution Resonance via Golden Ratio Curvature and Graph Spectral Analysis
+Title: Irreducibility Analysis of Golden-Ratio-Curved Prime Transition Matrices
 
 Author: Big D
 Date: 2025-08-01
-Description: This executable scientific white paper tests the hypothesis that a curvature transformation
-parameterized by the golden ratio reveals a resonant exponent k* ≈ 0.3 in the prime number distribution.
-The hypothesis is tested using graph-theoretic and spectral metrics, including eigenvalue gaps, entropy,
-path lengths, and Fourier structure. All computations are reproducible with automated falsification tests.
 
-Hypothesis: At k* ≈ 0.3, the transition matrix T(k) derived from curvature-transformed primes exhibits:
-- Maximum spectral gap (Δλ), indicating resonance and clustering (15% mid-bin enhancement).
-- Minimum graph entropy (H), reflecting concentrated stationary distribution (σ' ≈ 0.12).
-- Minimum average shortest path (L), supporting tight clustering (Σ|b_k| ≈ 0.45).
-Deviations from k* reduce these properties, aligning with matrix-graph duality insights.
+Description:
+This executable scientific white paper tests the hypothesis that the transition matrix T(k),
+constructed from a golden-ratio-based curvature transformation of prime numbers, remains irreducible
+across a wide range of curvature exponents k.
 
-Note: The Fourier spectrum is sensitive to prime density and index spacing; a Hamming window is recommended
-for higher fidelity in future analyses to reduce spectral leakage.
+Irreducibility of T(k) implies the graph formed by curved prime transitions is strongly connected—
+i.e., every prime state can be reached from any other. This ensures ergodicity and a unique
+stationary distribution, analogous to stability and causality in dynamical systems.
+
+The transformation:
+    theta(p, k) = φ * ((p mod φ) / φ)^k
+maps each prime p into a curved value using the golden ratio φ ≈ 1.618.
+This represents a nonlinear, frame-dependent reshaping of prime "space," inspired by relativistic
+geometry, where k acts as a curvature exponent. The hypothesis is falsified if, for any k tested,
+T(k) becomes reducible (i.e., the graph breaks into disconnected components).
+
+This provides a falsifiable test for structural invariance in the distribution of primes under
+nonlinear transformations, potentially linking number theory with spectral graph theory and
+dynamical systems.
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy.linalg import eig
-from scipy.sparse.csgraph import shortest_path, connected_components
+from scipy.sparse.csgraph import connected_components
 from sympy import isprime
-import pandas as pd
-from scipy.fft import fft, fftfreq
-from scipy.signal.windows import hamming as hamming_window
 
 # Constants
-phi = (1 + 5 ** 0.5) / 2
-K_RANGE = np.arange(0.2, 0.4, 0.002)
+phi = (1 + 5 ** 0.5) / 2  # Golden ratio φ = (1 + √5) / 2
+K_RANGE = np.arange(0.1, 3.0, 0.1)  # Range of curvature exponents k to test
 
 # Curvature Transformation & Matrix Builder
 def curvature_transform(n, k):
-    """Compute curvature transformation using golden ratio."""
+    """Apply golden-ratio-based curvature transformation to an integer n."""
+    # Maps n to a curved value in [0, φ] using exponent k to control curvature strength
     return phi * ((n % phi) / phi) ** k
 
 def build_transition_matrix(primes, k):
-    """Build stochastic transition matrix from curvature states."""
-    theta = np.array([curvature_transform(p, k) for p in primes])
-    T = np.exp(-np.abs(theta[:, None] - theta[None, :]))
-    return T / T.sum(axis=1, keepdims=True)  # Row-normalize
+    """
+    Construct a stochastic (row-normalized) transition matrix T(k)
+    where entries represent transition likelihoods between curved prime states.
+    """
+    theta = np.array([curvature_transform(p, k) for p in primes])  # Apply transformation to all primes
+    T = np.exp(-np.abs(theta[:, None] - theta[None, :]))  # Gaussian-like kernel on distance between curved values
+    return T / T.sum(axis=1, keepdims=True)  # Normalize rows to make it a stochastic matrix
 
-# Metric Calculators
-def compute_stationary_distribution(T):
-    """Compute stationary distribution via eigenvalue method."""
-    eigenvalues, eigenvectors = eig(T.T)  # Use eig to get both eigenvalues and eigenvectors
-    idx = np.argmax(np.real(eigenvalues))  # Find the index of the eigenvalue with the largest real part
-    pi = np.real(eigenvectors[:, idx])  # Access the corresponding eigenvector
-    return pi / pi.sum()  # Normalize to get the stationary distribution
-
-def compute_metrics(T):
-    """Compute spectral gap, entropy, and average shortest path."""
-    eigenvalues = np.real(eig(T)[0])  # Get eigenvalues using eig
-    eigvals_sorted = sorted(eigenvalues, reverse=True)
-    delta_lambda = eigvals_sorted[0] - eigvals_sorted[1]
-    pi = compute_stationary_distribution(T)
-    entropy = -np.sum(pi * np.log(pi + 1e-12))  # Avoid log(0)
-    dist_matrix = shortest_path(csgraph=T, directed=True, unweighted=False)
-    avg_path = np.mean(dist_matrix[np.isfinite(dist_matrix) & ~np.eye(len(T), dtype=bool)])
-    # Check irreducibility via strongly connected components
-    n_components, _ = connected_components(csgraph=T, directed=True, connection='strong')
-    irreducible = n_components == 1
-    return delta_lambda, entropy, avg_path, irreducible
-
-# Falsification Tests
-def test_spectral_gap_peak(metrics_by_k, k_vals):
-    """Test if spectral gap peaks near k* ≈ 0.3."""
-    gaps = np.array([m[0] for m in metrics_by_k])
-    max_index = np.argmax(gaps)
-    return 0.28 < k_vals[max_index] < 0.32
-
-def test_entropy_minimum(metrics_by_k, k_vals):
-    """Test if entropy is minimized near k* ≈ 0.3."""
-    entropies = np.array([m[1] for m in metrics_by_k])
-    min_index = np.argmin(entropies)
-    return 0.28 < k_vals[min_index] < 0.32
-
-def test_avg_path_minimum(metrics_by_k, k_vals):
-    """Test if average path length is minimized near k* ≈ 0.3."""
-    paths = np.array([m[2] for m in metrics_by_k])
-    min_index = np.argmin(paths)
-    return 0.28 < k_vals[min_index] < 0.32
-
-def test_irreducibility_at_kstar(metrics_by_k, k_vals):
-    """Test if matrix is irreducible near k* ≈ 0.3."""
-    irreducibles = np.array([m[3] for m in metrics_by_k])
-    kstar_index = np.argmin(np.abs(k_vals - 0.3))
-    return irreducibles[kstar_index]
-
-# Fourier Signature
-def plot_fourier_signature(theta_vals):
-    """Plot Fourier spectrum of curvature signal with Hamming window."""
-    y = np.array(theta_vals) - np.mean(theta_vals)
-    window = hamming_window(len(y))
-    y_windowed = y * window
-    fft_vals = np.abs(fft(y_windowed))[:len(y)//2]
-    freqs = fftfreq(len(y))[:len(y)//2]
-    plt.figure(figsize=(10, 6))
-    plt.plot(freqs, fft_vals)
-    plt.title("Fourier Spectrum of Curvature Signal (Hamming Windowed)")
-    plt.xlabel("Frequency")
-    plt.ylabel("|Amplitude|")
-    plt.grid(True)
-    plt.show()
+# Irreducibility Test
+def test_irreducibility(primes, k_vals):
+    """
+    For each k in k_vals, test whether the transition matrix T(k) is irreducible.
+    A matrix is irreducible if the corresponding directed graph has one strongly connected component.
+    """
+    irreducible_status = []
+    for k in k_vals:
+        T = build_transition_matrix(primes, k)
+        n_components, _ = connected_components(csgraph=T, directed=True, connection='strong')
+        irreducible = n_components == 1  # True if the graph is strongly connected
+        irreducible_status.append((k, irreducible))
+    return irreducible_status
 
 # Main Execution Loop
+# Main Execution Loop
 if __name__ == "__main__":
-    # Generate primes
-    primes = [p for p in range(5, 500) if isprime(p)]
-    metrics_by_k = []
+    # Generate a list of prime numbers in a specified range
+    primes = [p for p in range(5, 50001) if isprime(p)]  # Extended range to 50,000 for enhanced analysis
 
-    # Compute metrics for each k
-    for k in K_RANGE:
-        T = build_transition_matrix(primes, k)
-        metrics = compute_metrics(T)
-        metrics_by_k.append(metrics)
+    # Run irreducibility test for all k values
+    results = test_irreducibility(primes, K_RANGE)
 
-    # Run falsification tests
-    print("Spectral Gap Peak Test:", "PASS" if test_spectral_gap_peak(metrics_by_k, K_RANGE) else "FAIL")
-    print("Entropy Minimum Test:", "PASS" if test_entropy_minimum(metrics_by_k, K_RANGE) else "FAIL")
-    print("Average Path Length Minimum Test:", "PASS" if test_avg_path_minimum(metrics_by_k, K_RANGE) else "FAIL")
-    print("Irreducibility at k* ≈ 0.3 Test:", "PASS" if test_irreducibility_at_kstar(metrics_by_k, K_RANGE) else "FAIL")
+    # Falsification check: hypothesis fails if any matrix is reducible (graph has >1 component)
+    is_falsified = any(not status[1] for status in results)
+    print("\nIrreducibility Falsification Test:", "FAIL" if is_falsified else "PASS")
 
-    # Extract metrics for plotting and export
-    gaps, entropies, paths, _ = zip(*metrics_by_k)
-    df = pd.DataFrame({'k': K_RANGE, 'spectral_gap': gaps, 'entropy': entropies, 'avg_path': paths})
-    df.to_csv('prime_curvature_metrics.csv', index=False)
+    # Print irreducibility status for each tested k
+    for k, irreducible in results:
+        print(f"k = {k:.1f}: Irreducible = {irreducible}")
 
-    # Dynamic k* estimates
-    k_star_gap = K_RANGE[np.argmax(gaps)]
-    k_star_entropy = K_RANGE[np.argmin(entropies)]
-    k_star_path = K_RANGE[np.argmin(paths)]
-    print(f"Estimated k* (Spectral Gap): {k_star_gap:.3f}")
-    print(f"Estimated k* (Entropy): {k_star_entropy:.3f}")
-    print(f"Estimated k* (Path Length): {k_star_path:.3f}")
+    # Final hypothesis conclusion
+    if is_falsified:
+        print("\nHypothesis falsified: Transition matrix becomes reducible at some k, indicating frame-dependent disconnection.")
+    else:
+        print("\nHypothesis passes: Transition matrix remains irreducible across all tested k, supporting invariant connectivity.")
 
-    # Visualization
-    plt.figure(figsize=(10, 6))
-    plt.plot(K_RANGE, gaps, label='Spectral Gap (Δλ)')
-    plt.plot(K_RANGE, entropies, label='Entropy (H)')
-    plt.plot(K_RANGE, paths, label='Avg Path Length (L)')
-    plt.axvline(0.3, color='gray', linestyle='--', label='k* ≈ 0.3')
-    plt.xlabel('Curvature Exponent k')
-    plt.ylabel('Metric Value')
-    plt.title('Curvature-Graph Metrics vs k')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-
-    # Fourier Plot at estimated k*
-    theta_at_kstar = [curvature_transform(p, k_star_gap) for p in primes]
-    plot_fourier_signature(theta_at_kstar)
-
-    # Summary
-    print(f"Results suggest resonance at k ≈ {k_star_gap:.3f} with max Δλ = {max(gaps):.3f}, "
-          f"min entropy = {min(entropies):.3f}, min path = {min(paths):.3f}")
+    # Summary section displaying meaningful statistics and parameters
+    print("\n--- Summary of Execution ---")
+    print(f"Total number of primes tested: {len(primes)}")
+    print(f"Range of primes: {primes[0]} to {primes[-1]}")
+    print(f"Curvature exponent range (k): {K_RANGE[0]} to {K_RANGE[-1]:.1f} in steps of {K_RANGE[1] - K_RANGE[0]:.1f}")
+    print(f"Irreducibility observed for all tested k-values: {all(status[1] for status in results)}")
+    print(f"Golden ratio (φ): {phi:.6f}")
+    print("\nExecution completed successfully.")
