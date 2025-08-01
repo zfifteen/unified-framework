@@ -3,16 +3,26 @@ Title: Irreducibility Analysis of Golden-Ratio-Curved Prime Transition Matrices
 
 Author: Big D
 Date: 2025-08-01
-Description: This executable scientific white paper tests the hypothesis that the transition matrix T(k)
-derived from golden-ratio-curved prime values remains irreducible across a range of curvature exponents k.
-Irreducibility implies a strongly connected graph, ensuring ergodicity and a unique stationary distribution.
-The hypothesis is falsified if T(k) becomes reducible (disconnected components) for any k in the tested range.
 
-Hypothesis: The transition matrix T(k), where theta(p,k) = phi * ((p mod phi) / phi)^k for primes p,
-is irreducible for all k in [0.1, 3.0], reflecting invariant connectivity in the prime numberspace.
+Description:
+This executable scientific white paper tests the hypothesis that the transition matrix T(k),
+constructed from a golden-ratio-based curvature transformation of prime numbers, remains irreducible
+across a wide range of curvature exponents k.
 
-Note: Falsification occurs if any k yields multiple strongly connected components, indicating frame shifts
-disrupt the graph's integrity, akin to relativistic discontinuities at extreme velocities.
+Irreducibility of T(k) implies the graph formed by curved prime transitions is strongly connected—
+i.e., every prime state can be reached from any other. This ensures ergodicity and a unique
+stationary distribution, analogous to stability and causality in dynamical systems.
+
+The transformation:
+    theta(p, k) = φ * ((p mod φ) / φ)^k
+maps each prime p into a curved value using the golden ratio φ ≈ 1.618.
+This represents a nonlinear, frame-dependent reshaping of prime "space," inspired by relativistic
+geometry, where k acts as a curvature exponent. The hypothesis is falsified if, for any k tested,
+T(k) becomes reducible (i.e., the graph breaks into disconnected components).
+
+This provides a falsifiable test for structural invariance in the distribution of primes under
+nonlinear transformations, potentially linking number theory with spectral graph theory and
+dynamical systems.
 """
 
 import numpy as np
@@ -20,48 +30,55 @@ from scipy.sparse.csgraph import connected_components
 from sympy import isprime
 
 # Constants
-phi = (1 + 5 ** 0.5) / 2
-K_RANGE = np.arange(0.1, 3.0, 0.1)
+phi = (1 + 5 ** 0.5) / 2  # Golden ratio φ = (1 + √5) / 2
+K_RANGE = np.arange(0.1, 3.0, 0.1)  # Range of curvature exponents k to test
 
 # Curvature Transformation & Matrix Builder
 def curvature_transform(n, k):
-    """Compute curvature transformation using golden ratio."""
+    """Apply golden-ratio-based curvature transformation to an integer n."""
+    # Maps n to a curved value in [0, φ] using exponent k to control curvature strength
     return phi * ((n % phi) / phi) ** k
 
 def build_transition_matrix(primes, k):
-    """Build stochastic transition matrix from curvature states."""
-    theta = np.array([curvature_transform(p, k) for p in primes])
-    T = np.exp(-np.abs(theta[:, None] - theta[None, :]))
-    return T / T.sum(axis=1, keepdims=True)  # Row-normalize
+    """
+    Construct a stochastic (row-normalized) transition matrix T(k)
+    where entries represent transition likelihoods between curved prime states.
+    """
+    theta = np.array([curvature_transform(p, k) for p in primes])  # Apply transformation to all primes
+    T = np.exp(-np.abs(theta[:, None] - theta[None, :]))  # Gaussian-like kernel on distance between curved values
+    return T / T.sum(axis=1, keepdims=True)  # Normalize rows to make it a stochastic matrix
 
 # Irreducibility Test
 def test_irreducibility(primes, k_vals):
-    """Test if transition matrix is irreducible for all k in k_vals."""
+    """
+    For each k in k_vals, test whether the transition matrix T(k) is irreducible.
+    A matrix is irreducible if the corresponding directed graph has one strongly connected component.
+    """
     irreducible_status = []
     for k in k_vals:
         T = build_transition_matrix(primes, k)
         n_components, _ = connected_components(csgraph=T, directed=True, connection='strong')
-        irreducible = n_components == 1
+        irreducible = n_components == 1  # True if the graph is strongly connected
         irreducible_status.append((k, irreducible))
     return irreducible_status
 
 # Main Execution Loop
 if __name__ == "__main__":
-    # Generate primes
-    primes = [p for p in range(5, 1000) if isprime(p)]  # Extended range for robustness
+    # Generate a list of prime numbers in a specified range
+    primes = [p for p in range(5, 50000) if isprime(p)]  # Using a broader prime range for statistical robustness
 
-    # Run irreducibility test
+    # Run irreducibility test for all k values
     results = test_irreducibility(primes, K_RANGE)
 
-    # Falsification check: Fail if any k yields reducible matrix
+    # Falsification check: hypothesis fails if any matrix is reducible (graph has >1 component)
     is_falsified = any(not status[1] for status in results)
     print("Irreducibility Falsification Test:", "FAIL" if is_falsified else "PASS")
 
-    # Detailed results
+    # Print irreducibility status for each tested k
     for k, irreducible in results:
         print(f"k = {k:.1f}: Irreducible = {irreducible}")
 
-    # Summary
+    # Final hypothesis conclusion
     if is_falsified:
         print("Hypothesis falsified: Transition matrix becomes reducible at some k, indicating frame-dependent disconnection.")
     else:
