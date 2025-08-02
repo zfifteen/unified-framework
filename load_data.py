@@ -262,7 +262,7 @@ def box_count(series, box_sizes):
 log_O = np.log(df['O_calc'] + 1)
 box_sizes = np.logspace(np.log10(log_O.min() + 1e-10), np.log10(log_O.max() + 1), 20)
 counts = box_count(log_O, box_sizes)
-coef = np.polyfit(np.log(box_sizes), np.log(counts + 1e-10), 1)[0]
+coef = np.polyfit(np.log(box_sizes), np.log(np.array(counts) + 1e-10), 1)[0]
 print(f"\nEstimated Fractal Dimension (-box-count slope on log O): {-coef:.3f}")
 
 # 8. Prime-Geometry & κ(n) Metric
