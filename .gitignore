@@ -1,2 +1,7 @@
 /.venv/
 /.idea/
+.csv
+/findings-load-data/run-2/output.txt
+/findings-load-data/run-4/output.txt
+/findings-load-data/run-2/zeta_shifts.csv
+/findings-load-data/run-4/zeta_shifts.csv
