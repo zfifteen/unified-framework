@@ -2,37 +2,31 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sympy import primerange
 import scipy.stats as stats
-from scipy.fft import fft
 import math
 import sys
 from sklearn.mixture import GaussianMixture
+from scipy.fft import fft  # retained in case you want to reintroduce Fourier later
 
 # Seed everything for reproducibility
 np.random.seed(42)
 
 # Constants
-PHI = (1 + math.sqrt(5)) / 2    # Golden ratio
-K_STAR = 0.3                    # Optimal curvature parameter
-E = math.exp(1)                 # Base of natural logarithm
-NUM_BINS = 100                  # Increased bin count for better resolution
-NUM_BOOTSTRAP = 1000            # Bootstrap samples
-CONFIDENCE_LEVEL = 0.95         # For CI
-FOURIER_THRESHOLD = 0.4         # Empirical threshold for asymmetry
-EPS = 1e-9                      # Small epsilon for histogram bounds
+PHI = (1 + math.sqrt(5)) / 2
+K_STAR = 0.3
+E = math.exp(1)
+NUM_BINS = 100
+NUM_BOOTSTRAP = 1000
+CONFIDENCE_LEVEL = 0.95
+KL_THRESHOLD = 0.1  # Minimum KL divergence to reject uniformity
+EPS = 1e-9
 
 def precompute_divisor_counts(N):
-    """
-    Sieve divisor counts up to N in O(N log N) time.
-    """
     dcount = np.zeros(N + 1, dtype=int)
     for i in range(1, N + 1):
         dcount[i::i] += 1
     return dcount
 
 def compute_z(n, dcount):
-    """
-    Compute Z(n) = n * (kappa(n) / e**2), where kappa(n) = d(n) * ln(n+1)
-    """
     if n <= 1:
         return 0.0
     n_float = float(n)
@@ -42,26 +36,17 @@ def compute_z(n, dcount):
     return n_float * (kappa / (E ** 2))
 
 def prime_curvature_transform(n, dcount, k=K_STAR):
-    """
-    Apply prime curvature transformation
-    """
     frac = math.modf(n / PHI)[0]
     warped = PHI * (frac ** k)
     z_shift = compute_z(n, dcount)
     return warped * math.exp(-z_shift)
 
 def compute_density_enhancement(binned_counts, num_primes):
-    """
-    Compute density enhancement
-    """
     uniform_density = num_primes / NUM_BINS
     max_density = np.max(binned_counts)
     return (max_density / uniform_density) - 1
 
 def bootstrap_ci(data, statistic_func, num_samples=NUM_BOOTSTRAP, alpha=1 - CONFIDENCE_LEVEL):
-    """
-    Bootstrap confidence interval
-    """
     n = len(data)
     stats_arr = []
     for _ in range(num_samples):
@@ -72,17 +57,11 @@ def bootstrap_ci(data, statistic_func, num_samples=NUM_BOOTSTRAP, alpha=1 - CONF
     upper = np.percentile(stats_arr, 100 * (1 - alpha / 2))
     return lower, upper
 
-def fourier_asymmetry(hist_bins):
-    """
-    Fourier sine coefficient sum
-    """
-    hist_norm = hist_bins / np.sum(hist_bins)
-    fft_vals = fft(hist_norm)
-    sine = np.abs(np.imag(fft_vals[1:]))
-    denom = np.sum(np.abs(fft_vals[1:]))
-    if denom < 1e-12:
-        return 0.0
-    return np.sum(sine) / denom
+def kl_divergence(p, q):
+    p = p / np.sum(p)
+    q = q / np.sum(q)
+    mask = (p > 0) & (q > 0)
+    return np.sum(p[mask] * np.log2(p[mask] / q[mask]))
 
 def main(N=1_000_000):
     dcount = precompute_divisor_counts(N)
@@ -121,14 +100,16 @@ def main(N=1_000_000):
     except ValueError as e:
         test_results.append(("Bootstrap CI", False, str(e)))
 
-    # Fourier Asymmetry
+    # KL Divergence Test
     try:
-        S_b = fourier_asymmetry(hist)
-        if S_b < FOURIER_THRESHOLD:
-            raise RuntimeError(f"S_b={S_b:.4f} < {FOURIER_THRESHOLD}")
-        test_results.append(("Fourier asymmetry", True, f"S_b={S_b:.4f}"))
+        p = hist
+        q = np.ones_like(p)  # uniform reference
+        kl = kl_divergence(p, q)
+        if kl < KL_THRESHOLD:
+            raise RuntimeError(f"KL divergence {kl:.4f} < threshold {KL_THRESHOLD}")
+        test_results.append(("KL divergence", True, f"KL={kl:.4f}"))
     except RuntimeError as e:
-        test_results.append(("Fourier asymmetry", False, str(e)))
+        test_results.append(("KL divergence", False, str(e)))
 
     # Clustering via GaussianMixture
     tp_reshaped = transformed.reshape(-1, 1)
