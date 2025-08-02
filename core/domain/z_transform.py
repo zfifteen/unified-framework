@@ -20,7 +20,7 @@ class ZTransform:
     HELIX_FREQ = 0.1003033  # Helical frequency for geometric projection
     K_STAR = 1.9878  # Constant for zeta shift calculations
 
-    def __init__(self, max_n=5000000, epsilon=1e-10):
+    def __init__(self, max_n=10000000, epsilon=1e-10):
         """
         Initialize the Z-Transform framework.
 
@@ -464,7 +464,7 @@ class ZTransform:
 # Example usage:
 if __name__ == "__main__":
     # Initialize with default max_n=6000
-    analyzer = ZTransform(max_n=100000)
+    analyzer = ZTransform(max_n=10000000)
 
     # Run full analysis pipeline
     results = analyzer.run_full_analysis()
