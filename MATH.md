@@ -206,7 +206,3 @@ We demonstrate a statistically significant **optimal curvature exponent** $k^* \
 * Fourier asymmetry in residue distribution
 
 This supports the hypothesis that **irrational modular transformations reveal hidden order** in the primes. Our method is reproducible, falsifiable, and extensible—serving as a **computational blueprint** for uncovering structure in discrete number sequences.
-
----
-
-Would you like a **LaTeX version** of this formatted for arXiv or JOSS submission as well?
