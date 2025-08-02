@@ -5,14 +5,12 @@ This module defines classes that faithfully reproduce the inheritance model for 
 unifying relativistic physics with discrete mathematics by normalizing observations against invariant limits.
 
 Key Aspects:
-- Universal Form: Z = A(B/C), where A is the reference frame-dependent measured quantity,
+- Universal Form: Z = A(B/C), where A is the reference frame-dependent quantity,
   B is the rate, and C is the universal invariant (speed of light or analogous limit).
 - Physical Domain: Z = T(v/c), specializing A=T (measured quantity), B=v (velocity), C=c (speed of light).
 - Discrete Domain: Z = n(Δₙ/Δmax), specializing A=n (integer observation), B=Δₙ (frame shift at n), C=Δmax (max frame shift).
 
-The model reveals shared geometric topology across domains, where curvature arises from frame-dependent shifts.
-In geometry, we replace hard-coded ratios with natural invariants like the golden ratio or e, but here we adhere to c as the core invariant.
-
+The model reveals shared geometric topology across domains, emphasizing curvature from frame-dependent shifts.
 """
 
 from abc import ABC
@@ -22,30 +20,49 @@ class UniversalZetaShift(ABC):
     """
     Abstract base class for the Universal Form Z = A(B/C).
 
-    A = reference frame–dependent measured quantity
-    B = Rate
-    C = The speed of light is the only universal invariant that limits all regimes. All other regime-invariants,
-        large or small, are relative to c, the universal limit of B.
+    **Class Attributes**:
+    - `a` (Float): Reference frame-dependent measured quantity, A in Z = A(B/C).
+        Represents observer-biased metrics (time-like in physics, integer observations in discrete mathematics).
+    - `b` (Float): Rate of change, B in Z = A(B/C). Captures velocity or frame shift dynamics, bounded by C.
+    - `c` (Float): Universal invariant, C in Z = A(B/C).
+        Analogous to the speed of light, ensuring topological unity across relativistic or discrete domains.
 
-    This class provides the core computation, with subclasses specializing for domains.
+    **Key Methods**:
+    - `compute_z`: Computes the primary transformation Z = A(B/C), normalizing frame-biased measurements against C.
+    - `getD` to `getO`: Iterative accessors calculating emergent curvature metrics through recursive interactions.
     """
 
     def __init__(self, a, b, c):
+        """
+        Initializes the Zeta Shift object.
+
+        Parameters:
+        - `a` (Float): Frame-dependent measured quantity.
+        - `b` (Float): Rate of change.
+        - `c` (Float): Universal invariant, must be non-zero to preserve the model's integrity.
+
+        Ensures invariant C is non-zero to avoid undefined behaviors.
+        """
         if c == 0:
             raise ValueError("Universal invariant C cannot be zero.")
-        self.a = a  # Reference frame-dependent measured quantity
-        self.b = b  # Rate
-        self.c = c  # Universal invariant
+        self.a = a  # Observer-biased measured quantity
+        self.b = b  # Rate of change within the frame
+        self.c = c  # Universal invariant, analogous to the speed of light
 
     def compute_z(self):
         """
-        Compute Z according to the universal form Z = A(B/C).
+        Core Transformer: Computes the Zeta Shift value Z = A(B/C).
+
+        Numerically links relativistic dilation and geometric topology, yielding frame-normalized curvature.
         """
         return self.a * (self.b / self.c)
 
     def getD(self):
         """
-        Returns the value of c/a.
+        Computes D = c/a, the inverse density of the universal invariant relative to the observation A.
+
+        - Models frame-normalized displacement, akin to Lorentz contraction.
+        - Error raised if `a` is zero (avoids division by zero).
         """
         if self.a == 0:
             raise ValueError("Division by zero: 'a' cannot be zero in getD().")
@@ -53,7 +70,10 @@ class UniversalZetaShift(ABC):
 
     def getE(self):
         """
-        Returns the value of c/b.
+        Computes E = c/b, the ratio of the universal invariant to the rate B.
+
+        - Captures proximity of dynamics to the invariant limit C.
+        - Error raised if `b` is zero.
         """
         if self.b == 0:
             raise ValueError("Division by zero: 'b' cannot be zero in getE().")
@@ -61,140 +81,109 @@ class UniversalZetaShift(ABC):
 
     def getF(self):
         """
-        Returns the value of getD()/getE().
+        Computes F = D / E = (c/a) / (c/b) = b / a.
+
+        - Represents the rate-to-observation ratio, fundamental for iterative frame adjustments.
+        - Links to relative motion and geometric ratios in discrete/physical domains.
         """
-        d = self.getD()
-        e = self.getE()
-        return d / e
+        return self.getD() / self.getE()
 
     def getG(self):
         """
-        Returns the value of getE()/getF().
+        Computes G = E / F = (c/b) / (b/a) = (c * a) / b².
+
+        - Encodes quadratic feedback, modeling higher-order curvature adjustments.
+        - Error raised if F is zero.
         """
         f = self.getF()
-        e = self.getE()
         if f == 0:
             raise ValueError("Division by zero: 'F' cannot be zero in getG().")
-        return e / f
+        return self.getE() / f
 
     def getH(self):
         """
-        Returns the value of getF()/getG().
+        Computes H = F / G = (b/a) / ((c * a) / b²) = b³ / (c * a²).
+
+        - Advances recursive normalization to cubic scaling, prominent in complex frame topology.
         """
         g = self.getG()
-        f = self.getF()
         if g == 0:
             raise ValueError("Division by zero: 'G' cannot be zero in getH().")
-        return f / g
+        return self.getF() / g
 
     def getI(self):
         """
-        Returns the value of getG()/getH().
+        Computes I = G / H = ((c * a) / b²) / (b³ / (c * a²)) = (c² * a³) / b⁵.
+
+        - Derives emergent polynomial forms, iterating curvature transformations deeper.
         """
         h = self.getH()
-        g = self.getG()
         if h == 0:
             raise ValueError("Division by zero: 'H' cannot be zero in getI().")
-        return g / h
+        return self.getG() / h
 
     def getJ(self):
         """
-        Returns the value of getH()/getI().
+        Computes J = H / I = (b³ / (c * a²)) / ((c² * a³) / b⁵) = b⁸ / (c³ * a⁵).
+
+        - Establishes higher-order curvature emphasizing exponential recursion.
         """
         i = self.getI()
-        h = self.getH()
         if i == 0:
             raise ValueError("Division by zero: 'I' cannot be zero in getJ().")
-        return h / i
+        return self.getH() / i
 
     def getK(self):
         """
-        Returns the value of getI()/getJ().
+        Computes K = I / J = ((c² * a³) / b⁵) / (b⁸ / (c³ * a⁵)) = (c⁵ * a⁸) / b¹³.
+
+        - Highlights iterative feedback loops drawing from universal invariants.
         """
-        i = self.getI()
         j = self.getJ()
         if j == 0:
             raise ValueError("Division by zero: 'J' cannot be zero in getK().")
-        return i / j
+        return self.getI() / j
 
     def getL(self):
         """
-        Returns the value of getJ()/getK().
+        Computes L = J / K = (b⁸ / (c³ * a⁵)) / ((c⁵ * a⁸) / b¹³) = b²¹ / (c⁸ * a¹³).
+
+        - Encodes Fibonacci-like exponentiation emergent from iterative normalization.
         """
         k = self.getK()
-        j = self.getJ()
         if k == 0:
             raise ValueError("Division by zero: 'K' cannot be zero in getL().")
-        return j / k
+        return self.getJ() / k
 
     def getM(self):
         """
-        Returns the value of getK()/getL().
+        Computes M = K / L = ((c⁵ * a⁸) / b¹³) / (b²¹ / (c⁸ * a¹³)) = (c¹³ * a²¹) / b³⁴.
+
+        - Reflects Lorentz-like invariances unified with discrete scalar shifts.
         """
         l = self.getL()
-        k = self.getK()
         if l == 0:
             raise ValueError("Division by zero: 'L' cannot be zero in getM().")
-        return k / l
+        return self.getK() / l
 
     def getN(self):
         """
-        Returns the value of getL()/getM().
+        Computes N = L / M = (b²¹ / (c⁸ * a¹³)) / ((c¹³ * a²¹) / b³⁴) = b⁵⁵ / (c²¹ * a³⁴).
+
+        - Advances recursive progression to deeper curvatures, mirroring high-order regimes.
         """
         m = self.getM()
-        l = self.getL()
         if m == 0:
             raise ValueError("Division by zero: 'M' cannot be zero in getN().")
-        return l / m
+        return self.getL() / m
 
     def getO(self):
         """
-        Returns the value of getM()/getN().
+        Computes O = M / N = ((c¹³ * a²¹) / b³⁴) / (b⁵⁵ / (c²¹ * a³⁴)) = (c³⁴ * a⁵⁵) / b⁸⁹.
+
+        - Concludes iterative sequences, summarizing exponential curvatures within topological frames.
         """
         n = self.getN()
-        m = self.getM()
         if n == 0:
             raise ValueError("Division by zero: 'N' cannot be zero in getO().")
-        return m / n
-
-class PhysicalZetaShift(UniversalZetaShift):
-    """
-    Specialization for the Physical Domain: Z = T(v/c)
-
-    T = reference frame–dependent measured quantity (maps to A)
-    v = velocity (maps to B)
-    c = speed of light (fixed universal invariant)
-
-    Empirically, this implies time T as a frame-biased measure scaled by velocity relative to light's invariance.
-    """
-
-    # SPEED_OF_LIGHT = 299792458.0  # m/s, the universal invariant c
-    SPEED_OF_LIGHT = 1/137.035999206
-
-    def __init__(self, t, v):
-        super().__init__(t, v, self.SPEED_OF_LIGHT)
-
-class DiscreteZetaShift(UniversalZetaShift):
-    """
-    Specialization for the Discrete Domain: Z = n(Δₙ/Δmax)
-
-    n = reference frame–dependent integer observation (maps to A)
-    Δₙ = measured frame shift at position n (maps to B)
-    Δmax = maximum possible frame shift in the domain (maps to C, analogous to c)
-
-    Empirically, this computes a 'relativistic density' for discrete sequences like primes, highlighting clustering
-    patterns in a curved numerical landscape.
-    """
-
-    def __init__(self, n, delta_n, delta_max):
-        super().__init__(n, delta_n, delta_max)
-
-# Example usage (commented out; for demonstration)
-if __name__ == "__main__":
-    # Physical example
-    physical = PhysicalZetaShift(t=1.0, v=150000000.0)  # Example: T=1s, v=0.5c approx
-    print(f"Physical Z: {physical.compute_z()}")
-
-    # Discrete example (e.g., for primes, delta_n could be gap, delta_max theoretical max gap)
-    discrete = DiscreteZetaShift(n=5, delta_n=2, delta_max=10)
-    print(f"Discrete Z: {discrete.compute_z()}")
+        return self.getM() / n
