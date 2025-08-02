@@ -12,12 +12,6 @@ Key Aspects:
 
 The model reveals shared geometric topology across domains, where curvature arises from frame-dependent shifts.
 In geometry, we replace hard-coded ratios with natural invariants like the golden ratio or e, but here we adhere to c as the core invariant.
-todo: implement a getD() function that returns c/a
-todo: implement a getE() function that returns c/b
-todo: implement a getF() function that returns getD()/getE()
-
-
-
 
 """
 
@@ -72,6 +66,96 @@ class UniversalZetaShift(ABC):
         d = self.getD()
         e = self.getE()
         return d / e
+
+    def getG(self):
+        """
+        Returns the value of getE()/getF().
+        """
+        f = self.getF()
+        e = self.getE()
+        if f == 0:
+            raise ValueError("Division by zero: 'F' cannot be zero in getG().")
+        return e / f
+
+    def getH(self):
+        """
+        Returns the value of getF()/getG().
+        """
+        g = self.getG()
+        f = self.getF()
+        if g == 0:
+            raise ValueError("Division by zero: 'G' cannot be zero in getH().")
+        return f / g
+
+    def getI(self):
+        """
+        Returns the value of getG()/getH().
+        """
+        h = self.getH()
+        g = self.getG()
+        if h == 0:
+            raise ValueError("Division by zero: 'H' cannot be zero in getI().")
+        return g / h
+
+    def getJ(self):
+        """
+        Returns the value of getH()/getI().
+        """
+        i = self.getI()
+        h = self.getH()
+        if i == 0:
+            raise ValueError("Division by zero: 'I' cannot be zero in getJ().")
+        return h / i
+
+    def getK(self):
+        """
+        Returns the value of getI()/getJ().
+        """
+        i = self.getI()
+        j = self.getJ()
+        if j == 0:
+            raise ValueError("Division by zero: 'J' cannot be zero in getK().")
+        return i / j
+
+    def getL(self):
+        """
+        Returns the value of getJ()/getK().
+        """
+        k = self.getK()
+        j = self.getJ()
+        if k == 0:
+            raise ValueError("Division by zero: 'K' cannot be zero in getL().")
+        return j / k
+
+    def getM(self):
+        """
+        Returns the value of getK()/getL().
+        """
+        l = self.getL()
+        k = self.getK()
+        if l == 0:
+            raise ValueError("Division by zero: 'L' cannot be zero in getM().")
+        return k / l
+
+    def getN(self):
+        """
+        Returns the value of getL()/getM().
+        """
+        m = self.getM()
+        l = self.getL()
+        if m == 0:
+            raise ValueError("Division by zero: 'M' cannot be zero in getN().")
+        return l / m
+
+    def getO(self):
+        """
+        Returns the value of getM()/getN().
+        """
+        n = self.getN()
+        m = self.getM()
+        if n == 0:
+            raise ValueError("Division by zero: 'N' cannot be zero in getO().")
+        return m / n
 
 class PhysicalZetaShift(UniversalZetaShift):
     """
