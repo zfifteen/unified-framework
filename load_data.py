@@ -117,7 +117,7 @@ if not os.path.exists(DATA_PATH):
     # from domain import UniversalZetaShift
 
     data = []
-    for n in range(1, 1000001):
+    for n in range(1, 100001):
         a = float(n)
         b = np.log(a + 1)
         c = np.exp(1)
