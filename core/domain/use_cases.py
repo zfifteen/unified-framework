@@ -112,12 +112,12 @@ class UniversalZetaShift(ABC):
         return self.getM() / n''')
 
 # Generate CSV if not exists
-DATA_PATH = "zeta_shifts_1_to_6000.csv"
+DATA_PATH = "zeta_shifts_1_to_100000.csv"
 if not os.path.exists(DATA_PATH):
     from domain import UniversalZetaShift
 
     data = []
-    for n in range(1, 6001):
+    for n in range(1, 100001):
         a = float(n)
         b = np.log(a + 1)
         c = np.exp(1)
