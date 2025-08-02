@@ -125,7 +125,3 @@ The above proofs formalize several key results from the curvature-based prime di
 * **Stability**: Deviations from $k^*$ reduce enhancement and increase dispersion.
 
 These results suggest deep underlying regularities in prime distributions when viewed through the lens of irrational modular transformations. They invite further theoretical development, particularly in relation to the Riemann Hypothesis and modular forms.
-
----
-
-Let me know if you'd like a **LaTeX version**, export to PDF, or incorporation into a formal **JOSS or arXiv paper**.
