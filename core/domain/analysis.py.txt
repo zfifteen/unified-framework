@@ -35,10 +35,9 @@ Z_vals = np.sort(cluster2["z"].values)
 print(f"Cluster 2 size: {len(n_vals)}")
 print(f"Cluster 2 median Z: {cluster2['z'].median():.1f}")
 
-# ----------------------------------------------------------------------
-# 2. Nearest Riemann‐zero distances
-# ----------------------------------------------------------------------
-zeros = np.array([float(zetazero(k)) for k in range(1, 21)])
+# Instead of float(zetazero(k)), do:
+zeros = np.array([float(zetazero(k).imag) for k in range(1, 21)])
+
 min_n, max_n = n_vals.min(), n_vals.max()
 scale = (max_n - min_n) / (zeros.max() - zeros.min())
 zeros_scaled = zeros * scale + (min_n - zeros.min() * scale)

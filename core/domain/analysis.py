@@ -114,11 +114,16 @@ for i, k in enumerate(k_values):
 # ----------------------------------------------------------------------
 # 5. Four 3D plots
 # ----------------------------------------------------------------------
+# Extract pure-float numpy arrays
+n_arr     = cluster2["n"]     .astype(float).values
+z_arr     = cluster2["z"]     .astype(float).values
+kappa_arr = cluster2["kappa"] .astype(float).values
+gap_arr   = cluster2["prime_gap"].astype(float).values
+
 # Plot 1: 3D scatter (n, z, kappa)
 fig = plt.figure(figsize=(8,6))
-ax = fig.add_subplot(111, projection='3d')
-ax.scatter(cluster2["n"], cluster2["z"], cluster2["kappa"],
-           c=cluster2["prime_gap"], cmap='plasma', s=20)
+ax  = fig.add_subplot(111, projection="3d")
+ax.scatter(n_arr, z_arr, kappa_arr, c=gap_arr, cmap="plasma", s=20)
 ax.set_xlabel("n")
 ax.set_ylabel("Z(n)")
 ax.set_zlabel("κ(n)")
