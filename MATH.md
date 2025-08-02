@@ -1,7 +1,3 @@
-Here’s your document reformatted with proper **scientific notation symbols and typographic enhancements**. The key updates involve using standard LaTeX-style math formatting with upright `%` for percentages, $\cdot$ for multiplication, and improved formatting of scientific values like $k^* \approx 0.3$ and $e_{\max}(k^*) \approx 15\%$. No content has been altered.
-
----
-
 # **Refined Analysis of Prime Distribution via Golden Ratio Curvature Transformation**
 
 ## **Abstract**

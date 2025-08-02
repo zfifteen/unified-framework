@@ -12,6 +12,13 @@ Key Aspects:
 
 The model reveals shared geometric topology across domains, where curvature arises from frame-dependent shifts.
 In geometry, we replace hard-coded ratios with natural invariants like the golden ratio or e, but here we adhere to c as the core invariant.
+todo: implement a getD() function that returns c/a
+todo: implement a getE() function that returns c/b
+todo: implement a getF() function that returns getD()/getE()
+
+
+
+
 """
 
 from abc import ABC
@@ -41,6 +48,30 @@ class UniversalZetaShift(ABC):
         Compute Z according to the universal form Z = A(B/C).
         """
         return self.a * (self.b / self.c)
+
+    def getD(self):
+        """
+        Returns the value of c/a.
+        """
+        if self.a == 0:
+            raise ValueError("Division by zero: 'a' cannot be zero in getD().")
+        return self.c / self.a
+
+    def getE(self):
+        """
+        Returns the value of c/b.
+        """
+        if self.b == 0:
+            raise ValueError("Division by zero: 'b' cannot be zero in getE().")
+        return self.c / self.b
+
+    def getF(self):
+        """
+        Returns the value of getD()/getE().
+        """
+        d = self.getD()
+        e = self.getE()
+        return d / e
 
 class PhysicalZetaShift(UniversalZetaShift):
     """
