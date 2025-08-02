@@ -10,7 +10,7 @@ from scipy.fft import fft, fftfreq
 from scipy.stats import zscore, entropy
 from sklearn.mixture import GaussianMixture
 from sympy import divisor_count, isprime
-import domain
+from domain import UniversalZetaShift
 
 # Write domain.py if not exists
 if not os.path.exists('domain.py'):
@@ -117,11 +117,11 @@ if not os.path.exists(DATA_PATH):
     # from domain import UniversalZetaShift
 
     data = []
-    for n in range(1, 100001):
+    for n in range(1, 6000):
         a = float(n)
         b = np.log(a + 1)
         c = np.exp(1)
-        uz = domain.UniversalZetaShift(a, b, c)
+        uz = UniversalZetaShift(a, b, c)
         row = {
             'n': n,
             'a': a,
@@ -175,7 +175,7 @@ for m in metrics:
     df[m + "_calc"] = np.nan
 
 for idx, row in df.iterrows():
-    uz = domain.UniversalZetaShift(a=row['a'], b=row['b'], c=c_global)
+    uz = UniversalZetaShift(a=row['a'], b=row['b'], c=c_global)
     df.at[idx, 'z_calc'] = uz.compute_z()
     df.at[idx, 'D_calc'] = uz.getD()
     df.at[idx, 'E_calc'] = uz.getE()

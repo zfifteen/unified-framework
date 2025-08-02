@@ -17,7 +17,7 @@ from scipy.stats import ks_2samp, linregress
 # ----------------------------------------------------------------------
 # 1. Load and preprocess data
 # ----------------------------------------------------------------------
-df = pd.read_csv("zeta_shifts_1_to_6000.csv")
+df = pd.read_csv("zeta_shifts.csv")
 df["kappa"] = df["n"].apply(divisor_count) * np.log(df["n"] + 1) / np.exp(2)
 df["is_prime"] = df["n"].apply(isprime)
 primes = df.loc[df["is_prime"], "n"].values
