@@ -37,8 +37,12 @@ class UniversalZetaShift(ABC):
         """
         Initializes the Zeta Shift object with invariant checks.
         """
+        if a == 0:
+            raise ValueError("Reference frame-dependent measured quantity 'a' cannot be zero.")
+        if b == 0:
+            raise ValueError("Rate of change 'b' cannot be zero.")
         if c == 0:
-            raise ValueError("Universal invariant C cannot be zero.")
+            raise ValueError("Universal invariant 'c' cannot be zero.")
         self.a = a
         self.b = b
         self.c = c
