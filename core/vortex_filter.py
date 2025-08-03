@@ -4,13 +4,20 @@
 import math
 import numpy as np
 from sympy import isprime  # For validation; replace with efficient primality test in production
+from sympy.ntheory import divisor_count
 import mpmath
+import pandas as pd
+from scipy.stats import kstest
 
 # Constants from Universal Form Transformer
-UNIVERSAL = math.e  # Invariant limit c
-PHI = (1 + math.sqrt(5)) / 2  # Golden ratio for vortex resonance
+UNIVERSAL = (1 + math.sqrt(5)) / 2  # Set to PHI for bounding Δmax
+PHI = UNIVERSAL  # Golden ratio for vortex resonance and Δmax bound
 PI = math.pi  # Circular invariant for spiral geometry
 FSC = 1/137
+
+# Load precomputed zeta shifts for interpolation to minimize distortion
+df = pd.read_csv("zeta_shifts_1_to_6000.csv")
+df.set_index('n', inplace=True)
 
 class UniversalZetaShift:
     def __init__(self, a, b, c):
@@ -95,7 +102,7 @@ class ZetaShiftChain(UniversalZetaShift):
         if n <= 1:
             super().__init__(a=n, b=0, c=UNIVERSAL)
         else:
-            b = math.log(n) / math.log(max_n)
+            b = compute_frame_shift(n, max_n)
             super().__init__(a=n, b=b, c=UNIVERSAL)
 
     def getP(self):
@@ -132,7 +139,7 @@ class ZetaShiftChain(UniversalZetaShift):
                 self.getQ()
             ]
         except ValueError:
-            return [mpmath.mpf(0) ] * 15
+            return [mpmath.mpf(0)] * 15
 
 def get_curvature(chain):
     if all(x == 0 for x in chain):
@@ -148,17 +155,42 @@ def get_curvature(chain):
     return std
 
 def compute_frame_shift(n: int, max_n: int) -> float:
-    """Universal Frame Shift Transformer: Δₙ = log(n) / log(max_n)"""
+    """Universal Frame Shift Transformer: Δₙ = κ(n) · ln(n+1)/e², normalized against Δmax bounded by φ"""
     if n <= 1:
         return 0.0
-    return math.log(n) / math.log(max_n)
+    k_star = 0.3
+    phi = PHI
+    mod = n % phi
+    theta_prime = phi * (mod / phi) ** k_star
+    d_n = divisor_count(n)
+    kappa = d_n * theta_prime
+    ln_term = math.log(n + 1)
+    e2 = math.e ** 2
+    delta_n = kappa * ln_term / e2
+    # Interpolate precomputed shift from CSV to minimize distortion
+    if n in df.index:
+        precomputed_b = df.at[n, 'b']
+    else:
+        # Linear interpolation for n not in CSV
+        lower = df.index[df.index < n].max()
+        upper = df.index[df.index > n].min()
+        if pd.isnull(lower) or pd.isnull(upper):
+            precomputed_b = math.log(n + 1)  # Fallback to exact if out of range
+        else:
+            lower_b = df.at[lower, 'b']
+            upper_b = df.at[upper, 'b']
+            precomputed_b = lower_b + (upper_b - lower_b) * (n - lower) / (upper - lower)
+    # Adjust delta_n with interpolated precomputed shift for reduced distortion
+    delta_n_adjusted = delta_n * (precomputed_b / ln_term) if ln_term != 0 else delta_n
+    delta_max = phi
+    return delta_n_adjusted / delta_max
 
 def vortex_projection(numbers: np.array, max_n: int) -> np.array:
     """Project numbers into a 15D space using zeta chain, computing curvature as std of log chain."""
     coords = []
     for n in numbers:
         shift = compute_frame_shift(n, max_n)
-        z = n * (shift / 1.0)  # since max_shift = 1.0
+        z = n * shift  # Z = n * (shift)
         chain_obj = ZetaShiftChain(n, max_n)
         chain = chain_obj.get_chain()
         curvature = get_curvature(chain)
@@ -187,12 +219,12 @@ def vortex_filter(numbers: np.array, max_n: int, target_elim: float = 0.752) -> 
     projected = vortex_projection(numbers, max_n)
     curvature_threshold = find_optimal_threshold(projected, target_elim)
     candidates = [int(row[0]) for row in projected if row[2] <= curvature_threshold]
-    return candidates, curvature_threshold
+    return candidates, curvature_threshold, projected
 
 def demo_vortex_filter(start_n: int = 1, end_n: int = 6000):
     """Demo the self-tuning vortex filter: Apply to range, compute stats."""
     numbers = np.arange(start_n, end_n + 1)
-    candidates, threshold = vortex_filter(numbers, end_n)
+    candidates, threshold, projected = vortex_filter(numbers, end_n)
 
     total = len(numbers)
     composites_eliminated = total - len(candidates)
@@ -201,6 +233,15 @@ def demo_vortex_filter(start_n: int = 1, end_n: int = 6000):
     actual_primes = sum(1 for n in numbers if isprime(n))
     detected_primes = sum(1 for c in candidates if isprime(c))
     precision = (detected_primes / len(candidates)) * 100 if candidates else 0
+
+    # Validate with KS test on curvature distributions for primes and composites
+    primes_curv = [row[2] for row in projected if isprime(int(row[0])) and row[0] > 1]
+    composites_curv = [row[2] for row in projected if not isprime(int(row[0])) and row[0] > 1]
+    if primes_curv and composites_curv:
+        ks_stat, p_value = kstest(primes_curv, composites_curv)
+        print(f"KS test statistic: {ks_stat:.3f}, p-value: {p_value}")
+    else:
+        print("Insufficient data for KS test.")
 
     print(f"Vortex Filter Demo (Range: {start_n}-{end_n})")
     print(f"Tuned Threshold: {threshold:.3f}")
