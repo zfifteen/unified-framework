@@ -3,9 +3,10 @@ from scipy.fft import fft
 from scipy.stats import entropy
 from sympy import primerange, divisors, isprime
 from math import log, exp, sqrt, pi, sin, cos
-import pandas as pd  # Added for CSV loading
+import pandas as pd
 from core import axioms, domain
 from core.domain import DiscreteZetaShift
+import argparse
 
 attr_map = {
     'a': 'frame_dependent_measure_a',
@@ -48,11 +49,13 @@ def golden_transform(n, k=0.3):
     mod_phi = n % PHI
     return PHI * (mod_phi / PHI) ** k
 
-def load_zeta_csv(csv_path):
-    """Load zeta shift embeddings from CSV and return DataFrame."""
-    df = pd.read_csv(csv_path)
-    df['is_prime'] = df['index'].apply(isprime)  # Add prime flag using sympy
-    return df
+def generate_zeta_shifts(N, v=1.0, delta_max=np.exp(2)):
+    """Generate zeta shift objects using DiscreteZetaShift for n=1 to N."""
+    shifts = []
+    for n in range(1, N + 1):
+        shift = DiscreteZetaShift(n, v, delta_max)
+        shifts.append(shift)
+    return shifts
 
 def encode_waveform(sequence, window_size=1024, use_z=True, v=1.0):
     """Encode sequence as complex waveform Ψ_n = w_n · e^{2πi s_n}."""
@@ -113,14 +116,18 @@ def disruption_score(waveforms, ref_waveforms=None, use_z=True, v=1.0):
 
     return np.mean(scores)
 
-# Example usage with zeta CSV integration
-# todo: instead of loading from file, create DiscreetZetShift = DiscreteZetaShift(n) and use the attributes so we can create as many as we want
-
 if __name__ == "__main__":
-    #todo: require n as a parameter "--count"
-    #todo: replace loading data from CSV with instantiating DiscreteZetaShift in a loop to the desired n
-    csv_path = "../../z_shift_embeddings_descriptive.csv"  # Replace with actual path
-    df = load_zeta_csv(csv_path)
+    parser = argparse.ArgumentParser(description="Compute disruption scores using DiscreteZetaShift objects.")
+    parser.add_argument('--N', type=int, default=1000, help='Maximum n for generating zeta shifts.')
+    parser.add_argument('--v', type=float, default=1.0, help='Traversal velocity for zeta shifts.')
+    parser.add_argument('--delta_max', type=float, default=np.exp(2), help='Maximum delta for zeta shifts.')
+    args = parser.parse_args()
+
+    shifts = generate_zeta_shifts(args.N, args.v, args.delta_max)
+    df = pd.DataFrame([shift.__dict__ for shift in shifts])
+    df.rename(columns=attr_map, inplace=True)
+    df['index'] = range(1, len(df) + 1)
+    df['is_prime'] = df['index'].apply(isprime)
 
     # Full sequence (e.g., rate_b)
     full_seq = df['rate_b'].values
