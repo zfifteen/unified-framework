@@ -14,7 +14,7 @@ Resolves hard ratios geometrically, e.g., via φ^k warps at k* ≈ 0.3, yielding
 from abc import ABC
 import math
 import numpy as np
-from axioms import universal_invariance, curvature, theta_prime, T_v_over_c
+from .axioms import universal_invariance, curvature, theta_prime, T_v_over_c
 from sympy import divisors  # For divisor count d(n) in discrete curvature; empirically grounded via Hardy-Ramanujan.
 
 PHI = (1 + math.sqrt(5)) / 2  # Golden ratio for modular transformations.
@@ -163,6 +163,31 @@ class UniversalZetaShift(ABC):
         if n == 0:
             raise ValueError("Division by zero: 'N' cannot be zero in getO().")
         return self.getM() / n
+
+    @property
+    def __dict__(self):
+        """
+        Custom __dict__ for serialization, explicitly listing core attributes.
+        Includes a, b, c, and all computed Z-metrics for clarity/debugging.
+        """
+        return {
+            'a': self.a,
+            'b': self.b,
+            'c': self.c,
+            'z': self.compute_z(),
+            'D': self.getD(),
+            'E': self.getE(),
+            'F': self.getF(),
+            'G': self.getG(),
+            'H': self.getH(),
+            'I': self.getI(),
+            'J': self.getJ(),
+            'K': self.getK(),
+            'L': self.getL(),
+            'M': self.getM(),
+            'N': self.getN(),
+            'O': self.getO(),
+        }
 
 class DiscreteZetaShift(UniversalZetaShift):
     """
