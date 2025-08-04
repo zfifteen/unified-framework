@@ -1,8 +1,11 @@
 from abc import ABC
 import math
 import numpy as np
-from sympy import divisors
-import collections  # Optional; use list if unavailable
+from sympy import divisors, isprime
+import collections
+import hashlib
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 PHI = (1 + math.sqrt(5)) / 2
 E_SQUARED = np.exp(2)
@@ -68,13 +71,10 @@ class UniversalZetaShift(ABC):
         }
 
 class DiscreteZetaShift(UniversalZetaShift):
-    vortex = []  # Shared list vortex for consistency; use deque if collections imported
+    vortex = collections.deque()  # Shared FIFO vortex, unlimited
 
     def __init__(self, n, v=1.0, delta_max=E_SQUARED):
-        try:
-            d_n = len(divisors(n))
-        except Exception as e:
-            raise ValueError(f"Factorization failed for n={n}: {e}")
+        d_n = len(divisors(n))
         kappa = d_n * math.log(n + 1) / E_SQUARED
         delta_n = v * kappa
         super().__init__(a=n, b=delta_n, c=delta_max)
@@ -82,17 +82,34 @@ class DiscreteZetaShift(UniversalZetaShift):
         self.f = round(self.getG())  # Derive f ≈ π via G
         self.w = round(2 * math.pi / PHI)  # Derive w ≈ π via helical phase
 
-        # Append to vortex, limit to f
+        # Append self to vortex, then limit vortex length to self.f
         self.vortex.append(self)
+        # If vortex is longer than desired max (self.f), drop oldest
         while len(self.vortex) > self.f:
-            self.vortex.pop(0)
+            self.vortex.popleft()
 
     def unfold_next(self):
         successor = DiscreteZetaShift(self.a + 1, v=self.v, delta_max=self.c)
         self.vortex.append(successor)
+        # Ensure vortex length does not exceed the new successor's f
         while len(self.vortex) > successor.f:
-            self.vortex.pop(0)
+            self.vortex.popleft()
         return successor
+
+    def get_3d_coordinates(self):
+        attrs = self.attributes
+        theta_d = PHI * ((attrs['D'] % PHI) / PHI) ** 0.3
+        theta_e = PHI * ((attrs['E'] % PHI) / PHI) ** 0.3
+        x = self.a * math.cos(theta_d)
+        y = self.a * math.sin(theta_e)
+        z = attrs['F'] / E_SQUARED
+        return (x, y, z)
+
+    def get_4d_coordinates(self):
+        attrs = self.attributes
+        x, y, z = self.get_3d_coordinates()
+        t = -self.c * (attrs['O'] / PHI)  # Time-like component for Minkowski-like bounding
+        return (t, x, y, z)
 
     def get_5d_coordinates(self):
         attrs = self.attributes
@@ -104,3 +121,65 @@ class DiscreteZetaShift(UniversalZetaShift):
         w = attrs['I']
         u = attrs['O']
         return (x, y, z, w, u)
+
+    @classmethod
+    def generate_key(cls, N, seed_n=2):
+        zeta = DiscreteZetaShift(seed_n)
+        trajectory_o = [zeta.getO()]
+        for _ in range(1, N):
+            zeta = zeta.unfold_next()
+            trajectory_o.append(zeta.getO())
+        hash_input = ''.join(f"{o:.3f}" for o in trajectory_o)
+        return hashlib.sha256(hash_input.encode()).hexdigest()[:32]  # 256-bit key truncated
+
+    @classmethod
+    def get_coordinates_array(cls, dim=3, N=100, seed=2, v=1.0, delta_max=E_SQUARED):
+        zeta = cls(seed, v, delta_max)
+        shifts = [zeta]
+        for _ in range(1, N):
+            zeta = zeta.unfold_next()
+            shifts.append(zeta)
+        if dim == 3:
+            coords = np.array([shift.get_3d_coordinates() for shift in shifts])
+        elif dim == 4:
+            coords = np.array([shift.get_4d_coordinates() for shift in shifts])
+        else:
+            raise ValueError("dim must be 3 or 4")
+        is_primes = np.array([isprime(shift.a) for shift in shifts])
+        return coords, is_primes
+
+    @classmethod
+    def plot_3d(cls, N=100, seed=2, v=1.0, delta_max=E_SQUARED, ax=None):
+        coords, is_primes = cls.get_coordinates_array(dim=3, N=N, seed=seed, v=v, delta_max=delta_max)
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+        ax.scatter(coords[~is_primes, 0], coords[~is_primes, 1], coords[~is_primes, 2], c='b', label='Composites')
+        ax.scatter(coords[is_primes, 0], coords[is_primes, 1], coords[is_primes, 2], c='r', label='Primes')
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+        ax.legend()
+        return ax
+
+    @classmethod
+    def plot_4d_as_3d_with_color(cls, N=100, seed=2, v=1.0, delta_max=E_SQUARED, ax=None):
+        coords, is_primes = cls.get_coordinates_array(dim=4, N=N, seed=seed, v=v, delta_max=delta_max)
+        t, x, y, z = coords.T
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+        scatter = ax.scatter(x, y, z, c=t, cmap='viridis')
+        plt.colorbar(scatter, label='Time-like t')
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+        return ax
+
+# Demonstration: Unfold to N=10, print vortex O values, generate sample key
+zeta = DiscreteZetaShift(2)
+for _ in range(9):
+    zeta = zeta.unfold_next()
+print("Vortex O values:", [inst.getO() for inst in DiscreteZetaShift.vortex])
+sample_key = DiscreteZetaShift.generate_key(10)
+print("Sample generated key:", sample_key)
