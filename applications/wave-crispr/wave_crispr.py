@@ -48,6 +48,10 @@ def encode_waveform(sequence, window_size=1024, use_z=True, v=1.0):
 
 def compute_spectral_features(waveform):
     """Compute FFT-based features: dominant freq shift, peaks, entropy."""
+    if len(waveform) < 2:
+        # Not enough data for spectral analysis; return safe defaults.
+        return 0.0, 0, 0.0
+
     spectrum = np.abs(fft(waveform))
     spectrum = spectrum / np.sum(spectrum)  # Normalize to probability distribution
     freqs = np.fft.fftfreq(len(waveform))
@@ -83,6 +87,11 @@ def disruption_score(waveforms, ref_waveforms=None, use_z=True, v=1.0):
             score = abs(score - (z_n * abs(ref_delta_f1) + ref_delta_peaks + ref_delta_entropy))
 
         scores.append(score)
+
+    if not scores:
+        # Handle the empty case gracefully.
+        return 0.0
+
     return np.mean(scores)
 
 # Example usage with zeta CSV integration
