@@ -31,7 +31,7 @@ with open("z_shift_embeddings_descriptive.csv", mode="w", newline="") as file:
     writer.writerow(header)
 
     # Generate for n=1 to 1000 for robustness
-    for i in range(1, 5001):
+    for i in range(1, 250001):
         z = DiscreteZetaShift(i)
         row = [i]
         z_dict = z.__dict__
