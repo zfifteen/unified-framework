@@ -51,13 +51,59 @@ def golden_transform(n, k=0.3):
     mod_phi = n % PHI
     return PHI * (mod_phi / PHI) ** k
 
-def generate_zeta_shifts(N, v=1.0, delta_max=np.exp(2)):
-    """Generate zeta shift objects using DiscreteZetaShift for n=1 to N."""
-    shifts = []
-    for n in range(1, N + 1):
-        shift = DiscreteZetaShift(n, v, delta_max)
-        shifts.append(shift)
+# Add this to your imports if not present
+from core.domain import DiscreteZetaShift
+
+def get_nth_zeta_shift(n, seed=2, v=1.0, delta_max=None):
+    """
+    Retrieve the nth DiscreteZetaShift using unfold_next, starting from seed.
+    """
+    if delta_max is None:
+        delta_max = DiscreteZetaShift.E_SQUARED if hasattr(DiscreteZetaShift, "E_SQUARED") else 7.38905609893065
+
+    seed = int(seed)
+    n = int(n)
+    zeta = DiscreteZetaShift(seed, v=v, delta_max=delta_max)
+    for _ in range(n - seed):
+        zeta = zeta.unfold_next()
+    return zeta
+
+# Example usage replacing old loop-based approach:
+# Old approach:
+# zeta = DiscreteZetaShift(2)
+# for _ in range(N-1):
+#     zeta = zeta.unfold_next()
+# new approach:
+# zeta_n = get_nth_zeta_shift(N)
+
+# Wherever you generated zeta shifts via:
+# zeta = DiscreteZetaShift(2)
+# shifts = [zeta]
+# for _ in range(1, N):
+#     zeta = zeta.unfold_next()
+#     shifts.append(zeta)
+# Replace with:
+def generate_zeta_shifts(N, seed=2, v=1.0, delta_max=None):
+    """
+    Generate a list of N consecutive DiscreteZetaShift instances, starting from seed,
+    using unfold_next method exclusively.
+    """
+    if delta_max is None:
+        delta_max = DiscreteZetaShift.E_SQUARED if hasattr(DiscreteZetaShift, "E_SQUARED") else 7.38905609893065
+
+    N = int(N)
+    seed = int(seed)
+    zeta = DiscreteZetaShift(seed, v=v, delta_max=delta_max)
+    shifts = [zeta]
+    for _ in range(1, N):
+        zeta = zeta.unfold_next()
+        shifts.append(zeta)
     return shifts
+
+# Any function or analysis (such as waveform encoding, spectral computation)
+# that expected a list of zeta shifts should now use generate_zeta_shifts(N)
+# Example:
+# shifts = generate_zeta_shifts(N)
 
 def encode_waveform(sequence, window_size=1024, use_z=True, v=1.0):
     """Encode sequence as complex waveform Ψ_n = w_n · e^{2πi s_n}."""
