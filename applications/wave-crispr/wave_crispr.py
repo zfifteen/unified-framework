@@ -7,6 +7,8 @@ import pandas as pd
 from core import axioms, domain
 from core.domain import DiscreteZetaShift
 import argparse
+import os
+from datetime import datetime
 
 attr_map = {
     'a': 'frame_dependent_measure_a',
@@ -121,6 +123,7 @@ if __name__ == "__main__":
     parser.add_argument('--N', type=int, default=1000, help='Maximum n for generating zeta shifts.')
     parser.add_argument('--v', type=float, default=1.0, help='Traversal velocity for zeta shifts.')
     parser.add_argument('--delta_max', type=float, default=np.exp(2), help='Maximum delta for zeta shifts.')
+    parser.add_argument('--log', type=str, default=None, help='CSV file to log results.')
     args = parser.parse_args()
 
     shifts = generate_zeta_shifts(args.N, args.v, args.delta_max)
@@ -133,18 +136,36 @@ if __name__ == "__main__":
     full_seq = df['rate_b'].values
     full_waveforms = encode_waveform(full_seq)
     full_score = disruption_score(full_waveforms)
-    print(f"Full sequence disruption score: {full_score}")
 
     # Prime subsequence
     prime_df = df[df['is_prime']]
     prime_seq = prime_df['rate_b'].values
     prime_waveforms = encode_waveform(prime_seq)
     prime_score = disruption_score(prime_waveforms)
-    print(f"Prime subsequence disruption score: {prime_score}")
 
     # Composite subsequence
     composite_df = df[~df['is_prime']]
     composite_seq = composite_df['rate_b'].values
     composite_waveforms = encode_waveform(composite_seq)
     composite_score = disruption_score(composite_waveforms)
+
+    print(f"Full sequence disruption score: {full_score}")
+    print(f"Prime subsequence disruption score: {prime_score}")
     print(f"Composite subsequence disruption score: {composite_score}")
+
+    if args.log:
+        timestamp = datetime.now().isoformat()
+        data = {
+            'timestamp': timestamp,
+            'N': args.N,
+            'v': args.v,
+            'delta_max': args.delta_max,
+            'full_score': full_score,
+            'prime_score': prime_score,
+            'composite_score': composite_score
+        }
+        df_log = pd.DataFrame([data])
+        if not os.path.exists(args.log):
+            df_log.to_csv(args.log, index=False)
+        else:
+            df_log.to_csv(args.log, mode='a', header=False, index=False)
