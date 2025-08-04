@@ -1,21 +1,24 @@
 import math
 import hashlib
 import collections
+from typing import Optional, Dict, List
+from ciphey.iface import ParamSpec, Cracker, CrackResult, CrackInfo, registry
+from ciphey.basemods.Crackers.xor import repeating_xor_decrypt  # Assume existing or import equivalent
 
-def divisor_count(n):
-    n = int(n)
+def divisor_count(n: int) -> int:
     if n <= 0:
         return 0
     count = 0
-    for i in range(1, int(math.sqrt(n)) + 1):
+    sqrt_n = int(math.sqrt(n)) + 1
+    for i in range(1, sqrt_n):
         if n % i == 0:
             count += 1 if i * i == n else 2
     return count
 
 class DiscreteZetaShift:
-    def __init__(self, n, v=1.0, delta_max=math.e**2):
+    def __init__(self, n: float, v: float = 1.0, delta_max: float = math.e**2):
         self.a = n
-        kappa = divisor_count(self.a) * math.log(self.a + 1) / math.e**2
+        kappa = divisor_count(int(self.a)) * math.log(self.a + 1) / math.e**2
         self.b = v * kappa
         self.c = delta_max
         self.z = self.a * (self.b / self.c)
@@ -35,17 +38,17 @@ class DiscreteZetaShift:
         self.O = self.M / self.N if self.N != 0 else 0
         self.vortex = collections.deque(maxlen=int(self.phi * math.pi))
 
-    def theta_prime(self, x):
+    def theta_prime(self, x: float) -> float:
         mod_part = (x % self.phi) / self.phi
         return self.phi * (mod_part ** self.k)
 
-    def unfold_next(self):
+    def unfold_next(self) -> float:
         next_n = self.a + 1
         next_shift = DiscreteZetaShift(next_n)
         self.vortex.append(next_shift.O)
         return next_shift.O
 
-    def generate_key(self, N, seed_n):
+    def generate_key(self, N: int, seed_n: float) -> bytes:
         self.a = seed_n
         key_str = str(self.O)
         for _ in range(N):
@@ -54,22 +57,51 @@ class DiscreteZetaShift:
         hash_obj = hashlib.sha256(key_str.encode())
         return hash_obj.digest()
 
-def repeating_xor_decrypt(ciphertext, key):
-    key = key * (len(ciphertext) // len(key) + 1)
-    plaintext = bytes(c ^ k for c, k in zip(ciphertext, key))
-    return plaintext
+@registry.register
+class ZCipher(Cracker[bytes]):
+    def getInfo(self) -> CrackInfo:
+        return CrackInfo(
+            expected_length=None,
+            print_chars=True,
+            numeric=False,
+            alphabet=None,
+        )
 
-def z_cipher_decode(ciphertext, seed_range=range(2, 100), N=5, num_candidates=20, key_len=1, language_checker=lambda x: len(x) > 0):
-    candidates = []
-    for seed in seed_range:
-        zeta = DiscreteZetaShift(seed)
-        if zeta.O < 5.0:
-            key = zeta.generate_key(N, seed)[:key_len]
-            candidates.append(key)
-            if len(candidates) >= num_candidates:
-                break
-    for key in candidates:
-        plaintext = repeating_xor_decrypt(ciphertext, key)
-        if language_checker(plaintext):
-            return plaintext, key
-    return None, None
+    @staticmethod
+    def getTarget() -> str:
+        return "z_cipher"
+
+    def attemptCrack(self, ctext: bytes) -> List[CrackResult]:
+        results = []
+        seed_range = range(2, 100)
+        N = 5
+        num_candidates = 20
+        key_len = 1  # POC; extend dynamically
+        candidates = []
+        for seed in seed_range:
+            zeta = DiscreteZetaShift(seed)
+            if zeta.O < 5.0:
+                key = zeta.generate_key(N, seed)[:key_len]
+                candidates.append(key)
+                if len(candidates) >= num_candidates:
+                    break
+        for key in candidates:
+            plaintext = repeating_xor_decrypt(ctext, key)  # Use Ciphey's XOR or equivalent
+            results.append(CrackResult(value=plaintext, key_info=str(key.hex())))
+        return results if results else None
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        return {
+            "expected": ParamSpec(
+                desc="The expected distribution of language. Defaults to English",
+                req=False,
+                config_ref=["nlp", "language"],
+            ),
+            "group": ParamSpec(desc="Character groups to use", req=False, list=["lower"]),
+            "p_value": ParamSpec(
+                desc="The p-value to use for Chi Squared tests. Lower = more accurate but more false negatives",
+                req=False,
+                default=0.1,
+            ),
+        }
