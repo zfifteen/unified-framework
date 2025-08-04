@@ -7,6 +7,25 @@ import pandas as pd  # Added for CSV loading
 from core import axioms, domain
 from core.domain import DiscreteZetaShift
 
+attr_map = {
+    'a': 'frame_dependent_measure_a',
+    'b': 'rate_b',
+    'c': 'universal_invariant_c',
+    'z': 'computed_z',
+    'D': 'zeta_shift_level_1_D',
+    'E': 'zeta_shift_level_2_E',
+    'F': 'zeta_shift_level_3_F',
+    'G': 'zeta_shift_level_4_G',
+    'H': 'zeta_shift_level_5_H',
+    'I': 'zeta_shift_level_6_I',
+    'J': 'zeta_shift_level_7_J',
+    'K': 'zeta_shift_level_8_K',
+    'L': 'zeta_shift_level_9_L',
+    'M': 'zeta_shift_level_10_M',
+    'N': 'zeta_shift_level_11_N',
+    'O': 'zeta_shift_level_12_O'
+}
+
 PHI = (1 + sqrt(5)) / 2  # Golden ratio
 E2 = exp(2)  # e^2 for curvature normalization
 
@@ -98,6 +117,8 @@ def disruption_score(waveforms, ref_waveforms=None, use_z=True, v=1.0):
 # todo: instead of loading from file, create DiscreetZetShift = DiscreteZetaShift(n) and use the attributes so we can create as many as we want
 
 if __name__ == "__main__":
+    #todo: require n as a parameter "--count"
+    #todo: replace loading data from CSV with instantiating DiscreteZetaShift in a loop to the desired n
     csv_path = "../../z_shift_embeddings_descriptive.csv"  # Replace with actual path
     df = load_zeta_csv(csv_path)
 
