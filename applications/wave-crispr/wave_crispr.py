@@ -4,6 +4,8 @@ from scipy.stats import entropy
 from sympy import primerange, divisors, isprime
 from math import log, exp, sqrt, pi, sin, cos
 import pandas as pd  # Added for CSV loading
+from core import axioms, domain
+from core.domain import DiscreteZetaShift
 
 PHI = (1 + sqrt(5)) / 2  # Golden ratio
 E2 = exp(2)  # e^2 for curvature normalization
@@ -84,6 +86,8 @@ def disruption_score(waveforms, ref_waveforms=None, use_z=True, v=1.0):
     return np.mean(scores)
 
 # Example usage with zeta CSV integration
+# todo: instead of loading from file, create DiscreetZetShift = DiscreteZetaShift(n) and use the attributes so we can create as many as we want
+
 if __name__ == "__main__":
     csv_path = "../../z_shift_embeddings_descriptive.csv"  # Replace with actual path
     df = load_zeta_csv(csv_path)
