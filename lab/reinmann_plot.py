@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 mpmath.mp.dps = 50
-J = 1000  # Number of zeros
+J = 500  # Number of zeros
 zeros = [mpmath.zetazero(j+1) for j in range(J)]  # First J zeros, imag parts positive
 imag_zeros = np.array([float(z.imag) for z in zeros])
 
