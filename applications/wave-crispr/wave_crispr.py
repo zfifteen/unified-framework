@@ -1,8 +1,11 @@
 import numpy as np
 from scipy.fft import fft
 from scipy.stats import entropy
-from sympy import primerange, divisors
+from sympy import primerange, divisors, isprime
 from math import log, exp, sqrt, pi, sin, cos
+import pandas as pd  # Added for CSV loading
+from core import axioms, domain
+from core.domain import DiscreteZetaShift
 
 PHI = (1 + sqrt(5)) / 2  # Golden ratio
 E2 = exp(2)  # e^2 for curvature normalization
@@ -26,6 +29,12 @@ def golden_transform(n, k=0.3):
     mod_phi = n % PHI
     return PHI * (mod_phi / PHI) ** k
 
+def load_zeta_csv(csv_path):
+    """Load zeta shift embeddings from CSV and return DataFrame."""
+    df = pd.read_csv(csv_path)
+    df['is_prime'] = df['index'].apply(isprime)  # Add prime flag using sympy
+    return df
+
 def encode_waveform(sequence, window_size=1024, use_z=True, v=1.0):
     """Encode sequence as complex waveform Ψ_n = w_n · e^{2πi s_n}."""
     waveforms = []
@@ -39,6 +48,10 @@ def encode_waveform(sequence, window_size=1024, use_z=True, v=1.0):
 
 def compute_spectral_features(waveform):
     """Compute FFT-based features: dominant freq shift, peaks, entropy."""
+    if len(waveform) < 2:
+        # Not enough data for spectral analysis; return safe defaults.
+        return 0.0, 0, 0.0
+
     spectrum = np.abs(fft(waveform))
     spectrum = spectrum / np.sum(spectrum)  # Normalize to probability distribution
     freqs = np.fft.fftfreq(len(waveform))
@@ -74,4 +87,36 @@ def disruption_score(waveforms, ref_waveforms=None, use_z=True, v=1.0):
             score = abs(score - (z_n * abs(ref_delta_f1) + ref_delta_peaks + ref_delta_entropy))
 
         scores.append(score)
+
+    if not scores:
+        # Handle the empty case gracefully.
+        return 0.0
+
     return np.mean(scores)
+
+# Example usage with zeta CSV integration
+# todo: instead of loading from file, create DiscreetZetShift = DiscreteZetaShift(n) and use the attributes so we can create as many as we want
+
+if __name__ == "__main__":
+    csv_path = "../../z_shift_embeddings_descriptive.csv"  # Replace with actual path
+    df = load_zeta_csv(csv_path)
+
+    # Full sequence (e.g., rate_b)
+    full_seq = df['rate_b'].values
+    full_waveforms = encode_waveform(full_seq)
+    full_score = disruption_score(full_waveforms)
+    print(f"Full sequence disruption score: {full_score}")
+
+    # Prime subsequence
+    prime_df = df[df['is_prime']]
+    prime_seq = prime_df['rate_b'].values
+    prime_waveforms = encode_waveform(prime_seq)
+    prime_score = disruption_score(prime_waveforms)
+    print(f"Prime subsequence disruption score: {prime_score}")
+
+    # Composite subsequence
+    composite_df = df[~df['is_prime']]
+    composite_seq = composite_df['rate_b'].values
+    composite_waveforms = encode_waveform(composite_seq)
+    composite_score = disruption_score(composite_waveforms)
+    print(f"Composite subsequence disruption score: {composite_score}")
