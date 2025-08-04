@@ -2,8 +2,7 @@ from abc import ABC
 import math
 import numpy as np
 from sympy import divisors
-import collections
-import hashlib
+import collections  # Optional; use list if unavailable
 
 PHI = (1 + math.sqrt(5)) / 2
 E_SQUARED = np.exp(2)
@@ -69,10 +68,13 @@ class UniversalZetaShift(ABC):
         }
 
 class DiscreteZetaShift(UniversalZetaShift):
-    vortex = collections.deque()  # Shared FIFO vortex, unlimited
+    vortex = []  # Shared list vortex for consistency; use deque if collections imported
 
     def __init__(self, n, v=1.0, delta_max=E_SQUARED):
-        d_n = len(divisors(n))
+        try:
+            d_n = len(divisors(n))
+        except Exception as e:
+            raise ValueError(f"Factorization failed for n={n}: {e}")
         kappa = d_n * math.log(n + 1) / E_SQUARED
         delta_n = v * kappa
         super().__init__(a=n, b=delta_n, c=delta_max)
@@ -80,18 +82,16 @@ class DiscreteZetaShift(UniversalZetaShift):
         self.f = round(self.getG())  # Derive f ≈ π via G
         self.w = round(2 * math.pi / PHI)  # Derive w ≈ π via helical phase
 
-        # Append self to vortex, then limit vortex length to self.f
+        # Append to vortex, limit to f
         self.vortex.append(self)
-        # If vortex is longer than desired max (self.f), drop oldest
         while len(self.vortex) > self.f:
-            self.vortex.popleft()
+            self.vortex.pop(0)
 
     def unfold_next(self):
         successor = DiscreteZetaShift(self.a + 1, v=self.v, delta_max=self.c)
         self.vortex.append(successor)
-        # Ensure vortex length does not exceed the new successor's f
         while len(self.vortex) > successor.f:
-            self.vortex.popleft()
+            self.vortex.pop(0)
         return successor
 
     def get_5d_coordinates(self):
@@ -104,21 +104,3 @@ class DiscreteZetaShift(UniversalZetaShift):
         w = attrs['I']
         u = attrs['O']
         return (x, y, z, w, u)
-
-    @classmethod
-    def generate_key(cls, N, seed_n=2):
-        zeta = DiscreteZetaShift(seed_n)
-        trajectory_o = [zeta.getO()]
-        for _ in range(1, N):
-            zeta = zeta.unfold_next()
-            trajectory_o.append(zeta.getO())
-        hash_input = ''.join(f"{o:.3f}" for o in trajectory_o)
-        return hashlib.sha256(hash_input.encode()).hexdigest()[:32]  # 256-bit key truncated
-
-# Demonstration: Unfold to N=10, print vortex O values, generate sample key
-zeta = DiscreteZetaShift(2)
-for _ in range(9):
-    zeta = zeta.unfold_next()
-print("Vortex O values:", [inst.getO() for inst in DiscreteZetaShift.vortex])
-sample_key = DiscreteZetaShift.generate_key(10)
-print("Sample generated key:", sample_key)
