@@ -1,16 +1,14 @@
-from abc import ABC
 import math
 import numpy as np
-from sympy import divisors, isprime
+from sympy import divisors
 import collections
 import hashlib
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+import secrets  # For secure randomness if needed
 
 PHI = (1 + math.sqrt(5)) / 2
 E_SQUARED = np.exp(2)
 
-class UniversalZetaShift(ABC):
+class UniversalZetaShift:
     def __init__(self, a, b, c):
         if a == 0 or b == 0 or c == 0:
             raise ValueError("Parameters cannot be zero.")
@@ -61,125 +59,122 @@ class UniversalZetaShift(ABC):
     def getO(self):
         return self.getM() / self.getN()
 
-    @property
-    def attributes(self):
-        return {
-            'a': self.a, 'b': self.b, 'c': self.c, 'z': self.compute_z(),
-            'D': self.getD(), 'E': self.getE(), 'F': self.getF(), 'G': self.getG(),
-            'H': self.getH(), 'I': self.getI(), 'J': self.getJ(), 'K': self.getK(),
-            'L': self.getL(), 'M': self.getM(), 'N': self.getN(), 'O': self.getO()
-        }
-
-class DiscreteZetaShift(UniversalZetaShift):
-    vortex = collections.deque()  # Shared FIFO vortex, unlimited
+class VortexEncryptor(UniversalZetaShift):
+    vortex = collections.deque()  # Ephemeral vortex for short-lived keys
 
     def __init__(self, n, v=1.0, delta_max=E_SQUARED):
+        if n < 2:
+            raise ValueError("n must be at least 2")
         d_n = len(divisors(n))
         kappa = d_n * math.log(n + 1) / E_SQUARED
         delta_n = v * kappa
         super().__init__(a=n, b=delta_n, c=delta_max)
         self.v = v
-        self.f = round(self.getG())  # Derive f ≈ π via G
-        self.w = round(2 * math.pi / PHI)  # Derive w ≈ π via helical phase
-
-        # Append self to vortex, then limit vortex length to self.f
+        self.f = round(self.getG())  # Bound vortex to ~π
         self.vortex.append(self)
-        # If vortex is longer than desired max (self.f), drop oldest
         while len(self.vortex) > self.f:
             self.vortex.popleft()
 
     def unfold_next(self):
-        successor = DiscreteZetaShift(self.a + 1, v=self.v, delta_max=self.c)
+        successor = VortexEncryptor(self.a + 1, v=self.v, delta_max=self.c)
         self.vortex.append(successor)
-        # Ensure vortex length does not exceed the new successor's f
         while len(self.vortex) > successor.f:
             self.vortex.popleft()
         return successor
 
-    def get_3d_coordinates(self):
-        attrs = self.attributes
-        theta_d = PHI * ((attrs['D'] % PHI) / PHI) ** 0.3
-        theta_e = PHI * ((attrs['E'] % PHI) / PHI) ** 0.3
-        x = self.a * math.cos(theta_d)
-        y = self.a * math.sin(theta_e)
-        z = attrs['F'] / E_SQUARED
-        return (x, y, z)
-
-    def get_4d_coordinates(self):
-        attrs = self.attributes
-        x, y, z = self.get_3d_coordinates()
-        t = -self.c * (attrs['O'] / PHI)  # Time-like component for Minkowski-like bounding
-        return (t, x, y, z)
-
-    def get_5d_coordinates(self):
-        attrs = self.attributes
-        theta_d = PHI * ((attrs['D'] % PHI) / PHI) ** 0.3
-        theta_e = PHI * ((attrs['E'] % PHI) / PHI) ** 0.3
-        x = self.a * math.cos(theta_d)
-        y = self.a * math.sin(theta_e)
-        z = attrs['F'] / E_SQUARED
-        w = attrs['I']
-        u = attrs['O']
-        return (x, y, z, w, u)
-
     @classmethod
-    def generate_key(cls, N, seed_n=2):
-        zeta = DiscreteZetaShift(seed_n)
+    def generate_trajectory(cls, N=3, seed_n=2, v=1.0, delta_max=E_SQUARED):
+        """Generate ephemeral O trajectory for key stream"""
+        if N < 1:
+            raise ValueError("N must be at least 1")
+        zeta = cls(seed_n, v, delta_max)
         trajectory_o = [zeta.getO()]
         for _ in range(1, N):
             zeta = zeta.unfold_next()
             trajectory_o.append(zeta.getO())
-        hash_input = ''.join(f"{o:.3f}" for o in trajectory_o)
-        return hashlib.sha256(hash_input.encode()).hexdigest()[:32]  # 256-bit key truncated
+        # Clear vortex for ephemerality
+        cls.vortex.clear()
+        return trajectory_o
 
     @classmethod
-    def get_coordinates_array(cls, dim=3, N=100, seed=2, v=1.0, delta_max=E_SQUARED):
-        zeta = cls(seed, v, delta_max)
-        shifts = [zeta]
-        for _ in range(1, N):
-            zeta = zeta.unfold_next()
-            shifts.append(zeta)
-        if dim == 3:
-            coords = np.array([shift.get_3d_coordinates() for shift in shifts])
-        elif dim == 4:
-            coords = np.array([shift.get_4d_coordinates() for shift in shifts])
-        else:
-            raise ValueError("dim must be 3 or 4")
-        is_primes = np.array([isprime(shift.a) for shift in shifts])
-        return coords, is_primes
+    def trajectory_to_keystream(cls, trajectory, key_length):
+        """Convert O trajectory to byte keystream using geometric hashing"""
+        # Concatenate formatted O values
+        hash_input = ''.join(f"{o:.10f}" for o in trajectory).encode()
+        # Use SHA-256 for initial hash, then expand to desired length via HKDF-like derivation
+        base_hash = hashlib.sha256(hash_input).digest()
+        keystream = b''
+        while len(keystream) < key_length:
+            keystream += hashlib.sha256(base_hash + len(keystream).to_bytes(4, 'big')).digest()
+        return keystream[:key_length]
 
     @classmethod
-    def plot_3d(cls, N=100, seed=2, v=1.0, delta_max=E_SQUARED, ax=None):
-        coords, is_primes = cls.get_coordinates_array(dim=3, N=N, seed=seed, v=v, delta_max=delta_max)
-        if ax is None:
-            fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d')
-        ax.scatter(coords[~is_primes, 0], coords[~is_primes, 1], coords[~is_primes, 2], c='b', label='Composites')
-        ax.scatter(coords[is_primes, 0], coords[is_primes, 1], coords[is_primes, 2], c='r', label='Primes')
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-        ax.set_zlabel('Z')
-        ax.legend()
-        return ax
+    def encrypt(cls, plaintext: bytes, N=3, seed_n=2, v=1.0, delta_max=E_SQUARED) -> bytes:
+        """Encrypt using ephemeral vortex trajectory as keystream (XOR for reversibility)"""
+        trajectory = cls.generate_trajectory(N, seed_n, v, delta_max)
+        keystream = cls.trajectory_to_keystream(trajectory, len(plaintext))
+        ciphertext = bytes(p ^ k for p, k in zip(plaintext, keystream))
+        return ciphertext
 
     @classmethod
-    def plot_4d_as_3d_with_color(cls, N=100, seed=2, v=1.0, delta_max=E_SQUARED, ax=None):
-        coords, is_primes = cls.get_coordinates_array(dim=4, N=N, seed=seed, v=v, delta_max=delta_max)
-        t, x, y, z = coords.T
-        if ax is None:
-            fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d')
-        scatter = ax.scatter(x, y, z, c=t, cmap='viridis')
-        plt.colorbar(scatter, label='Time-like t')
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-        ax.set_zlabel('Z')
-        return ax
+    def decrypt(cls, ciphertext: bytes, N=3, seed_n=2, v=1.0, delta_max=E_SQUARED) -> bytes:
+        """Decrypt identically to encrypt due to XOR symmetry"""
+        return cls.encrypt(ciphertext, N, seed_n, v, delta_max)  # XOR is involution
 
-# Demonstration: Unfold to N=10, print vortex O values, generate sample key
-zeta = DiscreteZetaShift(2)
-for _ in range(9):
-    zeta = zeta.unfold_next()
-print("Vortex O values:", [inst.getO() for inst in DiscreteZetaShift.vortex])
-sample_key = DiscreteZetaShift.generate_key(10)
-print("Sample generated key:", sample_key)
+# Use Cases
+def use_case_1_message_encryption():
+    """Use Case 1: Secure message encryption"""
+    message = b"Secret message"
+    ciphertext = VortexEncryptor.encrypt(message, N=5, seed_n=3)
+    decrypted = VortexEncryptor.decrypt(ciphertext, N=5, seed_n=3)
+    assert decrypted == message, "Decryption failed"
+    print("Use Case 1: Message encrypted and decrypted successfully.")
+
+def use_case_2_file_encryption():
+    """Use Case 2: File content encryption"""
+    file_content = b"File data to protect"
+    ciphertext = VortexEncryptor.encrypt(file_content, N=4, seed_n=5, v=0.5)
+    decrypted = VortexEncryptor.decrypt(ciphertext, N=4, seed_n=5, v=0.5)
+    assert decrypted == file_content, "File decryption failed"
+    print("Use Case 2: File encrypted and decrypted successfully.")
+
+def use_case_3_session_key():
+    """Use Case 3: Ephemeral session key for communication"""
+    session_data = secrets.token_bytes(16)  # Simulate session data
+    ciphertext = VortexEncryptor.encrypt(session_data, N=3, seed_n=7)
+    decrypted = VortexEncryptor.decrypt(ciphertext, N=3, seed_n=7)
+    assert decrypted == session_data, "Session decryption failed"
+    print("Use Case 3: Session key encrypted and decrypted successfully.")
+
+# Unit Tests
+def test_reversibility():
+    """Unit Test 1: Verify encryption-decryption reversibility"""
+    data = b"Test data"
+    ciphertext = VortexEncryptor.encrypt(data, N=3, seed_n=2)
+    decrypted = VortexEncryptor.decrypt(ciphertext, N=3, seed_n=2)
+    assert decrypted == data, "Reversibility test failed"
+
+def test_seed_consistency():
+    """Unit Test 2: Verify consistency with same seed/parameters"""
+    data = b"Consistent test"
+    cipher1 = VortexEncryptor.encrypt(data, N=4, seed_n=11, v=1.5)
+    cipher2 = VortexEncryptor.encrypt(data, N=4, seed_n=11, v=1.5)
+    assert cipher1 == cipher2, "Seed consistency test failed"
+
+def test_error_handling():
+    """Unit Test 3: Verify error handling for invalid parameters"""
+    try:
+        VortexEncryptor.encrypt(b"Data", N=0)
+        assert False, "Should raise error for N<1"
+    except ValueError:
+        pass  # Expected
+
+# Run demonstrations
+if __name__ == "__main__":
+    use_case_1_message_encryption()
+    use_case_2_file_encryption()
+    use_case_3_session_key()
+    test_reversibility()
+    test_seed_consistency()
+    test_error_handling()
+    print("All tests passed.")
