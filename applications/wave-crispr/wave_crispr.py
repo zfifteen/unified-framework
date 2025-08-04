@@ -123,7 +123,7 @@ if __name__ == "__main__":
     parser.add_argument('--N', type=int, default=1000, help='Maximum n for generating zeta shifts.')
     parser.add_argument('--v', type=float, default=1.0, help='Traversal velocity for zeta shifts.')
     parser.add_argument('--delta_max', type=float, default=np.exp(2), help='Maximum delta for zeta shifts.')
-    parser.add_argument('--log', type=str, default=None, help='CSV file to log results.')
+    parser.add_argument('--log', action='store_true', help='Enable logging to wave_crispr_test_runs.csv.')
     args = parser.parse_args()
 
     shifts = generate_zeta_shifts(args.N, args.v, args.delta_max)
@@ -154,6 +154,7 @@ if __name__ == "__main__":
     print(f"Composite subsequence disruption score: {composite_score}")
 
     if args.log:
+        log_file = "wave_crispr_test_runs.csv"
         timestamp = datetime.now().isoformat()
         data = {
             'timestamp': timestamp,
@@ -165,7 +166,7 @@ if __name__ == "__main__":
             'composite_score': composite_score
         }
         df_log = pd.DataFrame([data])
-        if not os.path.exists(args.log):
-            df_log.to_csv(args.log, index=False)
+        if not os.path.exists(log_file):
+            df_log.to_csv(log_file, index=False)
         else:
-            df_log.to_csv(args.log, mode='a', header=False, index=False)
+            df_log.to_csv(log_file, mode='a', header=False, index=False)
