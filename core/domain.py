@@ -1,65 +1,105 @@
 from abc import ABC
-import math
-import numpy as np
-from sympy import divisors, isprime
 import collections
 import hashlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from sympy import divisors, isprime
+import mpmath as mp
 
-PHI = (1 + math.sqrt(5)) / 2
-E_SQUARED = np.exp(2)
+mp.mp.dps = 50  # High precision for large n and modular ops
+
+PHI = (1 + mp.sqrt(5)) / 2
+E_SQUARED = mp.exp(2)
 
 class UniversalZetaShift(ABC):
     def __init__(self, a, b, c):
         if a == 0 or b == 0 or c == 0:
             raise ValueError("Parameters cannot be zero.")
-        self.a = a
-        self.b = b
-        self.c = c
+        self.a = mp.mpmathify(a)
+        self.b = mp.mpmathify(b)
+        self.c = mp.mpmathify(c)
 
     def compute_z(self):
-        return self.a * (self.b / self.c)
+        try:
+            return self.a * (self.b / self.c)
+        except ZeroDivisionError:
+            return mp.inf
 
     def getD(self):
-        return self.c / self.a
+        try:
+            return self.c / self.a
+        except ZeroDivisionError:
+            return mp.inf
 
     def getE(self):
-        return self.c / self.b
+        try:
+            return self.c / self.b
+        except ZeroDivisionError:
+            return mp.inf
 
     def getF(self):
-        d_over_e = self.getD() / self.getE()
-        return PHI * ((d_over_e % PHI) / PHI) ** 0.3
+        try:
+            d_over_e = self.getD() / self.getE()
+            return PHI * ((d_over_e % PHI) / PHI) ** mp.mpf(0.3)
+        except ZeroDivisionError:
+            return mp.inf
 
     def getG(self):
-        f = self.getF()
-        return (self.getE() / f) / E_SQUARED
+        try:
+            f = self.getF()
+            return (self.getE() / f) / E_SQUARED
+        except ZeroDivisionError:
+            return mp.inf
 
     def getH(self):
-        return self.getF() / self.getG()
+        try:
+            return self.getF() / self.getG()
+        except ZeroDivisionError:
+            return mp.inf
 
     def getI(self):
-        g_over_h = self.getG() / self.getH()
-        return PHI * ((g_over_h % PHI) / PHI) ** 0.3
+        try:
+            g_over_h = self.getG() / self.getH()
+            return PHI * ((g_over_h % PHI) / PHI) ** mp.mpf(0.3)
+        except ZeroDivisionError:
+            return mp.inf
 
     def getJ(self):
-        return self.getH() / self.getI()
+        try:
+            return self.getH() / self.getI()
+        except ZeroDivisionError:
+            return mp.inf
 
     def getK(self):
-        return (self.getI() / self.getJ()) / E_SQUARED
+        try:
+            return (self.getI() / self.getJ()) / E_SQUARED
+        except ZeroDivisionError:
+            return mp.inf
 
     def getL(self):
-        return self.getJ() / self.getK()
+        try:
+            return self.getJ() / self.getK()
+        except ZeroDivisionError:
+            return mp.inf
 
     def getM(self):
-        k_over_l = self.getK() / self.getL()
-        return PHI * ((k_over_l % PHI) / PHI) ** 0.3
+        try:
+            k_over_l = self.getK() / self.getL()
+            return PHI * ((k_over_l % PHI) / PHI) ** mp.mpf(0.3)
+        except ZeroDivisionError:
+            return mp.inf
 
     def getN(self):
-        return self.getL() / self.getM()
+        try:
+            return self.getL() / self.getM()
+        except ZeroDivisionError:
+            return mp.inf
 
     def getO(self):
-        return self.getM() / self.getN()
+        try:
+            return self.getM() / self.getN()
+        except ZeroDivisionError:
+            return mp.inf
 
     @property
     def attributes(self):
@@ -71,66 +111,63 @@ class UniversalZetaShift(ABC):
         }
 
 class DiscreteZetaShift(UniversalZetaShift):
-    vortex = collections.deque()  # Shared FIFO vortex, unlimited
-
     def __init__(self, n, v=1.0, delta_max=E_SQUARED):
-        d_n = len(divisors(n))
-        kappa = d_n * math.log(n + 1) / E_SQUARED
+        self.vortex = collections.deque()  # Instance-level vortex
+        n = mp.mpmathify(n)
+        d_n = len(divisors(int(n)))  # sympy for divisors, cast to int if needed
+        kappa = d_n * mp.log(n + 1) / E_SQUARED
         delta_n = v * kappa
         super().__init__(a=n, b=delta_n, c=delta_max)
         self.v = v
-        self.f = round(self.getG())  # Derive f ≈ π via G
-        self.w = round(2 * math.pi / PHI)  # Derive w ≈ π via helical phase
+        self.f = round(float(self.getG()))  # Cast to float for rounding
+        self.w = round(float(2 * mp.pi / PHI))
 
-        # Append self to vortex, then limit vortex length to self.f
         self.vortex.append(self)
-        # If vortex is longer than desired max (self.f), drop oldest
         while len(self.vortex) > self.f:
             self.vortex.popleft()
 
     def unfold_next(self):
         successor = DiscreteZetaShift(self.a + 1, v=self.v, delta_max=self.c)
         self.vortex.append(successor)
-        # Ensure vortex length does not exceed the new successor's f
         while len(self.vortex) > successor.f:
             self.vortex.popleft()
         return successor
 
     def get_3d_coordinates(self):
         attrs = self.attributes
-        theta_d = PHI * ((attrs['D'] % PHI) / PHI) ** 0.3
-        theta_e = PHI * ((attrs['E'] % PHI) / PHI) ** 0.3
-        x = self.a * math.cos(theta_d)
-        y = self.a * math.sin(theta_e)
+        theta_d = PHI * ((attrs['D'] % PHI) / PHI) ** mp.mpf(0.3)
+        theta_e = PHI * ((attrs['E'] % PHI) / PHI) ** mp.mpf(0.3)
+        x = self.a * mp.cos(theta_d)
+        y = self.a * mp.sin(theta_e)
         z = attrs['F'] / E_SQUARED
-        return (x, y, z)
+        return (float(x), float(y), float(z))
 
     def get_4d_coordinates(self):
         attrs = self.attributes
         x, y, z = self.get_3d_coordinates()
-        t = -self.c * (attrs['O'] / PHI)  # Time-like component for Minkowski-like bounding
-        return (t, x, y, z)
+        t = -self.c * (attrs['O'] / PHI)
+        return (float(t), x, y, z)
 
     def get_5d_coordinates(self):
         attrs = self.attributes
-        theta_d = PHI * ((attrs['D'] % PHI) / PHI) ** 0.3
-        theta_e = PHI * ((attrs['E'] % PHI) / PHI) ** 0.3
-        x = self.a * math.cos(theta_d)
-        y = self.a * math.sin(theta_e)
+        theta_d = PHI * ((attrs['D'] % PHI) / PHI) ** mp.mpf(0.3)
+        theta_e = PHI * ((attrs['E'] % PHI) / PHI) ** mp.mpf(0.3)
+        x = self.a * mp.cos(theta_d)
+        y = self.a * mp.sin(theta_e)
         z = attrs['F'] / E_SQUARED
         w = attrs['I']
         u = attrs['O']
-        return (x, y, z, w, u)
+        return (float(x), float(y), float(z), float(w), float(u))
 
     @classmethod
     def generate_key(cls, N, seed_n=2):
-        zeta = DiscreteZetaShift(seed_n)
+        zeta = cls(seed_n)
         trajectory_o = [zeta.getO()]
         for _ in range(1, N):
             zeta = zeta.unfold_next()
             trajectory_o.append(zeta.getO())
-        hash_input = ''.join(f"{o:.3f}" for o in trajectory_o)
-        return hashlib.sha256(hash_input.encode()).hexdigest()[:32]  # 256-bit key truncated
+        hash_input = ''.join(mp.nstr(o, 20) for o in trajectory_o)  # Higher precision
+        return hashlib.sha256(hash_input.encode()).hexdigest()[:32]
 
     @classmethod
     def get_coordinates_array(cls, dim=3, N=100, seed=2, v=1.0, delta_max=E_SQUARED):
@@ -145,7 +182,7 @@ class DiscreteZetaShift(UniversalZetaShift):
             coords = np.array([shift.get_4d_coordinates() for shift in shifts])
         else:
             raise ValueError("dim must be 3 or 4")
-        is_primes = np.array([isprime(shift.a) for shift in shifts])
+        is_primes = np.array([isprime(int(shift.a)) for shift in shifts])  # Cast to int
         return coords, is_primes
 
     @classmethod
@@ -180,6 +217,6 @@ class DiscreteZetaShift(UniversalZetaShift):
 zeta = DiscreteZetaShift(2)
 for _ in range(9):
     zeta = zeta.unfold_next()
-print("Vortex O values:", [inst.getO() for inst in DiscreteZetaShift.vortex])
+print("Vortex O values:", [float(inst.getO()) for inst in zeta.vortex])  # Instance vortex
 sample_key = DiscreteZetaShift.generate_key(10)
 print("Sample generated key:", sample_key)
