@@ -1,8 +1,8 @@
 import sympy
-from light_primes import light_primes_up_to
+from light_primes import light_primes_in_range
 
 def demo(N=1000):
-    generated = light_primes_up_to(N)
+    generated = light_primes_in_range(500000,600000)
     print(f"Generated numbers up to {N}: {generated}")
     print(f"Total generated: {len(generated)}")
 

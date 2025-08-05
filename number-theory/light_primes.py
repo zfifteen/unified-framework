@@ -1,16 +1,25 @@
 import math
+import cmath
 import collections
+import random
+import logging
 
 PHI = (1 + math.sqrt(5)) / 2
 E2 = math.exp(2)
 K_STAR = 0.3
 DELTA_MAX = E2
 V = 1.0
+UNFOLD_ITERS = 4  # Base; cap at 3 for small N
+BOOTSTRAP_SAMPLES = 100  # For adaptive quantile
+SAMPLE_FRACTION = 0.1  # For entropy median approximation
+
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[logging.FileHandler('light_primes.log'), logging.StreamHandler()])
 
 class DiscreteZetaShift:
     vortex = collections.deque()
 
-    def __init__(self, n, v=V, delta_max=DELTA_MAX):
+    def __init__(self, n, v=V, delta_max=DELTA_MAX, max_n=10**6):
         self.a = n
         mod_phi = n % PHI
         theta_prime = PHI * (mod_phi / PHI) ** K_STAR
@@ -32,7 +41,9 @@ class DiscreteZetaShift:
         self.N = self.L / self.M if self.M != 0 else 0
         self.O = self.M / self.N if self.N != 0 else 0
 
-        self.f = round(self.G)
+        # Scale-dependent vortex bounding
+        log_log_max = math.log(math.log(max_n + 1) + 1) if max_n >= 100 else 0
+        self.f = 3 if max_n < 100 else round(self.G) + log_log_max
         DiscreteZetaShift.vortex.append(self)
         while len(DiscreteZetaShift.vortex) > self.f:
             DiscreteZetaShift.vortex.popleft()
@@ -40,26 +51,91 @@ class DiscreteZetaShift:
     def get_chain(self):
         return [self.D, self.E, self.F, self.G, self.H, self.I, self.J, self.K, self.L, self.M, self.N, self.O]
 
-def compute_proxy_curvature(n):
-    zeta = DiscreteZetaShift(n)
-    chain = zeta.get_chain()
-    logs = [math.log(x + 1e-10) for x in chain if x > 0]
+    def unfold_next(self):
+        successor = DiscreteZetaShift(self.a + 1, v=self.b, delta_max=self.c, max_n=self.a + 1)  # max_n propagates approximately
+        DiscreteZetaShift.vortex.append(successor)
+        while len(DiscreteZetaShift.vortex) > successor.f:
+            DiscreteZetaShift.vortex.popleft()
+        return successor
+
+    def get_helical_coords(self):
+        theta_d = PHI * ((self.D % PHI) / PHI) ** K_STAR
+        theta_e = PHI * ((self.E % PHI) / PHI) ** K_STAR
+        x = self.a * math.cos(theta_d)
+        y = self.a * math.sin(theta_e)
+        z = self.F / E2
+        return x, y, z
+
+def compute_proxy_curvature(n, max_n):
+    unfold_iters = 3 if max_n < 1000 else UNFOLD_ITERS  # Cap at lower N
+    zeta = DiscreteZetaShift(n, max_n=max_n)
+    o_values = [zeta.O]
+    for _ in range(unfold_iters - 1):
+        zeta = zeta.unfold_next()
+        o_values.append(zeta.O)
+    logs = [math.log(o + 1e-10) for o in o_values if o > 0]
     if not logs:
         return 0.0
     avg = sum(logs) / len(logs)
     variance = sum((log - avg) ** 2 for log in logs) / len(logs)
+    logging.info(f"Curvature for n={n}: variance={variance:.4f}")
     return math.sqrt(variance)
 
 def generate_candidates(start=2, end=10**6):
     numbers = range(start, end + 1)
-    curvatures = [compute_proxy_curvature(n) for n in numbers]
-    threshold = sorted(curvatures)[int(len(curvatures) * 0.248)]
-    return [n for n, curv in zip(numbers, curvatures) if curv <= threshold]
+    curvatures = [compute_proxy_curvature(n, max_n=end) for n in numbers]
+    logging.info(f"Curvatures computed: min={min(curvatures):.4f}, max={max(curvatures):.4f}, mean={sum(curvatures)/len(curvatures):.4f}")
+
+    # Adaptive quantile via bootstrap, tune target_elim for larger N
+    target_elim = 0.7 if end > 10**5 else 0.752
+    quantiles = []
+    for _ in range(BOOTSTRAP_SAMPLES):
+        sample = random.choices(curvatures, k=len(curvatures))
+        sorted_sample = sorted(sample)
+        quantiles.append(sorted_sample[int(len(sorted_sample) * (1 - target_elim))])
+    threshold = sum(quantiles) / len(quantiles)
+    logging.info(f"Curvature threshold: {threshold:.4f}")
+
+    candidates = [n for n, curv in zip(numbers, curvatures) if curv <= threshold]
+    logging.info(f"Candidates after curvature filter: {len(candidates)}")
+    return candidates
 
 def refine_candidates(candidates, N):
-    log_log_n = math.log(math.log(N + 1) + 1)
-    return [c for c in candidates if DiscreteZetaShift(c).O < PHI * log_log_n]
+    z_threshold = PHI / 1.5
+    logging.info(f"Helical z threshold: {z_threshold:.4f}")
+    # Sample for O percentile
+    sample_size = max(10, int(N * SAMPLE_FRACTION))
+    sample_ns = random.choices(range(2, N+1), k=sample_size)
+    sample_O = [DiscreteZetaShift(i, max_n=N).O for i in sample_ns]
+    percentile_60_O = sorted(sample_O)[int(len(sample_O) * 0.6)]
+    min_O = min(sample_O)
+    max_O = max(sample_O)
+    mean_O = sum(sample_O) / sample_size
+    logging.info(f"60th percentile O (sampled): {percentile_60_O:.4f}, min={min_O:.4f}, max={max_O:.4f}, mean={mean_O:.4f}")
 
-def light_primes_up_to(N):
-    candidates = generate_candidates(2, N)
-    return sorted(refine_candidates(candidates, N))
+    refined = []
+    filter_counts = {"high_z": 0, "high_O": 0}
+    for c in candidates:
+        zeta = DiscreteZetaShift(c, max_n=N)
+        # Helical thresholding
+        _, _, z = zeta.get_helical_coords()
+        logging.info(f"Helical z for n={c}: {z:.4f}")
+        if z >= z_threshold:
+            filter_counts["high_z"] += 1
+            logging.info(f"Filtered n={c} (high z: {z:.4f} >= {z_threshold:.4f})")
+            continue
+        # O filter (percentile-based)
+        logging.info(f"O for n={c}: {zeta.O:.4f}")
+        if zeta.O > percentile_60_O:
+            filter_counts["high_O"] += 1
+            logging.info(f"Filtered n={c} (high O: {zeta.O:.4f} > {percentile_60_O:.4f})")
+            continue
+        refined.append(c)
+        logging.info(f"Retained n={c}")
+    logging.info(f"Refined candidates: {len(refined)}")
+    logging.info(f"Filtration counts: high_z={filter_counts['high_z']}, high_O={filter_counts['high_O']}")
+    return refined
+
+def light_primes_in_range(start=2, end=1000):
+    candidates = generate_candidates(start, end)
+    return sorted(refine_candidates(candidates, end))
