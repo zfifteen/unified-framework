@@ -1,6 +1,8 @@
 # vortex_filter.py: Self-Tuning Vortex Filter Method for Prime Detection
 # Guided by Z = n(Δₙ/Δmax), dynamically tuning threshold for ~75.2% composite elimination via minimal-curvature geodesics.
-
+"""
+TODO: Refactor to use the embeddings from `helical_embeddings.db`
+"""
 import math
 import numpy as np
 from sympy import isprime  # For validation; replace with efficient primality test in production
@@ -221,7 +223,7 @@ def vortex_filter(numbers: np.array, max_n: int, target_elim: float = 0.752) -> 
     candidates = [int(row[0]) for row in projected if row[2] <= curvature_threshold]
     return candidates, curvature_threshold, projected
 
-def demo_vortex_filter(start_n: int = 1, end_n: int = 6000):
+def demo_vortex_filter(start_n: int = 1, end_n: int = 500):
     """Demo the self-tuning vortex filter: Apply to range, compute stats."""
     numbers = np.arange(start_n, end_n + 1)
     candidates, threshold, projected = vortex_filter(numbers, end_n)
