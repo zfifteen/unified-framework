@@ -9,3 +9,8 @@
 *.pkl
 *.bak
 /data/
+/applications/wave-crispr-signal/.idea/misc.xml
+/applications/wave-crispr-signal/.idea/modules.xml
+/applications/wave-crispr-signal/.idea/inspectionProfiles/profiles_settings.xml
+/applications/wave-crispr-signal/.idea/vcs.xml
+/applications/wave-crispr-signal/.idea/wave-crispr-signal.iml
