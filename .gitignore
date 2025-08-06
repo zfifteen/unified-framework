@@ -8,3 +8,4 @@
 /findings-load-data/run-5/output.txt
 *.pkl
 *.bak
+/data/
