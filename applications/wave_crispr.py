@@ -1,33 +1,8 @@
 import numpy as np
 from scipy.fft import fft
 from scipy.stats import entropy
-from sympy import primerange, divisors, isprime
+from sympy import primerange, divisors
 from math import log, exp, sqrt, pi, sin, cos
-import pandas as pd
-from core import axioms, domain
-from core.domain import DiscreteZetaShift
-import argparse
-import os
-from datetime import datetime
-
-attr_map = {
-    'a': 'frame_dependent_measure_a',
-    'b': 'rate_b',
-    'c': 'universal_invariant_c',
-    'z': 'computed_z',
-    'D': 'zeta_shift_level_1_D',
-    'E': 'zeta_shift_level_2_E',
-    'F': 'zeta_shift_level_3_F',
-    'G': 'zeta_shift_level_4_G',
-    'H': 'zeta_shift_level_5_H',
-    'I': 'zeta_shift_level_6_I',
-    'J': 'zeta_shift_level_7_J',
-    'K': 'zeta_shift_level_8_K',
-    'L': 'zeta_shift_level_9_L',
-    'M': 'zeta_shift_level_10_M',
-    'N': 'zeta_shift_level_11_N',
-    'O': 'zeta_shift_level_12_O'
-}
 
 PHI = (1 + sqrt(5)) / 2  # Golden ratio
 E2 = exp(2)  # e^2 for curvature normalization
@@ -51,60 +26,6 @@ def golden_transform(n, k=0.3):
     mod_phi = n % PHI
     return PHI * (mod_phi / PHI) ** k
 
-# Add this to your imports if not present
-from core.domain import DiscreteZetaShift
-
-def get_nth_zeta_shift(n, seed=2, v=1.0, delta_max=None):
-    """
-    Retrieve the nth DiscreteZetaShift using unfold_next, starting from seed.
-    """
-    if delta_max is None:
-        delta_max = DiscreteZetaShift.E_SQUARED if hasattr(DiscreteZetaShift, "E_SQUARED") else 7.38905609893065
-
-    seed = int(seed)
-    n = int(n)
-    zeta = DiscreteZetaShift(seed, v=v, delta_max=delta_max)
-    for _ in range(n - seed):
-        zeta = zeta.unfold_next()
-    return zeta
-
-# Example usage replacing old loop-based approach:
-# Old approach:
-# zeta = DiscreteZetaShift(2)
-# for _ in range(N-1):
-#     zeta = zeta.unfold_next()
-# new approach:
-# zeta_n = get_nth_zeta_shift(N)
-
-# Wherever you generated zeta shifts via:
-# zeta = DiscreteZetaShift(2)
-# shifts = [zeta]
-# for _ in range(1, N):
-#     zeta = zeta.unfold_next()
-#     shifts.append(zeta)
-# Replace with:
-def generate_zeta_shifts(N, seed=2, v=1.0, delta_max=None):
-    """
-    Generate a list of N consecutive DiscreteZetaShift instances, starting from seed,
-    using unfold_next method exclusively.
-    """
-    if delta_max is None:
-        delta_max = DiscreteZetaShift.E_SQUARED if hasattr(DiscreteZetaShift, "E_SQUARED") else 7.38905609893065
-
-    N = int(N)
-    seed = int(seed)
-    zeta = DiscreteZetaShift(seed, v=v, delta_max=delta_max)
-    shifts = [zeta]
-    for _ in range(1, N):
-        zeta = zeta.unfold_next()
-        shifts.append(zeta)
-    return shifts
-
-# Any function or analysis (such as waveform encoding, spectral computation)
-# that expected a list of zeta shifts should now use generate_zeta_shifts(N)
-# Example:
-# shifts = generate_zeta_shifts(N)
-
 def encode_waveform(sequence, window_size=1024, use_z=True, v=1.0):
     """Encode sequence as complex waveform Ψ_n = w_n · e^{2πi s_n}."""
     waveforms = []
@@ -118,10 +39,6 @@ def encode_waveform(sequence, window_size=1024, use_z=True, v=1.0):
 
 def compute_spectral_features(waveform):
     """Compute FFT-based features: dominant freq shift, peaks, entropy."""
-    if len(waveform) < 2:
-        # Not enough data for spectral analysis; return safe defaults.
-        return 0.0, 0, 0.0
-
     spectrum = np.abs(fft(waveform))
     spectrum = spectrum / np.sum(spectrum)  # Normalize to probability distribution
     freqs = np.fft.fftfreq(len(waveform))
@@ -157,62 +74,4 @@ def disruption_score(waveforms, ref_waveforms=None, use_z=True, v=1.0):
             score = abs(score - (z_n * abs(ref_delta_f1) + ref_delta_peaks + ref_delta_entropy))
 
         scores.append(score)
-
-    if not scores:
-        # Handle the empty case gracefully.
-        return 0.0
-
     return np.mean(scores)
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Compute disruption scores using DiscreteZetaShift objects.")
-    parser.add_argument('--N', type=int, default=1000, help='Maximum n for generating zeta shifts.')
-    parser.add_argument('--v', type=float, default=1.0, help='Traversal velocity for zeta shifts.')
-    parser.add_argument('--delta_max', type=float, default=np.exp(2), help='Maximum delta for zeta shifts.')
-    parser.add_argument('--log', action='store_true', help='Enable logging to wave_crispr_test_runs.csv.')
-    args = parser.parse_args()
-
-    shifts = generate_zeta_shifts(args.N, args.v, args.delta_max)
-    df = pd.DataFrame([shift.__dict__ for shift in shifts])
-    df.rename(columns=attr_map, inplace=True)
-    df['index'] = range(1, len(df) + 1)
-    df['is_prime'] = df['index'].apply(isprime)
-
-    # Full sequence (e.g., rate_b)
-    full_seq = df['rate_b'].values
-    full_waveforms = encode_waveform(full_seq)
-    full_score = disruption_score(full_waveforms)
-
-    # Prime subsequence
-    prime_df = df[df['is_prime']]
-    prime_seq = prime_df['rate_b'].values
-    prime_waveforms = encode_waveform(prime_seq)
-    prime_score = disruption_score(prime_waveforms)
-
-    # Composite subsequence
-    composite_df = df[~df['is_prime']]
-    composite_seq = composite_df['rate_b'].values
-    composite_waveforms = encode_waveform(composite_seq)
-    composite_score = disruption_score(composite_waveforms)
-
-    print(f"Full sequence disruption score: {full_score}")
-    print(f"Prime subsequence disruption score: {prime_score}")
-    print(f"Composite subsequence disruption score: {composite_score}")
-
-    if args.log:
-        log_file = "wave_crispr_test_runs.csv"
-        timestamp = datetime.now().isoformat()
-        data = {
-            'timestamp': timestamp,
-            'N': args.N,
-            'v': args.v,
-            'delta_max': args.delta_max,
-            'full_score': full_score,
-            'prime_score': prime_score,
-            'composite_score': composite_score
-        }
-        df_log = pd.DataFrame([data])
-        if not os.path.exists(log_file):
-            df_log.to_csv(log_file, index=False)
-        else:
-            df_log.to_csv(log_file, mode='a', header=False, index=False)
