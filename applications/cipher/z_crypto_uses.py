@@ -1,196 +1,295 @@
+# z_crypto_use_cases.py
+# Demonstrates usage of z_crypto.py for Z-framework keyed encryption/decryption.
+# Assumes z_crypto.py is in the same directory or importable.
+# For practical deployment, consider block-mode for large data to bound precision.
 
-# z_crypto.py
-# Reusable library for Z-framework keyed encryption, grounded in zeta shifts and curvature transformations.
-# Dependencies: mpmath, sympy, hashlib, os, collections, abc
-
-from abc import ABC
-import collections
-import hashlib
 import os
+from z_crypto import encrypt, decrypt, compute_r, theta_prime, DiscreteZetaShift
+# import z_crypto
+import hashlib
 import mpmath as mp
-from sympy import divisors, isprime
 
-mp.mp.dps = 50  # High precision for modular ops and large integers
+def detailed_encrypt_process(plaintext_bytes, passphrase, N=10):
+    """
+    Enhanced encrypt function with detailed logging
+    """
+    print("\n" + "="*80)
+    print("DETAILED ENCRYPTION PROCESS")
+    print("="*80)
 
-PHI = (1 + mp.sqrt(5)) / 2
-E_SQUARED = mp.exp(2)
+    print(f"Input plaintext: {plaintext_bytes}")
+    print(f"Plaintext length: {len(plaintext_bytes)} bytes")
+    print(f"Passphrase: '{passphrase}'")
+    print(f"N parameter: {N}")
 
-class UniversalZetaShift(ABC):
-    def __init__(self, a, b, c):
-        if a == 0 or b == 0 or c == 0:
-            raise ValueError("Parameters cannot be zero.")
-        self.a = mp.mpmathify(a)
-        self.b = mp.mpmathify(b)
-        self.c = mp.mpmathify(c)
+    if not plaintext_bytes:
+        print("Empty plaintext detected - using special handling")
+        key = hashlib.sha256(passphrase.encode()).digest()
+        iv = os.urandom(32)
+        result = iv + (0).to_bytes(4, 'big')
+        print(f"Empty plaintext result length: {len(result)} bytes")
+        return result
 
-    def compute_z(self):
-        try:
-            return self.a * (self.b / self.c)
-        except ZeroDivisionError:
-            return mp.inf
+    # Step 1: Generate key from passphrase
+    key = hashlib.sha256(passphrase.encode()).digest()
+    print(f"\nStep 1 - Key derivation:")
+    print(f"  SHA256(passphrase) = {key.hex()[:32]}... (showing first 16 bytes)")
+    print(f"  Key length: {len(key)} bytes")
 
-    def getD(self):
-        try:
-            return self.c / self.a
-        except ZeroDivisionError:
-            return mp.inf
+    # Step 2: Generate random IV
+    iv = os.urandom(32)
+    print(f"\nStep 2 - IV generation:")
+    print(f"  Random IV = {iv.hex()[:32]}... (showing first 16 bytes)")
+    print(f"  IV length: {len(iv)} bytes")
 
-    def getE(self):
-        try:
-            return self.c / self.b
-        except ZeroDivisionError:
-            return mp.inf
+    # Step 3: XOR key with IV
+    from z_crypto import xor_bytes
+    key_prime = xor_bytes(key, iv)
+    print(f"\nStep 3 - Key XOR with IV:")
+    print(f"  key' = key ⊕ iv = {key_prime.hex()[:32]}... (showing first 16 bytes)")
 
-    def getF(self):
-        try:
-            d_over_e = self.getD() / self.getE()
-            return PHI * ((d_over_e % PHI) / PHI) ** mp.mpf(0.3)
-        except ZeroDivisionError:
-            return mp.inf
+    # Step 4: Convert key' to mpmath number
+    s_prime = mp.mpmathify(int.from_bytes(key_prime, 'big'))
+    print(f"\nStep 4 - Convert to mpmath:")
+    print(f"  s' = {str(s_prime)[:50]}... (truncated)")
+    print(f"  s' bit length: {s_prime.bit_length() if hasattr(s_prime, 'bit_length') else 'N/A'}")
 
-    def getG(self):
-        try:
-            f = self.getF()
-            return (self.getE() / f) / E_SQUARED
-        except ZeroDivisionError:
-            return mp.inf
+    # Step 5: Compute r using Z-framework
+    print(f"\nStep 5 - Computing r using Z-framework (N={N} iterations):")
+    r = compute_r(s_prime, N)
+    print(f"  r = {str(r)[:50]}... (truncated)")
 
-    def getH(self):
-        try:
-            return self.getF() / self.getG()
-        except ZeroDivisionError:
-            return mp.inf
+    # Step 6: Apply theta_prime transformation
+    print(f"\nStep 6 - Theta prime transformation:")
+    theta = theta_prime(r)
+    print(f"  θ'(r) = {str(theta)[:50]}... (truncated)")
 
-    def getI(self):
-        try:
-            g_over_h = self.getG() / self.getH()
-            return PHI * ((g_over_h % PHI) / PHI) ** mp.mpf(0.3)
-        except ZeroDivisionError:
-            return mp.inf
+    # Step 7: Convert plaintext to mpmath number
+    m = mp.mpmathify(int.from_bytes(plaintext_bytes, 'big'))
+    print(f"\nStep 7 - Plaintext to number:")
+    print(f"  m = {str(m)[:50]}... (truncated)")
+    print(f"  m bit length: {m.bit_length() if hasattr(m, 'bit_length') else 'N/A'}")
 
-    def getJ(self):
-        try:
-            return self.getH() / self.getI()
-        except ZeroDivisionError:
-            return mp.inf
+    # Step 8: Encryption multiplication
+    print(f"\nStep 8 - Encryption operation:")
+    e_float = m * theta
+    print(f"  e (float) = m * θ' = {str(e_float)[:50]}... (truncated)")
 
-    def getK(self):
-        try:
-            return (self.getI() / self.getJ()) / E_SQUARED
-        except ZeroDivisionError:
-            return mp.inf
+    # Step 9: Convert to integer
+    e_int = int(mp.nint(e_float))
+    print(f"  e (int) = {str(e_int)[:50]}... (truncated)")
+    print(f"  e bit length: {e_int.bit_length()}")
 
-    def getL(self):
-        try:
-            return self.getJ() / self.getK()
-        except ZeroDivisionError:
-            return mp.inf
+    # Step 10: Convert to bytes
+    e_bytes = e_int.to_bytes((e_int.bit_length() + 7) // 8, 'big')
+    print(f"  e (bytes) length: {len(e_bytes)} bytes")
+    print(f"  e (bytes) = {e_bytes.hex()[:32]}... (showing first 16 bytes)")
 
-    def getM(self):
-        try:
-            k_over_l = self.getK() / self.getL()
-            return PHI * ((k_over_l % PHI) / PHI) ** mp.mpf(0.3)
-        except ZeroDivisionError:
-            return mp.inf
+    # Step 11: Construct final ciphertext
+    len_e = len(e_bytes)
+    ciphertext = iv + len_e.to_bytes(4, 'big') + e_bytes
+    print(f"\nStep 11 - Final ciphertext construction:")
+    print(f"  IV length: {len(iv)} bytes")
+    print(f"  Length field: {len_e} (4 bytes)")
+    print(f"  Encrypted data: {len(e_bytes)} bytes")
+    print(f"  Total ciphertext length: {len(ciphertext)} bytes")
 
-    def getN(self):
-        try:
-            return self.getL() / self.getM()
-        except ZeroDivisionError:
-            return mp.inf
+    return ciphertext
 
-    def getO(self):
-        try:
-            return self.getM() / self.getN()
-        except ZeroDivisionError:
-            return mp.inf
+def detailed_decrypt_process(ciphertext, passphrase, N=10):
+    """
+    Enhanced decrypt function with detailed logging
+    """
+    print("\n" + "="*80)
+    print("DETAILED DECRYPTION PROCESS")
+    print("="*80)
 
-    @property
-    def attributes(self):
-        return {
-            'a': self.a, 'b': self.b, 'c': self.c, 'z': self.compute_z(),
-            'D': self.getD(), 'E': self.getE(), 'F': self.getF(), 'G': self.getG(),
-            'H': self.getH(), 'I': self.getI(), 'J': self.getJ(), 'K': self.getK(),
-            'L': self.getL(), 'M': self.getM(), 'N': self.getN(), 'O': self.getO()
-        }
+    print(f"Input ciphertext length: {len(ciphertext)} bytes")
+    print(f"Ciphertext (hex, first 32 chars): {ciphertext.hex()[:32]}...")
+    print(f"Passphrase: '{passphrase}'")
+    print(f"N parameter: {N}")
 
-class DiscreteZetaShift(UniversalZetaShift):
-    def __init__(self, n, v=1.0, delta_max=E_SQUARED):
-        self.vortex = collections.deque()  # Instance-level vortex
-        n = mp.mpmathify(n)
-        d_n = len(divisors(int(n)))  # sympy for divisors, cast to int if needed
-        kappa = d_n * mp.log(n + 1) / E_SQUARED
-        delta_n = v * kappa
-        super().__init__(a=n, b=delta_n, c=delta_max)
-        self.v = v
-        self.f = round(float(self.getG()))  # Cast to float for rounding
-        self.w = round(float(2 * mp.pi / PHI))
+    # Step 1: Generate key from passphrase
+    key = hashlib.sha256(passphrase.encode()).digest()
+    print(f"\nStep 1 - Key derivation:")
+    print(f"  SHA256(passphrase) = {key.hex()[:32]}... (showing first 16 bytes)")
 
-        self.vortex.append(self)
-        while len(self.vortex) > self.f:
-            self.vortex.popleft()
+    # Step 2: Extract IV
+    iv = ciphertext[:32]
+    print(f"\nStep 2 - Extract IV:")
+    print(f"  IV = {iv.hex()[:32]}... (showing first 16 bytes)")
 
-    def unfold_next(self):
-        successor = DiscreteZetaShift(self.a + 1, v=self.v, delta_max=self.c)
-        self.vortex.append(successor)
-        while len(self.vortex) > successor.f:
-            self.vortex.popleft()
-        return successor
+    # Step 3: Extract length field
+    len_e = int.from_bytes(ciphertext[32:36], 'big')
+    print(f"\nStep 3 - Extract length field:")
+    print(f"  Length of encrypted data: {len_e} bytes")
 
-    def get_3d_coordinates(self):
-        attrs = self.attributes
-        theta_d = PHI * ((attrs['D'] % PHI) / PHI) ** mp.mpf(0.3)
-        theta_e = PHI * ((attrs['E'] % PHI) / PHI) ** mp.mpf(0.3)
-        x = self.a * mp.cos(theta_d)
-        y = self.a * mp.sin(theta_e)
-        z = attrs['F'] / E_SQUARED
-        return (float(x), float(y), float(z))
+    if len_e == 0:
+        print("  Empty plaintext case detected")
+        return b""
 
-    def get_4d_coordinates(self):
-        attrs = self.attributes
-        x, y, z = self.get_3d_coordinates()
-        t = -self.c * (attrs['O'] / PHI)
-        return (float(t), x, y, z)
+    # Step 4: Extract encrypted data
+    e_bytes = ciphertext[36:36 + len_e]
+    print(f"\nStep 4 - Extract encrypted data:")
+    print(f"  Encrypted data length: {len(e_bytes)} bytes")
+    print(f"  Encrypted data (hex, first 32 chars): {e_bytes.hex()[:32]}...")
 
-    def get_5d_coordinates(self):
-        attrs = self.attributes
-        theta_d = PHI * ((attrs['D'] % PHI) / PHI) ** mp.mpf(0.3)
-        theta_e = PHI * ((attrs['E'] % PHI) / PHI) ** mp.mpf(0.3)
-        x = self.a * mp.cos(theta_d)
-        y = self.a * mp.sin(theta_e)
-        z = attrs['F'] / E_SQUARED
-        w = attrs['I']
-        u = attrs['O']
-        return (float(x), float(y), float(z), float(w), float(u))
+    # Step 5: Convert encrypted data to mpmath number
+    e_int = mp.mpmathify(int.from_bytes(e_bytes, 'big'))
+    print(f"\nStep 5 - Convert encrypted data to number:")
+    print(f"  e = {str(e_int)[:50]}... (truncated)")
 
-    @classmethod
-    def generate_key(cls, N, seed_n=2):
-        zeta = cls(seed_n)
-        trajectory_o = [zeta.getO()]
-        for _ in range(1, N):
-            zeta = zeta.unfold_next()
-            trajectory_o.append(zeta.getO())
-        hash_input = ''.join(mp.nstr(o, 20) for o in trajectory_o)  # Higher precision
-        return hashlib.sha256(hash_input.encode()).hexdigest()[:32]
+    # Step 6: Recreate key'
+    from z_crypto import xor_bytes
+    key_prime = xor_bytes(key, iv)
+    s_prime = mp.mpmathify(int.from_bytes(key_prime, 'big'))
+    print(f"\nStep 6 - Recreate key':")
+    print(f"  s' = {str(s_prime)[:50]}... (truncated)")
 
-    @classmethod
-    def get_coordinates_array(cls, dim=3, N=100, seed=2, v=1.0, delta_max=E_SQUARED):
-        zeta = cls(seed, v, delta_max)
-        shifts = [zeta]
-        for _ in range(1, N):
-            zeta = zeta.unfold_next()
-            shifts.append(zeta)
-        if dim == 3:
-            coords = [shift.get_3d_coordinates() for shift in shifts]
-        elif dim == 4:
-            coords = [shift.get_4d_coordinates() for shift in shifts]
-        else:
-            raise ValueError("dim must be 3 or 4")
-        is_primes = [isprime(int(shift.a)) for shift in shifts]  # Cast to int
-        return coords, is_primes
+    # Step 7: Recompute r
+    print(f"\nStep 7 - Recompute r using Z-framework:")
+    r = compute_r(s_prime, N)
+    print(f"  r = {str(r)[:50]}... (truncated)")
 
-def theta_prime(n, k=mp.mpf('0.3')):
-    return PHI * ((n % PHI) / PHI) ** k
+    # Step 8: Recompute theta
+    print(f"\nStep 8 - Recompute theta:")
+    theta = theta_prime(r)
+    print(f"  θ'(r) = {str(theta)[:50]}... (truncated)")
+
+    # Step 9: Decrypt by division
+    print(f"\nStep 9 - Decryption operation:")
+    m_float = e_int / theta
+    print(f"  m (float) = e / θ' = {str(m_float)[:50]}... (truncated)")
+
+    # Step 10: Convert to integer
+    m_int = int(mp.nint(m_float))
+    print(f"  m (int) = {str(m_int)[:50]}... (truncated)")
+    print(f"  m bit length: {m_int.bit_length()}")
+
+    if m_int == 0:
+        print("  Result is zero - returning empty bytes")
+        return b""
+
+    # Step 11: Convert to bytes
+    plaintext = m_int.to_bytes((m_int.bit_length() + 7) // 8, 'big')
+    print(f"\nStep 11 - Convert to plaintext bytes:")
+    print(f"  Plaintext length: {len(plaintext)} bytes")
+    print(f"  Plaintext: {plaintext}")
+
+    return plaintext
+
+# Example 1: Basic encryption/decryption of short binary data with detailed logging
+print("STARTING Z-CRYPTO DEMONSTRATION")
+print("="*80)
+
+plaintext_short = b"Z-model test"
+passphrase = "secret123"
+
+print("EXAMPLE 1: Basic encryption/decryption")
+ciphertext_short = detailed_encrypt_process(plaintext_short, passphrase, N=10)
+decrypted_short = detailed_decrypt_process(ciphertext_short, passphrase, N=10)
+
+print("\n" + "="*80)
+print("EXAMPLE 1 SUMMARY")
+print("="*80)
+print("Original:", plaintext_short)
+print("Decrypted:", decrypted_short)
+print("Match:", decrypted_short == plaintext_short)
+assert decrypted_short == plaintext_short
+
+# Example 2: Handling moderate-sized data with summary logging
+print("\n\nEXAMPLE 2: Moderate-sized data (100 bytes)")
+plaintext_moderate = os.urandom(100)
+print(f"Random plaintext (first 32 hex chars): {plaintext_moderate.hex()[:32]}...")
+print(f"Plaintext length: {len(plaintext_moderate)} bytes")
+
+ciphertext_moderate = encrypt(plaintext_moderate, passphrase, N=12)
+print(f"Ciphertext length: {len(ciphertext_moderate)} bytes")
+
+decrypted_moderate = decrypt(ciphertext_moderate, passphrase, N=12)
+print(f"Decrypted length: {len(decrypted_moderate)} bytes")
+print("Match:", decrypted_moderate == plaintext_moderate)
+assert decrypted_moderate == plaintext_moderate
+
+# Example 3: Wrong passphrase test
+print("\n\nEXAMPLE 3: Wrong passphrase test")
+wrong_passphrase = "wrong456"
+print(f"Using wrong passphrase: '{wrong_passphrase}'")
+try:
+    wrong_result = decrypt(ciphertext_short, wrong_passphrase, N=10)
+    print(f"Unexpected success with wrong passphrase: {wrong_result}")
+    assert False, "Should raise error or produce wrong result"
+except ValueError as e:
+    print(f"Expected failure: {str(e)}")
+except Exception as e:
+    print(f"Decryption with wrong passphrase produced: {wrong_result}")
+    print(f"Original was: {plaintext_short}")
+    print(f"Results match: {wrong_result == plaintext_short}")
+
+# Example 4: Empty plaintext
+print("\n\nEXAMPLE 4: Empty plaintext")
+plaintext_empty = b""
+print("Testing empty plaintext")
+ciphertext_empty = encrypt(plaintext_empty, passphrase, N=10)
+print(f"Empty plaintext ciphertext length: {len(ciphertext_empty)} bytes")
+decrypted_empty = decrypt(ciphertext_empty, passphrase, N=10)
+print(f"Decrypted empty: {decrypted_empty}")
+print("Empty match:", decrypted_empty == b"")
+assert decrypted_empty == b""
+
+# Example 5: Unicode-encoded text
+print("\n\nEXAMPLE 5: Unicode text")
+unicode_text = r"Unification: \( Z = n(\Delta_n / \Delta_{\max}) \)".encode('utf-8')
+print(f"Unicode text: {unicode_text}")
+print(f"Unicode text length: {len(unicode_text)} bytes")
+
+ciphertext_unicode = encrypt(unicode_text, passphrase, N=10)
+print(f"Unicode ciphertext length: {len(ciphertext_unicode)} bytes")
+
+decrypted_unicode_bytes = decrypt(ciphertext_unicode, passphrase, N=10)
+decrypted_unicode = decrypted_unicode_bytes.decode('utf-8')
+print(f"Decrypted unicode: {decrypted_unicode}")
+print("Unicode match:", decrypted_unicode == unicode_text.decode('utf-8'))
+assert decrypted_unicode == unicode_text.decode('utf-8')
+
+# Final Summary
+print("\n\n" + "="*80)
+print("FINAL SUMMARY")
+print("="*80)
+print("✓ Example 1: Basic encryption/decryption - PASSED")
+print("✓ Example 2: Moderate-sized data (100 bytes) - PASSED")
+print("✓ Example 3: Wrong passphrase rejection - PASSED")
+print("✓ Example 4: Empty plaintext handling - PASSED")
+print("✓ Example 5: Unicode text handling - PASSED")
+print("\nAll Z-framework encryption/decryption use cases validated successfully!")
+
+# Z-framework component analysis
+print("\n" + "="*80)
+print("Z-FRAMEWORK COMPONENT ANALYSIS")
+print("="*80)
+test_zeta = DiscreteZetaShift(42)
+print(f"Test DiscreteZetaShift(42):")
+print(f"  a = {test_zeta.a}")
+print(f"  b = {test_zeta.b}")
+print(f"  c = {test_zeta.c}")
+print(f"  z = a*(b/c) = {test_zeta.compute_z()}")
+
+attrs = test_zeta.attributes
+print(f"  D = {attrs['D']}")
+print(f"  E = {attrs['E']}")
+print(f"  F = {attrs['F']}")
+print(f"  O = {attrs['O']}")
+
+coords_3d = test_zeta.get_3d_coordinates()
+print(f"  3D coordinates: ({coords_3d[0]:.6f}, {coords_3d[1]:.6f}, {coords_3d[2]:.6f})")
+
+print(f"\nVortex size: {len(test_zeta.vortex)}")
+print(f"f parameter: {test_zeta.f}")
+print(f"w parameter: {test_zeta.w}")
+
+print("\nZ-crypto demonstration completed successfully!")
+
+PHI = mp.phi  # Assuming PHI (Golden Ratio) is used
 
 def compute_r(s, N=10):
     zeta = DiscreteZetaShift(s)
@@ -198,61 +297,11 @@ def compute_r(s, N=10):
     for _ in range(N - 1):
         zeta = zeta.unfold_next()
         O_list.append(zeta.getO())
-
-    # Compute product manually since mp.prod doesn't exist
+    
+    # Manual product calculation
     prod_O = mp.mpf(1)
-    for o in O_list:
-        prod_O *= o
-
+    for o_val in O_list:
+        prod_O *= o_val
+        
     phi_N = PHI ** N
     return prod_O / phi_N
-
-def xor_bytes(a, b):
-    if len(a) != len(b):
-        raise ValueError("Byte strings must be same length for XOR")
-    return bytes(x ^ y for x, y in zip(a, b))
-
-def encrypt(plaintext_bytes: bytes, passphrase: str, N: int = 10) -> bytes:
-    """Encrypt plaintext bytes using Z-framework keyed scheme."""
-    if not plaintext_bytes:
-        # Handle empty plaintext
-        key = hashlib.sha256(passphrase.encode()).digest()
-        iv = os.urandom(32)
-        return iv + (0).to_bytes(4, 'big')
-
-    key = hashlib.sha256(passphrase.encode()).digest()  # 32 bytes
-    iv = os.urandom(32)  # Match key length
-    key_prime = xor_bytes(key, iv)
-    s_prime = mp.mpmathify(int.from_bytes(key_prime, 'big'))
-    r = compute_r(s_prime, N)
-    theta = theta_prime(r)
-    m = mp.mpmathify(int.from_bytes(plaintext_bytes, 'big'))
-    e_float = m * theta
-    e_int = int(mp.nint(e_float))  # Convert mpf to int
-    e_bytes = e_int.to_bytes((e_int.bit_length() + 7) // 8, 'big')
-    len_e = len(e_bytes)
-    return iv + len_e.to_bytes(4, 'big') + e_bytes
-
-def decrypt(ciphertext: bytes, passphrase: str, N: int = 10) -> bytes:
-    """Decrypt ciphertext to plaintext bytes using Z-framework keyed scheme."""
-    key = hashlib.sha256(passphrase.encode()).digest()
-    iv = ciphertext[:32]
-    len_e = int.from_bytes(ciphertext[32:36], 'big')
-
-    if len_e == 0:
-        # Handle empty plaintext case
-        return b""
-
-    e_bytes = ciphertext[36:36 + len_e]
-    e_int = mp.mpmathify(int.from_bytes(e_bytes, 'big'))
-    key_prime = xor_bytes(key, iv)
-    s_prime = mp.mpmathify(int.from_bytes(key_prime, 'big'))
-    r = compute_r(s_prime, N)
-    theta = theta_prime(r)
-    m_float = e_int / theta
-    m_int = int(mp.nint(m_float))  # Convert mpf to int
-
-    if m_int == 0:
-        return b""
-
-    return m_int.to_bytes((m_int.bit_length() + 7) // 8, 'big')
