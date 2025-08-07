@@ -4,9 +4,11 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 mpmath.mp.dps = 50
-J = 500  # Number of zeros
-zeros = [mpmath.zetazero(j+1) for j in range(J)]
-imag_zeros = np.array([float(z.imag) for z in zeros])
+
+# Load zeros from file instead of computing
+with open('zeros1', 'r') as f:
+    imag_zeros = np.array([float(line.strip()) for line in f if line.strip()])
+J = len(imag_zeros)  # Dynamically set J to the number of loaded zeros
 
 unfolded = []
 for t in imag_zeros:
