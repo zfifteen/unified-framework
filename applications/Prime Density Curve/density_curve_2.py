@@ -2,7 +2,6 @@ import mpmath
 import numpy as np  # Handles arrays and mathematical operations
 import matplotlib.pyplot as plt  # For creating visualizations
 from mpl_toolkits.mplot3d import Axes3D  # Adds 3D plotting capabilities
-from mpmath import euler
 
 
 # Function to check if a number is prime
