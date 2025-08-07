@@ -1,8 +1,5 @@
 # vortex_filter.py: Self-Tuning Vortex Filter Method for Prime Detection
 # Guided by Z = n(Δₙ/Δmax), dynamically tuning threshold for ~75.2% composite elimination via minimal-curvature geodesics.
-"""
-TODO: Refactor to use the embeddings from `helical_embeddings.db`
-"""
 import math
 import numpy as np
 from sympy import isprime  # For validation; replace with efficient primality test in production
@@ -10,6 +7,7 @@ from sympy.ntheory import divisor_count
 import mpmath
 import pandas as pd
 from scipy.stats import kstest
+from core.domain import UniversalZetaShift, DiscreteZetaShift
 
 # Constants from Universal Form Transformer
 UNIVERSAL = (1 + math.sqrt(5)) / 2  # Set to PHI for bounding Δmax
@@ -17,87 +15,12 @@ PHI = UNIVERSAL  # Golden ratio for vortex resonance and Δmax bound
 PI = math.pi  # Circular invariant for spiral geometry
 FSC = 1/137
 
-# Load precomputed zeta shifts for interpolation to minimize distortion
-df = pd.read_csv("zeta_shifts_1_to_6000.csv")
-df.set_index('n', inplace=True)
+# Cache for precomputed frame-shift “b” values per max_n
+_shifts_cache = {}
 
-class UniversalZetaShift:
-    def __init__(self, a, b, c):
-        if c == 0:
-            raise ValueError("Universal invariant C cannot be zero.")
-        self.a = mpmath.mpf(float(a))
-        self.b = mpmath.mpf(float(b))
-        self.c = mpmath.mpf(float(c))
-
-    def compute_z(self):
-        return self.a * (self.b / self.c)
-
-    def getD(self):
-        if self.a == 0:
-            raise ValueError("Division by zero: 'a' cannot be zero in getD().")
-        return self.c / self.a
-
-    def getE(self):
-        if self.b == 0:
-            raise ValueError("Division by zero: 'b' cannot be zero in getE().")
-        return self.c / self.b
-
-    def getF(self):
-        return self.getD() / self.getE()
-
-    def getG(self):
-        f = self.getF()
-        if f == 0:
-            raise ValueError("Division by zero: 'F' cannot be zero in getG().")
-        return self.getE() / f
-
-    def getH(self):
-        g = self.getG()
-        if g == 0:
-            raise ValueError("Division by zero: 'G' cannot be zero in getH().")
-        return self.getF() / g
-
-    def getI(self):
-        h = self.getH()
-        if h == 0:
-            raise ValueError("Division by zero: 'H' cannot be zero in getI().")
-        return self.getG() / h
-
-    def getJ(self):
-        i = self.getI()
-        if i == 0:
-            raise ValueError("Division by zero: 'I' cannot be zero in getJ().")
-        return self.getH() / i
-
-    def getK(self):
-        j = self.getJ()
-        if j == 0:
-            raise ValueError("Division by zero: 'J' cannot be zero in getK().")
-        return self.getI() / j
-
-    def getL(self):
-        k = self.getK()
-        if k == 0:
-            raise ValueError("Division by zero: 'K' cannot be zero in getL().")
-        return self.getJ() / k
-
-    def getM(self):
-        l = self.getL()
-        if l == 0:
-            raise ValueError("Division by zero: 'L' cannot be zero in getM().")
-        return self.getK() / l
-
-    def getN(self):
-        m = self.getM()
-        if m == 0:
-            raise ValueError("Division by zero: 'M' cannot be zero in getN().")
-        return self.getL() / m
-
-    def getO(self):
-        n = self.getN()
-        if n == 0:
-            raise ValueError("Division by zero: 'N' cannot be zero in getO().")
-        return self.getM() / n
+# todo: replace csv load with creating a DiscreetZetaShift object and calling unfold_next() ina loop in a 
+# df = pd.read_csv("../experiments/z_embeddings_10.csv")
+# df.set_index('n', inplace=True)
 
 class ZetaShiftChain(UniversalZetaShift):
     def __init__(self, n, max_n):
@@ -156,6 +79,21 @@ def get_curvature(chain):
     std = np.std(chain_log)
     return std
 
+def get_precomputed_shifts(max_n: int) -> pd.Series:
+    """
+    Build (or retrieve) a pandas Series of 'b' values for n=2..max_n
+    by iteratively unfolding DiscreteZetaShift.
+    Index: integer n; values: float b.
+    """
+    if max_n not in _shifts_cache:
+        zeta = DiscreteZetaShift(2)
+        shifts = {int(zeta.a): float(zeta.b)}
+        while int(zeta.a) < max_n:
+            zeta = zeta.unfold_next()
+            shifts[int(zeta.a)] = float(zeta.b)
+        _shifts_cache[max_n] = pd.Series(shifts, name='b')
+    return _shifts_cache[max_n]
+
 def compute_frame_shift(n: int, max_n: int) -> float:
     """Universal Frame Shift Transformer: Δₙ = κ(n) · ln(n+1)/e², normalized against Δmax bounded by φ"""
     if n <= 1:
@@ -169,18 +107,19 @@ def compute_frame_shift(n: int, max_n: int) -> float:
     ln_term = math.log(n + 1)
     e2 = math.e ** 2
     delta_n = kappa * ln_term / e2
-    # Interpolate precomputed shift from CSV to minimize distortion
-    if n in df.index:
-        precomputed_b = df.at[n, 'b']
+    # Interpolate against precomputed shifts generated via DiscreteZetaShift
+    shifts = get_precomputed_shifts(max_n)
+    if n in shifts.index:
+        precomputed_b = shifts.at[n]
     else:
-        # Linear interpolation for n not in CSV
-        lower = df.index[df.index < n].max()
-        upper = df.index[df.index > n].min()
-        if pd.isnull(lower) or pd.isnull(upper):
-            precomputed_b = math.log(n + 1)  # Fallback to exact if out of range
+        idx = shifts.index
+        lower = idx[idx < n].max() if any(idx < n) else None
+        upper = idx[idx > n].min() if any(idx > n) else None
+        if lower is None or upper is None:
+            precomputed_b = math.log(n + 1)  # Fallback if out of range
         else:
-            lower_b = df.at[lower, 'b']
-            upper_b = df.at[upper, 'b']
+            lower_b = shifts.at[lower]
+            upper_b = shifts.at[upper]
             precomputed_b = lower_b + (upper_b - lower_b) * (n - lower) / (upper - lower)
     # Adjust delta_n with interpolated precomputed shift for reduced distortion
     delta_n_adjusted = delta_n * (precomputed_b / ln_term) if ln_term != 0 else delta_n
@@ -191,12 +130,19 @@ def vortex_projection(numbers: np.array, max_n: int) -> np.array:
     """Project numbers into a 15D space using zeta chain, computing curvature as std of log chain."""
     coords = []
     for n in numbers:
+        # never instantiate ZetaShiftChain with b=0
+        if n <= 1:
+            # degenerate case: no shift, zero curvature
+            coords.append((n, 0.0, 0.0))
+            continue
+
         shift = compute_frame_shift(n, max_n)
-        z = n * shift  # Z = n * (shift)
-        chain_obj = ZetaShiftChain(n, max_n)
+        z = n * shift
+        chain_obj = ZetaShiftChain(n, max_n)  # now always b != 0
         chain = chain_obj.get_chain()
         curvature = get_curvature(chain)
         coords.append((n, z, curvature))
+
     return np.array(coords)
 
 def find_optimal_threshold(projected, target_elim=0.752):
