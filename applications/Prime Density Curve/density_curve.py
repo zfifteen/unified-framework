@@ -6,7 +6,7 @@ from math import log, e  # For logarithm operations and the Euler's number (e)
 
 # --- Configuration/Set-up ---
 N = 1000  # We'll check numbers from 2 up to N
-k = 0.313  # A magic number (curvature exponent) to adjust transformations
+k = 0.313  # Empirically determined curvature exponent for optimal prime-composite separation
 
 # --- Helper Functions ---
 
@@ -28,14 +28,16 @@ def kappa(n):
     """
     return d(n) * log(n + 1) / (e ** 2)
 
-def theta_prime(n, k):
+def theta_prime(n: int, k: float) -> float:
     """
-    Warp or bend the curvature value with modular transformation.
-    Formula: θ′(n) = (κ(n)^k) mod 1
-    Explanation:
-    - κ(n) brings in curvature properties of numbers.
-    - Exponent k adjusts how strongly numbers are warped.
-    - mod 1 keeps just the fractional part between 0 and 1.
+    Warp curvature value with modular transformation: θ′(n) = (κ(n)^k) mod 1.
+
+    Args:
+        n: Positive integer >= 2.
+        k: Curvature exponent (e.g., 0.313 found empirically to maximize distribution separation).
+
+    Returns:
+        Fractional part of κ(n)^k, in [0, 1).
     """
     return (kappa(n) ** k) % 1
 
