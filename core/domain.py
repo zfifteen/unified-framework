@@ -12,6 +12,22 @@ PHI = (1 + mp.sqrt(5)) / 2
 E_SQUARED = mp.exp(2)
 
 class UniversalZetaShift(ABC):
+    """
+    Abstract base class for universal zeta shift calculations with memoization.
+    
+    This class provides computed getters that benefit from automatic caching,
+    ensuring O(1) retrieval on subsequent calls without changing external behavior.
+    
+    Example:
+        >>> uzz = UniversalZetaShift(2, 3, 5)
+        >>> # First calls populate cache
+        >>> d1 = uzz.getD()  # Computed and cached
+        >>> d2 = uzz.getD()  # Retrieved from cache
+        >>> assert d1 == d2  # Identical results
+        >>> 
+        >>> # Cache inspection (internal use)
+        >>> print(len(uzz._cache))  # Shows number of cached values
+    """
     def __init__(self, a, b, c):
         if a == 0 or b == 0 or c == 0:
             raise ValueError("Parameters cannot be zero.")
