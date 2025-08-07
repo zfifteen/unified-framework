@@ -14,8 +14,9 @@
 /applications/wave-crispr-signal/.idea/inspectionProfiles/profiles_settings.xml
 /applications/wave-crispr-signal/.idea/vcs.xml
 /applications/wave-crispr-signal/.idea/wave-crispr-signal.iml
-
-# Python cache files
+/core/domain.py.txt
+/experiments/Geometric–Wave Text Encoding/codec.py.txt
+/experiments/Geometric–Wave Text Encoding/codec_usages.py.txt
 __pycache__/
 *.pyc
 *.pyo
