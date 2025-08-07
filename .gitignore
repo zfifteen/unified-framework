@@ -14,3 +14,6 @@
 /applications/wave-crispr-signal/.idea/inspectionProfiles/profiles_settings.xml
 /applications/wave-crispr-signal/.idea/vcs.xml
 /applications/wave-crispr-signal/.idea/wave-crispr-signal.iml
+__pycache__/
+*.py[cod]
+*$py.class
