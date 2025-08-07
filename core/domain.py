@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from sympy import divisors, isprime
 import mpmath as mp
+import numpy as np
 
 mp.mp.dps = 50  # High precision for large n and modular ops
 
