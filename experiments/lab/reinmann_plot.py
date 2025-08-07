@@ -5,7 +5,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 mpmath.mp.dps = 50
 J = 500  # Number of zeros
-zeros = [mpmath.zetazero(j+1) for j in range(J)]  # First J zeros, imag parts positive
+zeros = [mpmath.zetazero(j+1) for j in range(J)]
 imag_zeros = np.array([float(z.imag) for z in zeros])
 
 unfolded = []
@@ -19,7 +19,7 @@ phi = (1 + np.sqrt(5)) / 2
 theta = 2 * np.pi * unfolded / phi
 x = unfolded * np.cos(theta)
 y = unfolded * np.sin(theta)
-z = unfolded  # Linear ascent along z for helical rise
+z = unfolded
 
 fig = plt.figure(figsize=(10, 8))
 ax = fig.add_subplot(111, projection='3d')
@@ -29,6 +29,27 @@ ax.set_xlabel('X (Cosine Projection)')
 ax.set_ylabel('Y (Sine Projection)')
 ax.set_zlabel('Z (Unfolded Height)')
 ax.set_title('3D Helical Embedding of Riemann Zeros')
-ax.legend()
-ax.view_init(elev=20, azim=45)  # Adjust for optimal frame
+ax.legend(loc='upper right')
+ax.view_init(elev=20, azim=45)
+
+# Add a parameter panel on the left
+param_str = (
+    f"Parameters:\n"
+    f"  J (zeros)    = {J}\n"
+    f"  mp.dps       = {mpmath.mp.dps}\n"
+    f"  φ (golden)   = {phi:.6f}"
+)
+# Make room on the left
+fig.subplots_adjust(left=0.3)
+# Place the text box in 2D overlay on the Axes3D
+ax.text2D(
+    0.05, 0.5, param_str,
+    transform=ax.transAxes,
+    fontsize=10,
+    va='center',
+    ha='left',
+    family='monospace',
+    bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="gray")
+)
+
 plt.show()
