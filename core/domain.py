@@ -18,88 +18,141 @@ class UniversalZetaShift(ABC):
         self.a = mp.mpmathify(a)
         self.b = mp.mpmathify(b)
         self.c = mp.mpmathify(c)
+        self._cache = {}
 
     def compute_z(self):
+        if 'z' in self._cache:
+            return self._cache['z']
         try:
-            return self.a * (self.b / self.c)
+            result = self.a * (self.b / self.c)
         except ZeroDivisionError:
-            return mp.inf
+            result = mp.inf
+        self._cache['z'] = result
+        return result
 
     def getD(self):
+        if 'D' in self._cache:
+            return self._cache['D']
         try:
-            return self.c / self.a
+            result = self.c / self.a
         except ZeroDivisionError:
-            return mp.inf
+            result = mp.inf
+        self._cache['D'] = result
+        return result
 
     def getE(self):
+        if 'E' in self._cache:
+            return self._cache['E']
         try:
-            return self.c / self.b
+            result = self.c / self.b
         except ZeroDivisionError:
-            return mp.inf
+            result = mp.inf
+        self._cache['E'] = result
+        return result
 
     def getF(self):
+        if 'F' in self._cache:
+            return self._cache['F']
         try:
             d_over_e = self.getD() / self.getE()
-            return PHI * ((d_over_e % PHI) / PHI) ** mp.mpf(0.3)
+            result = PHI * ((d_over_e % PHI) / PHI) ** mp.mpf(0.3)
         except ZeroDivisionError:
-            return mp.inf
+            result = mp.inf
+        self._cache['F'] = result
+        return result
 
     def getG(self):
+        if 'G' in self._cache:
+            return self._cache['G']
         try:
             f = self.getF()
-            return (self.getE() / f) / E_SQUARED
+            result = (self.getE() / f) / E_SQUARED
         except ZeroDivisionError:
-            return mp.inf
+            result = mp.inf
+        self._cache['G'] = result
+        return result
 
     def getH(self):
+        if 'H' in self._cache:
+            return self._cache['H']
         try:
-            return self.getF() / self.getG()
+            result = self.getF() / self.getG()
         except ZeroDivisionError:
-            return mp.inf
+            result = mp.inf
+        self._cache['H'] = result
+        return result
 
     def getI(self):
+        if 'I' in self._cache:
+            return self._cache['I']
         try:
             g_over_h = self.getG() / self.getH()
-            return PHI * ((g_over_h % PHI) / PHI) ** mp.mpf(0.3)
+            result = PHI * ((g_over_h % PHI) / PHI) ** mp.mpf(0.3)
         except ZeroDivisionError:
-            return mp.inf
+            result = mp.inf
+        self._cache['I'] = result
+        return result
 
     def getJ(self):
+        if 'J' in self._cache:
+            return self._cache['J']
         try:
-            return self.getH() / self.getI()
+            result = self.getH() / self.getI()
         except ZeroDivisionError:
-            return mp.inf
+            result = mp.inf
+        self._cache['J'] = result
+        return result
 
     def getK(self):
+        if 'K' in self._cache:
+            return self._cache['K']
         try:
-            return (self.getI() / self.getJ()) / E_SQUARED
+            result = (self.getI() / self.getJ()) / E_SQUARED
         except ZeroDivisionError:
-            return mp.inf
+            result = mp.inf
+        self._cache['K'] = result
+        return result
 
     def getL(self):
+        if 'L' in self._cache:
+            return self._cache['L']
         try:
-            return self.getJ() / self.getK()
+            result = self.getJ() / self.getK()
         except ZeroDivisionError:
-            return mp.inf
+            result = mp.inf
+        self._cache['L'] = result
+        return result
 
     def getM(self):
+        if 'M' in self._cache:
+            return self._cache['M']
         try:
             k_over_l = self.getK() / self.getL()
-            return PHI * ((k_over_l % PHI) / PHI) ** mp.mpf(0.3)
+            result = PHI * ((k_over_l % PHI) / PHI) ** mp.mpf(0.3)
         except ZeroDivisionError:
-            return mp.inf
+            result = mp.inf
+        self._cache['M'] = result
+        return result
 
     def getN(self):
+        if 'N' in self._cache:
+            return self._cache['N']
         try:
-            return self.getL() / self.getM()
+            result = self.getL() / self.getM()
         except ZeroDivisionError:
-            return mp.inf
+            result = mp.inf
+        self._cache['N'] = result
+        return result
 
     def getO(self):
+        if 'O' in self._cache:
+            return self._cache['O']
         try:
-            return self.getM() / self.getN()
+            result = self.getM() / self.getN()
         except ZeroDivisionError:
-            return mp.inf
+            result = mp.inf
+        self._cache['O'] = result
+        return result
 
     @property
     def attributes(self):
