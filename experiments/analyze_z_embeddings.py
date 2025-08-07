@@ -72,7 +72,10 @@ def compute_descriptive_stats(df_iter, chunksize=None):
         # store small random sample for percentiles
         sample_vals.append(numeric.sample(
             frac=min(0.01, 1.0), random_state=42
-        ))
+        if len(numeric) > 0:
+            sample_vals.append(numeric.sample(
+                frac=min(0.01, 1.0), random_state=42
+            ))
 
     # finalize stats
     stds = np.sqrt(M2 / count)
