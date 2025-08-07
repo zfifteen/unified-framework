@@ -1,6 +1,8 @@
+import mpmath
 import numpy as np  # Handles arrays and mathematical operations
 import matplotlib.pyplot as plt  # For creating visualizations
 from mpl_toolkits.mplot3d import Axes3D  # Adds 3D plotting capabilities
+
 
 # Function to check if a number is prime
 def is_prime(n):
@@ -53,7 +55,7 @@ z = np.zeros_like(x)  # z-axis will separate primes from composites
 z[is_primes] = 1  # Mark primes with "1" on the z-axis
 
 # Generate helical coordinates for visualization
-theta = 2 * np.pi * nums / 50  # Angle for the helix
+theta = 2 * np.pi * nums / HELIX_NUMBERS_PER_TURN  # Angle for the helix (see HELIX_NUMBERS_PER_TURN above)
 r = kappas / max(kappas)  # Normalize curvature values to act as radius
 x_helix = r * np.cos(theta)  # x-coordinates on the helix (horizontal projection)
 y_helix = r * np.sin(theta)  # y-coordinates on the helix (vertical projection)
