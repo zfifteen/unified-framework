@@ -14,6 +14,13 @@
 /applications/wave-crispr-signal/.idea/inspectionProfiles/profiles_settings.xml
 /applications/wave-crispr-signal/.idea/vcs.xml
 /applications/wave-crispr-signal/.idea/wave-crispr-signal.iml
+
+# Python cache files
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyc
+*.pyo
+
+# Generated files from testing
+*.npy
+*.png
+test_harness_*
