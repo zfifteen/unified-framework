@@ -367,7 +367,9 @@ class ZetaShiftChainAnalysis:
             
         # Save disruption scores
         disruption_file = output_file.replace('.csv', '_disruption_scores.npy')
-        np.save(disruption_file, disruption_scores)
+        # Convert to float64 to avoid mpmath formatting issues
+        disruption_scores_float = np.array([float(score) for score in disruption_scores], dtype=np.float64)
+        np.save(disruption_file, disruption_scores_float)
         print(f"Disruption scores saved to {disruption_file}")
         
         return csv_data, disruption_scores
