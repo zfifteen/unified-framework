@@ -25,3 +25,5 @@ __pycache__/
 *.npy
 *.png
 test_harness_*
+/experiments/z_embeddings.db
+/applications/z_embeddings.db
