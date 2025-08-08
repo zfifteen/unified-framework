@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import sqlite3
-import time
+import time 
 from core.domain import DiscreteZetaShift
 
 def main():
