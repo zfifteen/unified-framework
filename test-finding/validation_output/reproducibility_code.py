@@ -13,7 +13,7 @@ import json
 from scipy import stats
 
 # Load correlation data
-with open('validation_output/correlation_data.json', 'r') as f:
+with open('correlation_data.json', 'r') as f:
     data = json.load(f)
 a = np.array(data['array_a'])
 b = np.array(data['array_b'])
@@ -30,8 +30,8 @@ import numpy as np
 from scipy.stats import ks_2samp
 
 # Load arrays
-prime_vals = np.load('validation_output/prime_chiral_distances.npy')
-composite_vals = np.load('validation_output/composite_chiral_distances.npy')
+prime_vals = np.load('prime_chiral_distances.npy')
+composite_vals = np.load('composite_chiral_distances.npy')
 
 # KS test
 ks_stat, p = ks_2samp(prime_vals, composite_vals)
@@ -67,8 +67,8 @@ def cohens_d(x, y):
     return (x.mean()-y.mean())/s
 
 # Load data and compute
-x = np.load('validation_output/prime_chiral_distances.npy')
-y = np.load('validation_output/composite_chiral_distances.npy')
+x = np.load('prime_chiral_distances.npy')
+y = np.load('composite_chiral_distances.npy')
 d = cohens_d(x, y)
 print(f"Cohen's d = {d:.4f}")
 

@@ -27,7 +27,7 @@ def load_and_validate_correlation():
     print("=== 1) Recompute Pearson correlation & CI ===")
     
     # Load the correlation data
-    with open('validation_output/correlation_data.json', 'r') as f:
+    with open('../validation_output/correlation_data.json', 'r') as f:
         data = json.load(f)
     
     a = np.array(data['array_a'])
@@ -69,8 +69,8 @@ def load_and_validate_ks_test():
     print("=== 2) Recompute KS statistic ===")
     
     # Load the arrays used for KS test
-    prime_vals = np.load('validation_output/prime_chiral_distances.npy')
-    composite_vals = np.load('validation_output/composite_chiral_distances.npy')
+    prime_vals = np.load('../validation_output/prime_chiral_distances.npy')
+    composite_vals = np.load('../validation_output/composite_chiral_distances.npy')
     
     print(f"Prime values: n={len(prime_vals)}, sample={prime_vals[:5]}")
     print(f"Composite values: n={len(composite_vals)}, sample={composite_vals[:5]}")
@@ -91,8 +91,8 @@ def load_and_validate_cohens_d():
     print("=== 3) Compute Cohen's d effect size ===")
     
     # Load the chiral data
-    prime_chiral = np.load('validation_output/prime_chiral_distances.npy')
-    composite_chiral = np.load('validation_output/composite_chiral_distances.npy')
+    prime_chiral = np.load('../validation_output/prime_chiral_distances.npy')
+    composite_chiral = np.load('../validation_output/composite_chiral_distances.npy')
     
     # Cohen's d calculation exactly as specified in the review
     def cohens_d(x, y):
@@ -123,10 +123,10 @@ def demonstrate_k_parameter_analysis():
     print("=== 4) K* parameter analysis & multiple testing ===")
     
     # Load k-sweep data
-    k_values = np.load('validation_output/k_values.npy')
-    max_enhancements = np.load('validation_output/max_enhancements.npy')
-    gmm_sigmas = np.load('validation_output/gmm_sigmas.npy')
-    fourier_sums = np.load('validation_output/fourier_sums.npy')
+    k_values = np.load('../validation_output/k_values.npy')
+    max_enhancements = np.load('../validation_output/max_enhancements.npy')
+    gmm_sigmas = np.load('../validation_output/gmm_sigmas.npy')
+    fourier_sums = np.load('../validation_output/fourier_sums.npy')
     
     print(f"K parameter range: [{k_values[0]:.3f}, {k_values[-1]:.3f}]")
     print(f"Number of k values tested: {len(k_values)}")
@@ -160,8 +160,8 @@ def demonstrate_permutation_test():
     print("=== 5) Permutation test demonstration ===")
     
     # Load curvature data
-    prime_vals = np.load('validation_output/prime_curvature_values.npy')
-    composite_vals = np.load('validation_output/composite_curvature_values.npy')
+    prime_vals = np.load('../validation_output/prime_curvature_values.npy')
+    composite_vals = np.load('../validation_output/composite_curvature_values.npy')
     
     # Observed difference in means
     observed_diff = np.mean(prime_vals) - np.mean(composite_vals)
@@ -213,7 +213,7 @@ def generate_summary_statistics():
     
     for filename, description in files_to_analyze:
         try:
-            data = np.load(f'validation_output/{filename}')
+            data = np.load(f'../validation_output/{filename}')
             stats_dict = {
                 'Dataset': description,
                 'N': len(data),
@@ -233,8 +233,8 @@ def generate_summary_statistics():
     print(summary_df.to_string(index=False))
     
     # Save summary
-    summary_df.to_csv('validation_output/raw_data_summary.csv', index=False)
-    print(f"\nSummary saved to: validation_output/raw_data_summary.csv")
+    summary_df.to_csv('../validation_output/raw_data_summary.csv', index=False)
+    print(f"\nSummary saved to: ../validation_output/raw_data_summary.csv")
     print()
 
 def create_reproducibility_code():
@@ -250,7 +250,7 @@ import json
 from scipy import stats
 
 # Load correlation data
-with open('validation_output/correlation_data.json', 'r') as f:
+with open('../validation_output/correlation_data.json', 'r') as f:
     data = json.load(f)
 a = np.array(data['array_a'])
 b = np.array(data['array_b'])
@@ -265,8 +265,8 @@ import numpy as np
 from scipy.stats import ks_2samp
 
 # Load arrays
-prime_vals = np.load('validation_output/prime_chiral_distances.npy')
-composite_vals = np.load('validation_output/composite_chiral_distances.npy')
+prime_vals = np.load('../validation_output/prime_chiral_distances.npy')
+composite_vals = np.load('../validation_output/composite_chiral_distances.npy')
 
 # KS test
 ks_stat, p = ks_2samp(prime_vals, composite_vals)
@@ -298,15 +298,15 @@ def cohens_d(x, y):
     return (x.mean()-y.mean())/s
 
 # Load data and compute
-x = np.load('validation_output/prime_chiral_distances.npy')
-y = np.load('validation_output/composite_chiral_distances.npy')
+x = np.load('../validation_output/prime_chiral_distances.npy')
+y = np.load('../validation_output/composite_chiral_distances.npy')
 d = cohens_d(x, y)
 print(f"Cohen's d = {d:.4f}")
 """
     }
     
     # Save code snippets
-    with open('validation_output/reproducibility_code.py', 'w') as f:
+    with open('../validation_output/reproducibility_code.py', 'w') as f:
         f.write("#!/usr/bin/env python3\n")
         f.write('"""\nReproducibility Code Snippets\n\n')
         f.write("Code to independently validate all statistical claims\n")
@@ -318,7 +318,7 @@ print(f"Cohen's d = {d:.4f}")
             f.write(code)
             f.write("\n\n")
     
-    print("Code snippets saved to: validation_output/reproducibility_code.py")
+    print("Code snippets saved to: ../validation_output/reproducibility_code.py")
     print()
     
     for title, code in code_snippets.items():
@@ -336,8 +336,8 @@ def main():
     print()
     
     # Check if validation output exists
-    if not os.path.exists('validation_output'):
-        print("❌ Error: validation_output directory not found!")
+    if not os.path.exists('../validation_output'):
+        print("❌ Error: ../validation_output directory not found!")
         print("Please run comprehensive_validation.py first.")
         return
     
@@ -353,9 +353,9 @@ def main():
         
         print("✅ All validation demonstrations completed!")
         print("\nFiles available for independent verification:")
-        files = [f for f in os.listdir('validation_output') if f.endswith(('.npy', '.json', '.csv'))]
+        files = [f for f in os.listdir('../validation_output') if f.endswith(('.npy', '.json', '.csv'))]
         for f in sorted(files):
-            print(f"  📁 validation_output/{f}")
+            print(f"  📁 ../validation_output/{f}")
         
     except Exception as e:
         print(f"❌ Error during validation: {e}")
