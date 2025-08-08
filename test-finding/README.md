@@ -9,6 +9,10 @@ This directory contains all test artifacts, experimental results, and validation
 - **`readme/`** - Documentation related to experiments, tests, and empirical findings
 - **`datasets/`** - Validation datasets, example data, and test harnesses
 - **`logs/`** - Log files and run outputs from test executions
+- **`validation_output/`** - Primary validation artifacts and statistical analysis results
+- **`realistic_validation/`** - Realistic validation scenarios and outputs
+- **`prime_dataset_validation/`** - Prime number dataset validation results
+- **`quick_verification.py`** - Quick verification script for testing review results
 
 ## Usage Guidelines
 
