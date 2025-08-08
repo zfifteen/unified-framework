@@ -24,6 +24,7 @@ __pycache__/
 # Generated files from testing
 *.npy
 *.png
+!charge_vw_motion_summary.png
 helical_*.json
 helical_*.csv
 debug_*.png
