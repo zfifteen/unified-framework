@@ -1,0 +1,38 @@
+{
+  "analysis_parameters": {
+    "M_zeta_zeros": 1000,
+    "N_primes": 5000,
+    "N_sequence": 10000
+  },
+  "correlations": {
+    "spacings_vs_curvatures": {
+      "correlation": 0.0009927921159922511,
+      "p_value": 0.9749984992487198,
+      "description": "Zero spacings vs Prime curvatures \u03ba(p)"
+    },
+    "spacings_vs_u_coord": {
+      "correlation": 0.03558657167983039,
+      "p_value": 0.26112710567712405,
+      "description": "Zero spacings vs 5D u-coordinate (O values)"
+    },
+    "gue_vs_5d_curvatures": {
+      "correlation": 0.1688051917558937,
+      "p_value": 7.992367024429321e-08,
+      "description": "GUE deviations vs 5D curvature cascades"
+    },
+    "phi_modular_target": {
+      "correlation": 0.0058246522259773805,
+      "p_value": 0.8541149462875046,
+      "description": "\u03c6-modular spacings vs curvatures (target r\u22480.93)"
+    },
+    "helical_variance": {
+      "prime_variance": 1.9219010448503318,
+      "composite_variance": 1.812630368814762,
+      "ratio": 1.060282933528814,
+      "description": "Helical embedding variance: primes vs composites"
+    }
+  },
+  "summary": {
+    "target_correlation": 0.0058246522259773805,
+    "gue_correlation": 0.1688051917558937,
+    "target_achieved": 
