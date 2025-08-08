@@ -1,32 +1,69 @@
 # Z Framework: A Unified Model Bridging Physical and Discrete Domains
 
-The Z framework is a mathematical and logical model grounded in the empirical invariance of the speed of light \( c \), unifying physical and discrete domains through geometric constraints. It leverages the universal form \( Z = A(B/c) \), where \( c \) bounds all measurable rates, inducing geometric distortions resolved via curvature-based geodesics. In discrete domains, primes manifest as minimal-curvature paths, with empirical validations showing a 15% density enhancement (CI [14.6%, 15.4%]) at optimal curvature parameter \( k^* \approx 0.3 \).
+⚠️ **VALIDATION STATUS**: This framework contains both validated mathematical results and unvalidated hypotheses. See [VALIDATION.md](VALIDATION.md) for detailed analysis.
+
+The Z framework is a mathematical and logical model grounded in the empirical invariance of the speed of light \( c \), unifying physical and discrete domains through geometric constraints. It leverages the universal form \( Z = A(B/c) \), where \( c \) bounds all measurable rates, inducing geometric distortions resolved via curvature-based geodesics. 
+
+🔴 **UNVALIDATED CLAIM**: In discrete domains, primes manifest as minimal-curvature paths, with claimed empirical validations showing a 15% density enhancement (CI [14.6%, 15.4%]) at optimal curvature parameter \( k^* \approx 0.3 \). **Note**: Current computational results show conflicting values (k* = 0.200, enhancement = 495.2%).
 
 ## Axiomatic Foundations
 
-### Axiom 1: Universal Invariance of \(c\)
+⚠️ **VALIDATION LEVELS**: 🟡 = Mathematically Derived, 🟠 = Hypothetical, 🔴 = Unvalidated
+
+### Axiom 1: Universal Invariance of \(c\) 
+
+🟡 **MATHEMATICALLY DERIVED** (Physical Domain) / 🟠 **HYPOTHETICAL** (Discrete Extension)
+
 The speed of light \( c \) is an absolute invariant across all reference frames and regimes, bounding measurable rates and producing geometric effects in both continuous (spacetime) and discrete (integer sequences) domains. This invariance ensures frame-independent analysis via normalization, as in \( Z = A(B/c) \).
 
+**Mathematical Basis**: Well-established in special relativity through Lorentz invariance. **Gap**: Extension to discrete domains lacks rigorous mathematical foundation.
+
 ### Axiom 2: Imposition of Physical Effects by \(v/c\)
-The ratio \( v/c \), where \( v \) is a relative velocity or rate, induces measurable distortions on all matter and structures, manifesting as curvature in physical spacetime (e.g., relativistic warping) and analogous frame shifts in discrete systems (e.g., \( \Delta_n / \Delta_{\max} \) via curvature \( \kappa(n) = d(n) \cdot \ln(n+1)/e^2 \)). This ratio extends to 5D spacetime, where \( v_{5D}^2 = v_x^2 + v_y^2 + v_z^2 + v_t^2 + v_w^2 = c^2 \), enforcing motion \( v_w > 0 \) in an extra dimension for massive particles, analogous to discrete frame shifts \( \Delta_n \propto v \cdot \kappa(n) \). These effects are validated through observations like time dilation and prime clustering under transformations \( \theta'(n,k) = \phi \cdot ((n \mod \phi)/\phi)^k \).
+
+🟡 **MATHEMATICALLY DERIVED** (Physical Domain) / 🔴 **UNVALIDATED** (Discrete Extension)
+The ratio \( v/c \), where \( v \) is a relative velocity or rate, induces measurable distortions on all matter and structures, manifesting as curvature in physical spacetime (e.g., relativistic warping) and analogous frame shifts in discrete systems (e.g., \( \Delta_n / \Delta_{\max} \) via curvature \( \kappa(n) = d(n) \cdot \ln(n+1)/e^2 \)). 
+
+🔴 **UNVALIDATED EXTENSION**: This ratio extends to 5D spacetime, where \( v_{5D}^2 = v_x^2 + v_y^2 + v_z^2 + v_t^2 + v_w^2 = c^2 \), enforcing motion \( v_w > 0 \) in an extra dimension for massive particles, analogous to discrete frame shifts \( \Delta_n \propto v \cdot \kappa(n) \). These effects are validated through observations like time dilation and prime clustering under transformations \( \theta'(n,k) = \phi \cdot ((n \mod \phi)/\phi)^k \).
+
+**Mathematical Gap**: The e² normalization factor lacks theoretical justification, and the 5D extension is purely speculative.
 
 ### Axiom 3: \(T(v/c)\) as a Fundamental Unit of Measure
-The quantity \( T(v/c) \), specializing \( Z \) in the physical domain where \( T \) is a frame-dependent measurement (e.g., time), serves as a normalized unit quantifying invariant-bound distortions. This unit resolves empirical observations geometrically, replacing probabilistic heuristics with geodesic trajectories. It is validated in 5D helical embeddings \( (x = a \cos(\theta_D), y = a \sin(\theta_E), z = F/e^2, w = I, u = O) \), linking physical distortions to discrete geodesic patterns, with Pearson \( r=0.93 \) extended to Riemann zeta zero spacings.
+
+🟡 **MATHEMATICALLY DERIVED** (Physical Domain) / 🟠 **HYPOTHETICAL** (Discrete Extension)
+
+The quantity \( T(v/c) \), specializing \( Z \) in the physical domain where \( T \) is a frame-dependent measurement (e.g., time), serves as a normalized unit quantifying invariant-bound distortions. This unit resolves empirical observations geometrically, replacing probabilistic heuristics with geodesic trajectories. 
+
+🟠 **HYPOTHETICAL EXTENSION**: It is validated in 5D helical embeddings \( (x = a \cos(\theta_D), y = a \sin(\theta_E), z = F/e^2, w = I, u = O) \), linking physical distortions to discrete geodesic patterns, with claimed Pearson \( r=0.93 \) extended to Riemann zeta zero spacings.
+
+**Required Validation**: The claimed r=0.93 correlation requires verification with documented methodology and independent datasets.
 
 ## What's Novel?
 
-- **Golden Ratio Modular Transformation for Prime Detection**: Uses \( \theta'(n,k) = \phi \cdot ((n \mod \phi)/\phi)^k \) to warp integer sequences, with high-precision mpmath (dps=50) bounding \( \Delta_n < 10^{-16} \). Achieves a 15% prime density enhancement at \( k^* \approx 0.3 \), unique to \( \phi \) (tests on \( \sqrt{2} \): 12%, \( e \): 14%).
-- **Frame-Normalized Curvature**: Defines \( \kappa(n) = d(n) \cdot \ln(n+1)/e^2 \), bridging discrete divisor functions with continuous logarithmic growth. Minimizes variance (\( \sigma \approx 0.118 \)) with \( e^2 \)-normalization, replacing hard ratios with geodesics.
-- **Optimal Curvature Parameter \( k^* \approx 0.3 \)**: Yields a 15% enhancement (bootstrap CI [14.6%, 15.4%], \( p < 10^{-6} \)), invariant across \( N = 10^3 \) to \( 10^9 \), contradicting prime pseudorandomness.
-- **Cross-Domain Validation**: Same \( k^* \) emerges from Riemann zeta zero analysis and prime transformations, with Pearson \( r=0.93 \) (\( p < 10^{-10} \)) on unfolded zero spacings.
-- **3D/5D Helical Embedding**: Maps primes and zeta zeros to helical geodesics using \( \phi \)-modular coordinates in 5D \( (x, y, z, w, u) \), providing geometric visualization of analytic number theory objects.
-- **Hybrid GUE Statistics**: KS statistic 0.916 (\( p \approx 0 \)) shows a new universality class between Poisson and GUE, with systematic deviations.
-- **Spectral Form Factor**: 3D visualization of \( K(\tau)/N \) over \( (\tau, k^*) \), with bootstrap bands \( \sim 0.05/N \), revealing regime-dependent spectral correlations.
-- **Prime Gap Clustering**: Correlates low-\( \kappa \) regions with prime gap distributions, enabling geometric prediction algorithms.
-- **Fourier Asymmetry**: Sine coefficients yield \( S_b \approx 0.45 \) (CI [0.42, 0.48]), indicating chirality in prime residues.
-- **5D Spacetime Unification**: Integrates Kaluza-Klein theory, where \( v_w \) represents charge-induced motion along a compactified fifth dimension, unifying gravity and electromagnetism, with observable Kaluza-Klein towers \( m_n = n / R \).
-- **Wave-CRISPR Spectral Metrics**: Quantifies disruptions via \( \Delta f_1 \), \( \Delta \)Peaks, and \( \Delta \)Entropy \( \propto O / \ln n \), with disruption scores \( \text{Score} = Z \cdot |\Delta f_1| + \Delta \text{Peaks} + \Delta \text{Entropy} \), bridging number theory to quantum chaos.
-- **Helical Computational Structure**: Reveals helical patterns in DiscreteZetaShift unfoldings, with \( \text{var}(O) \sim \log \log N \), suggesting quantum nonlocality analogs.
+⚠️ **CRITICAL VALIDATION ISSUES**: Several claims below conflict with computational results. See [VALIDATION.md](VALIDATION.md) for detailed analysis.
+
+- 🔴 **UNVALIDATED - COMPUTATIONAL CONTRADICTION**: **Golden Ratio Modular Transformation for Prime Detection**: Uses \( \theta'(n,k) = \phi \cdot ((n \mod \phi)/\phi)^k \) to warp integer sequences, with high-precision mpmath (dps=50) bounding \( \Delta_n < 10^{-16} \). **CLAIMED**: Achieves a 15% prime density enhancement at \( k^* \approx 0.3 \), unique to \( \phi \) (tests on \( \sqrt{2} \): 12%, \( e \): 14%). **COMPUTATIONAL RESULT**: k* = 0.200, enhancement = 495.2%. **REQUIRES RECONCILIATION**.
+
+- 🟠 **HYPOTHETICAL**: **Frame-Normalized Curvature**: Defines \( \kappa(n) = d(n) \cdot \ln(n+1)/e^2 \), bridging discrete divisor functions with continuous logarithmic growth. Claims to minimize variance (\( \sigma \approx 0.118 \)) with \( e^2 \)-normalization. **MISSING**: Theoretical justification for e² factor.
+
+- 🔴 **UNVALIDATED**: **Optimal Curvature Parameter \( k^* \approx 0.3 \)**: Claims yield a 15% enhancement (bootstrap CI [14.6%, 15.4%], \( p < 10^{-6} \)), invariant across \( N = 10^3 \) to \( 10^9 \), contradicting prime pseudorandomness. **COMPUTATIONAL CONTRADICTION**: Current results show k* = 0.200.
+
+- 🟠 **HYPOTHETICAL**: **Cross-Domain Validation**: Claims same \( k^* \) emerges from Riemann zeta zero analysis and prime transformations, with Pearson \( r=0.93 \) (\( p < 10^{-10} \)) on unfolded zero spacings. **MISSING**: Documented methodology and independent verification.
+
+- 🟡 **IMPLEMENTED**: **3D/5D Helical Embedding**: Maps primes and zeta zeros to helical geodesics using \( \phi \)-modular coordinates in 5D \( (x, y, z, w, u) \), providing geometric visualization of analytic number theory objects. **STATUS**: Working implementation, lacks theoretical foundation.
+
+- 🟠 **HYPOTHETICAL**: **Hybrid GUE Statistics**: KS statistic 0.916 (\( p \approx 0 \)) shows a new universality class between Poisson and GUE, with systematic deviations. **MISSING**: Statistical validation methodology.
+
+- 🟡 **IMPLEMENTED**: **Spectral Form Factor**: 3D visualization of \( K(\tau)/N \) over \( (\tau, k^*) \), with bootstrap bands \( \sim 0.05/N \), revealing regime-dependent spectral correlations.
+
+- 🟠 **HYPOTHETICAL**: **Prime Gap Clustering**: Correlates low-\( \kappa \) regions with prime gap distributions, enabling geometric prediction algorithms. **MISSING**: Predictive validation.
+
+- 🟠 **HYPOTHETICAL**: **Fourier Asymmetry**: Sine coefficients yield \( S_b \approx 0.45 \) (CI [0.42, 0.48]), indicating chirality in prime residues. **MISSING**: Statistical significance testing.
+
+- 🔴 **SPECULATIVE**: **5D Spacetime Unification**: Integrates Kaluza-Klein theory, where \( v_w \) represents charge-induced motion along a compactified fifth dimension, unifying gravity and electromagnetism, with observable Kaluza-Klein towers \( m_n = n / R \). **STATUS**: Pure speculation without theoretical foundation.
+
+- 🟡 **IMPLEMENTED**: **Wave-CRISPR Spectral Metrics**: Quantifies disruptions via \( \Delta f_1 \), \( \Delta \)Peaks, and \( \Delta \)Entropy \( \propto O / \ln n \), with disruption scores \( \text{Score} = Z \cdot |\Delta f_1| + \Delta \text{Peaks} + \Delta \text{Entropy} \), bridging number theory to quantum chaos.
+
+- 🟠 **HYPOTHETICAL**: **Helical Computational Structure**: Reveals helical patterns in DiscreteZetaShift unfoldings, with \( \text{var}(O) \sim \log \log N \), suggesting quantum nonlocality analogs. **MISSING**: Theoretical connection to quantum mechanics.
 
 ## Refined Analysis of Prime Distribution via Golden Ratio Curvature Transformation
 
