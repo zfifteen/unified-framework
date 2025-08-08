@@ -24,6 +24,9 @@ __pycache__/
 # Generated files from testing
 *.npy
 *.png
+helical_*.json
+helical_*.csv
+debug_*.png
 test_harness_*
 /experiments/z_embeddings.db
 /applications/z_embeddings.db
