@@ -229,6 +229,25 @@ class DiscreteZetaShift(UniversalZetaShift):
         u = attrs['O']
         return (float(x), float(y), float(z), float(w), float(u))
 
+    def get_helical_coordinates(self, r_normalized=1.0):
+        """
+        Get helical embedding coordinates following Task 3 specifications:
+        - θ_D = 2*π*n/50
+        - x = r*cos(θ_D), y = r*sin(θ_D), z = n
+        - w = I, u = O from zeta chains
+        """
+        attrs = self.attributes
+        n = float(self.a)
+        theta_D = 2 * mp.pi * n / 50
+        
+        x = r_normalized * mp.cos(theta_D)
+        y = r_normalized * mp.sin(theta_D)
+        z = n
+        w = attrs['I']
+        u = attrs['O']
+        
+        return (float(x), float(y), float(z), float(w), float(u))
+
     @classmethod
     def generate_key(cls, N, seed_n=2):
         zeta = cls(seed_n)

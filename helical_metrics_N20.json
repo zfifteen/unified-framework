@@ -1,0 +1,18 @@
+{
+  "S_b_primes": 0.6213911693345466,
+  "S_b_composites": 2.9330844354914993e-15,
+  "CI": [
+    0.0,
+    1.0
+  ],
+  "var_O": 5.979459471460015,
+  "primes_chirality": "counterclockwise",
+  "composites_chirality": "clockwise",
+  "N_start": 2,
+  "N_end": 20,
+  "M": 5,
+  "bootstrap_samples": 100,
+  "primes_count": 8,
+  "composites_count": 11,
+  "total_count": 19
+}
