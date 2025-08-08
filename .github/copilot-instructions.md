@@ -10,9 +10,10 @@ Always reference these instructions first and fallback to search or bash command
 - Install Python dependencies:
   - `pip3 install numpy pandas matplotlib mpmath sympy scikit-learn statsmodels scipy seaborn plotly`
   - Takes: ~45-50 seconds. NEVER CANCEL. Set timeout to 300+ seconds.
-- Set Python path for imports:
+- Set Python path for imports (required when working outside repository root):
   - `export PYTHONPATH=/home/runner/work/unified-framework/unified-framework`
   - OR prefix commands: `PYTHONPATH=/home/runner/work/unified-framework/unified-framework python3 script.py`
+  - **Note**: PYTHONPATH is only required when working from directories other than the repository root
 
 ### Core Mathematical Computations
 - Test basic framework:
@@ -176,3 +177,20 @@ cat README.md  # Comprehensive framework documentation (13.9KB)
 - 65 documentation files  
 - ~72MB repository size
 - Mathematical research focus (not software application)
+
+## Troubleshooting
+
+### Import Errors
+- **"ModuleNotFoundError: No module named 'core'"**: Set PYTHONPATH or run from repository root
+- **"ModuleNotFoundError: No module named 'numpy'"**: Install dependencies with pip3
+
+### Performance Issues
+- **Scripts taking too long**: Ensure adequate timeout (experiments/test.py needs 1800+ seconds)
+- **Memory errors**: High precision arithmetic requires sufficient memory for large datasets
+- **Precision errors**: Verify mpmath.mp.dps is set to 50 decimal places
+
+### Common Mistakes
+- **Never cancel** long-running mathematical computations
+- **Always use** appropriate timeouts for zeta computations
+- **Always run** from repository root or set PYTHONPATH properly
+- **Always verify** dependencies are installed before running scripts
