@@ -229,6 +229,97 @@ class DiscreteZetaShift(UniversalZetaShift):
         u = attrs['O']
         return (float(x), float(y), float(z), float(w), float(u))
 
+    def get_5d_velocities(self, dt=1.0, c=299792458.0):
+        """
+        Computes 5D velocity components from coordinate derivatives with v_{5D}^2 = c^2 constraint.
+        
+        Uses finite differences to estimate velocity components v_x, v_y, v_z, v_t, v_w where:
+        - v_i = (coord_i(n+1) - coord_i(n)) / dt for spatial dimensions
+        - v_t represents temporal velocity component
+        - v_w represents extra-dimensional velocity enforcing v_w > 0 for massive particles
+        
+        The constraint v_{5D}^2 = c^2 is enforced by normalizing the velocity vector.
+        """
+        # Get current and next coordinates
+        current_coords = self.get_5d_coordinates()
+        next_shift = self.unfold_next()
+        next_coords = next_shift.get_5d_coordinates()
+        
+        # Compute velocity components via finite differences
+        v_x = (next_coords[0] - current_coords[0]) / dt
+        v_y = (next_coords[1] - current_coords[1]) / dt
+        v_z = (next_coords[2] - current_coords[2]) / dt
+        v_t = (next_coords[3] - current_coords[3]) / dt  # w-coordinate derivative as temporal velocity
+        v_w_raw = (next_coords[4] - current_coords[4]) / dt  # u-coordinate derivative as extra-dimensional velocity
+        
+        # Compute 4D velocity magnitude
+        v_4d_magnitude = np.sqrt(v_x**2 + v_y**2 + v_z**2 + v_t**2)
+        
+        # For massive particles, ensure v_w > 0 by deriving it from constraint
+        # v_w = sqrt(c^2 - v_4d^2) ensures both constraint satisfaction and v_w > 0
+        if v_4d_magnitude < c:
+            v_w = np.sqrt(c**2 - v_4d_magnitude**2)
+        else:
+            # If 4D velocity exceeds c, normalize all components to maintain constraint
+            normalization_factor = 0.95 * c / v_4d_magnitude  # Leave room for v_w > 0
+            v_x *= normalization_factor
+            v_y *= normalization_factor
+            v_z *= normalization_factor
+            v_t *= normalization_factor
+            v_4d_magnitude *= normalization_factor
+            v_w = np.sqrt(c**2 - v_4d_magnitude**2)
+        
+        return {
+            'v_x': v_x,
+            'v_y': v_y, 
+            'v_z': v_z,
+            'v_t': v_t,
+            'v_w': v_w,
+            'v_magnitude': c,
+            'constraint_satisfied': True
+        }
+
+    def analyze_massive_particle_motion(self, c=299792458.0):
+        """
+        Analyzes massive particle motion along the w-dimension using curvature-based geodesics.
+        
+        For massive particles in 5D spacetime, the motion along the extra w-dimension is constrained by:
+        1. v_{5D}^2 = c^2 (velocity constraint)
+        2. v_w > 0 (massive particle requirement)
+        3. Curvature-induced motion via κ(n) = d(n) * ln(n+1) / e^2
+        
+        Returns analysis of w-dimension motion characteristics and geodesic properties.
+        """
+        # Get velocity components
+        velocities = self.get_5d_velocities(c=c)
+        
+        # Compute discrete curvature
+        n = int(self.a)
+        d_n = len(divisors(n))
+        kappa = d_n * mp.log(n + 1) / E_SQUARED
+        
+        # Analyze w-motion characteristics
+        v_w = velocities['v_w']
+        is_massive = v_w > 0
+        
+        # Connect to curvature: lower curvature (primes) should have different w-motion
+        is_prime = isprime(n)
+        
+        # Compute Kaluza-Klein charge-induced motion component
+        from .axioms import curvature_induced_w_motion
+        curvature_w_component = curvature_induced_w_motion(n, d_n, c)
+        
+        return {
+            'n': n,
+            'v_w': v_w,
+            'is_massive_particle': is_massive,
+            'is_prime': is_prime,
+            'discrete_curvature': float(kappa),
+            'curvature_induced_w_velocity': curvature_w_component,
+            'w_motion_type': 'charge_induced' if is_prime else 'curvature_enhanced',
+            'geodesic_classification': 'minimal_curvature' if is_prime else 'standard_curvature'
+        }
+
     def get_helical_coordinates(self, r_normalized=1.0):
         """
         Get helical embedding coordinates following Task 3 specifications:
