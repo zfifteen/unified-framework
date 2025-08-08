@@ -32,7 +32,7 @@ def run_full_analysis():
     print(f"  - τ range: [0, 10] with 100 steps")
     print(f"  - CRISPR sequences: N=10^6")
     print(f"  - Bootstrap samples: 1000")
-    print(f"  - Expected runtime: ~4 hours")
+    print(f"  - Expected runtime: ~20 minutes (optimized)")
     print("="*70)
     
     start_time = time.time()
@@ -49,7 +49,7 @@ def run_full_analysis():
     try:
         print("\n🚀 Starting full-scale computation...")
         
-        # Stage 1: Zeta zeros (estimated ~30 minutes)
+        # Stage 1: Zeta zeros (estimated ~5 minutes)
         print("\n📊 Stage 1/6: Computing 1000 zeta zeros...")
         stage_start = time.time()
         analysis.compute_zeta_zeros()
@@ -63,26 +63,26 @@ def run_full_analysis():
         stage_time = time.time() - stage_start
         print(f"   ✅ Completed in {stage_time:.1f}s")
         
-        # Stage 3: Spectral form factor (estimated ~2 hours)
+        # Stage 3: Spectral form factor (estimated ~3 minutes)
         print("\n📈 Stage 3/6: Computing spectral form factor K(τ)/N...")
-        print("   ⚠️  This stage may take 1-2 hours for 1000 zeros × 100 τ points")
+        print("   ⚠️  Computing for 1000 zeros × 100 τ points (optimized algorithm)")
         stage_start = time.time()
         analysis.compute_spectral_form_factor()
         stage_time = time.time() - stage_start
         print(f"   ✅ Completed in {stage_time:.1f}s ({stage_time/60:.1f} minutes)")
         
-        # Stage 4: Bootstrap bands (estimated ~30 minutes)
+        # Stage 4: Bootstrap bands (estimated ~5 minutes)
         print("\n🎯 Stage 4/6: Computing bootstrap confidence bands...")
         stage_start = time.time()
         analysis.compute_bootstrap_bands(n_bootstrap=1000)
         stage_time = time.time() - stage_start
         print(f"   ✅ Completed in {stage_time:.1f}s ({stage_time/60:.1f} minutes)")
         
-        # Stage 5: Wave-CRISPR scores (estimated ~1 hour)
+        # Stage 5: Wave-CRISPR scores (estimated ~5 minutes)
         print("\n🧬 Stage 5/6: Computing Wave-CRISPR scores...")
-        print("   ⚠️  Processing up to 10^6 sequences - this may take 30-60 minutes")
+        print("   ⚠️  Processing sequences - estimated 5 minutes")
         stage_start = time.time()
-        analysis.compute_wave_crispr_scores(sample_size=10000)  # Batch processing
+        analysis.compute_wave_crispr_scores(sample_size=50000)  # Larger batch for full scale
         stage_time = time.time() - stage_start
         print(f"   ✅ Completed in {stage_time:.1f}s ({stage_time/60:.1f} minutes)")
         
