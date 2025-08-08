@@ -65,6 +65,7 @@ from sklearn.mixture import GaussianMixture
 from sympy import sieve, isprime
 import warnings
 import argparse
+from scipy import stats  # For bootstrap confidence intervals
 
 # Ignore all warnings to prevent clutter in the console output, as some operations may trigger
 # division by zero or invalid value warnings which are handled explicitly in the code.
@@ -181,8 +182,62 @@ def gmm_fit(theta_pr, n_components=5):
     return gm, np.mean(sigmas)
 
 
+def bootstrap_confidence_interval(enhancements, confidence_level=0.95, n_bootstrap=1000):
+    """
+    Compute bootstrap confidence interval for enhancement values.
+    
+    Args:
+        enhancements (array): Array of enhancement percentages
+        confidence_level (float): Confidence level (default 0.95 for 95% CI)
+        n_bootstrap (int): Number of bootstrap samples
+        
+    Returns:
+        tuple: (lower_bound, upper_bound) of confidence interval
+    """
+    # Filter out non-finite values
+    valid_enhancements = enhancements[np.isfinite(enhancements)]
+    
+    if len(valid_enhancements) == 0:
+        return (-np.inf, np.inf)
+    
+    # Generate bootstrap samples
+    bootstrap_means = []
+    n_samples = len(valid_enhancements)
+    
+    for _ in range(n_bootstrap):
+        # Sample with replacement
+        bootstrap_sample = np.random.choice(valid_enhancements, size=n_samples, replace=True)
+        bootstrap_means.append(np.mean(bootstrap_sample))
+    
+    # Calculate confidence interval
+    alpha = 1 - confidence_level
+    lower_percentile = (alpha / 2) * 100
+    upper_percentile = (1 - alpha / 2) * 100
+    
+    ci_lower = np.percentile(bootstrap_means, lower_percentile)
+    ci_upper = np.percentile(bootstrap_means, upper_percentile)
+    
+    return (ci_lower, ci_upper)
+
+
+def compute_e_max_robust(enhancements):
+    """
+    Compute robust maximum enhancement, handling NaN and infinite values.
+    
+    Args:
+        enhancements (array): Array of enhancement percentages
+        
+    Returns:
+        float: Maximum finite enhancement value
+    """
+    finite_enhancements = enhancements[np.isfinite(enhancements)]
+    if len(finite_enhancements) == 0:
+        return -np.inf
+    return np.max(finite_enhancements)
+
+
 # ------------------------------------------------------------------------------
-# 3. High-resolution k‐sweep with NaN handling
+# 3. Enhanced high-resolution k‐sweep with bootstrap confidence intervals
 # ------------------------------------------------------------------------------
 # Define the range of k values to sweep: from 0.2 to 0.4 with step 0.002 for fine-grained optimization.
 k_values = np.arange(0.2, 0.4001, 0.002)
@@ -198,8 +253,12 @@ for k in k_values:
 
     # Compute binned densities and enhancements using 20 bins.
     all_d, pr_d, enh = bin_densities(theta_all, theta_pr, nbins=20)
-    # Find the maximum enhancement, which is masked to -inf for invalid bins.
-    max_enh = np.max(enh)  # NaN → -inf masked
+    
+    # Compute e_max(k) robustly for each k
+    e_max_k = compute_e_max_robust(enh)
+    
+    # Compute bootstrap confidence interval for enhancements
+    ci_lower, ci_upper = bootstrap_confidence_interval(enh, confidence_level=0.95, n_bootstrap=1000)
 
     # Fit GMM to transformed primes and get the mean sigma.
     _, sigma_prime = gmm_fit(theta_pr, n_components=5)
@@ -207,10 +266,14 @@ for k in k_values:
     _, b_coeffs = fourier_fit(theta_pr, M=5)
     sum_b = np.sum(np.abs(b_coeffs))
 
-    # Append a dictionary of results for this k: k value, max enhancement, sigma_prime, and fourier sum_b.
+    # Append a dictionary of results for this k: k value, max enhancement, sigma_prime, fourier sum_b,
+    # and new bootstrap CI and e_max values.
     results.append({
         'k': k,
-        'max_enhancement': max_enh,
+        'max_enhancement': e_max_k,  # Use robust e_max(k)
+        'e_max_k': e_max_k,  # Store separately for clarity
+        'bootstrap_ci_lower': ci_lower,
+        'bootstrap_ci_upper': ci_upper,
         'sigma_prime': sigma_prime,
         'fourier_b_sum': sum_b
     })
@@ -223,26 +286,28 @@ best = max(valid_results, key=lambda r: r['max_enhancement'])
 k_star, enh_star = best['k'], best['max_enhancement']
 
 # ------------------------------------------------------------------------------
-# 4. Print Refined Proof Summary
+# 4. Enhanced Proof Summary with Bootstrap Confidence Intervals
 # ------------------------------------------------------------------------------
 # Print a header for the results summary.
-print("\n=== Refined Prime Curvature Proof Results ===")
+print("\n=== Enhanced Prime Curvature Proof Results ===")
 # Print the optimal k value formatted to 3 decimal places.
 print(f"Optimal curvature exponent k* = {k_star:.3f}")
 # Print the maximum mid-bin enhancement formatted to 1 decimal place.
-print(f"Max mid-bin enhancement = {enh_star:.1f}%")
+print(f"Max e_max(k*) enhancement = {enh_star:.1f}%")
+# Print bootstrap confidence interval for optimal k
+print(f"Bootstrap CI (95%) = [{best['bootstrap_ci_lower']:.1f}%, {best['bootstrap_ci_upper']:.1f}%]")
 # Print the GMM mean sigma at optimal k, formatted to 3 decimal places.
 print(f"GMM σ' at k* = {best['sigma_prime']:.3f}")
 # Print the sum of absolute Fourier sine coefficients at optimal k, formatted to 3 decimal places.
 print(f"Σ|b_k| at k* = {best['fourier_b_sum']:.3f}\n")
 
 # Print a header for the sample k-sweep metrics.
-print("Sample of k-sweep metrics (every 10th k):")
-# Iterate over every 10th valid result and print formatted metrics: k, enhancement, sigma, and sum_b.
+print("Sample of k-sweep metrics with e_max(k) and Bootstrap CI (every 10th k):")
+# Iterate over every 10th valid result and print formatted metrics: k, enhancement, CI, sigma, and sum_b.
 for entry in valid_results[::10]:
-    print(f" k={entry['k']:.3f} | enh={entry['max_enhancement']:.1f}%"
-          f" | σ'={entry['sigma_prime']:.3f}"
-          f" | Σ|b|={entry['fourier_b_sum']:.3f}")
+    print(f" k={entry['k']:.3f} | e_max={entry['e_max_k']:.1f}% | "
+          f"CI=[{entry['bootstrap_ci_lower']:.1f}%,{entry['bootstrap_ci_upper']:.1f}%] | "
+          f"σ'={entry['sigma_prime']:.3f} | Σ|b|={entry['fourier_b_sum']:.3f}")
 
 
 # ------------------------------------------------------------------------------
