@@ -5,6 +5,11 @@
     "N_sequence": 10000
   },
   "correlations": {
+    "reference_correlation": {
+      "correlation": -0.036891651243142524,
+      "p_value": 0.24426800611563035,
+      "description": "Reference \u03c6-modular spacings correlation (target r\u22480.93)"
+    },
     "spacings_vs_curvatures": {
       "correlation": 0.0009927921159922511,
       "p_value": 0.9749984992487198,
@@ -20,19 +25,28 @@
       "p_value": 7.992367024429321e-08,
       "description": "GUE deviations vs 5D curvature cascades"
     },
-    "phi_modular_target": {
-      "correlation": 0.0058246522259773805,
-      "p_value": 0.8541149462875046,
-      "description": "\u03c6-modular spacings vs curvatures (target r\u22480.93)"
+    "enhanced_5d_spacings": {
+      "correlation": 0.0386231084865306,
+      "p_value": 0.22281622101286555,
+      "description": "Enhanced spacings vs 5D curvature metrics"
     },
     "helical_variance": {
       "prime_variance": 1.9219010448503318,
       "composite_variance": 1.812630368814762,
       "ratio": 1.060282933528814,
       "description": "Helical embedding variance: primes vs composites"
+    },
+    "log_curvature_cascade": {
+      "correlation": -0.18539966986288173,
+      "p_value": 3.615756920198039e-09,
+      "description": "Log-scaled curvature cascade correlation"
     }
   },
   "summary": {
-    "target_correlation": 0.0058246522259773805,
+    "target_correlation": -0.036891651243142524,
     "gue_correlation": 0.1688051917558937,
-    "target_achieved": 
+    "cascade_correlation": -0.18539966986288173,
+    "target_achieved": false,
+    "variance_ratio": 1.060282933528814
+  }
+}
