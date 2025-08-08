@@ -8,7 +8,6 @@ from scipy.stats import entropy
 from sklearn.mixture import GaussianMixture
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import pairwise_distances
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -107,12 +106,12 @@ def run_analysis(db_path='z_embeddings.db'):
     composite_count = 0
 
     # Prepare summary stats DataFrames
-    stats_primes = pd.DataFrame(index=columns[1:], columns=['mean', 'std', 'min', 'max', 'skew', 'kurt'])
+    stats_primes = pd.DataFrame(index=columns[1:] + ['kappa', 'theta'], columns=['mean', 'std', 'min', 'max', 'skew', 'kurt'])
     stats_composites = stats_primes.copy()
 
     # For correlations, accumulators
-    all_data = []  # List of batch DFs for later concat if needed
-    corr_matrix = np.zeros((len(columns)-1, len(columns)-1))
+    corr_matrix = np.zeros((len(columns)-1 + 2, len(columns)-1 + 2))  # Include kappa, theta
+    extended_columns = columns[1:] + ['kappa', 'theta']
     count_batches = 0
 
     # For forbidden zone and enhancements
@@ -126,7 +125,7 @@ def run_analysis(db_path='z_embeddings.db'):
     subsample = pd.DataFrame()
 
     # For var(O) vs log log num
-    bin_edges = np.logspace(np.log10(min_num), np.log10(max_num), 11)
+    bin_edges = np.logspace(np.log10(max(1, min_num)), np.log10(max_num), 11)
     var_o_bins = np.zeros(len(bin_edges)-1)
     loglog_bins = (bin_edges[:-1] + bin_edges[1:]) / 2
     bin_counts = np.zeros(len(bin_edges)-1)
@@ -145,9 +144,10 @@ def run_analysis(db_path='z_embeddings.db'):
         if df_batch.empty:
             continue
 
-        # Add prime flag and κ proxy
+        # Add prime flag, κ proxy, and θ' (early to propagate to subsets)
         df_batch['prime'] = df_batch['num'].apply(is_prime)
-        df_batch['kappa'] = df_batch.apply(lambda row: kappa_proxy(row['num'], row['b'], row['c']), axis=1)
+        df_batch['kappa'] = df_batch.apply(lambda row: float(kappa_proxy(row['num'], row['b'], row['c'])), axis=1)
+        df_batch['theta'] = df_batch['num'].apply(lambda n: float(theta_prime(n, K_STAR)) / float(PHI))  # Normalize to [0,1)
 
         # Update counts
         prime_count += df_batch['prime'].sum()
@@ -157,23 +157,22 @@ def run_analysis(db_path='z_embeddings.db'):
         primes_batch = df_batch[df_batch['prime'] == True]
         composites_batch = df_batch[df_batch['prime'] == False]
 
-        for col in columns[1:]:
+        for col in extended_columns:
             if not primes_batch.empty:
-                stats_primes.loc[col] += [primes_batch[col].mean(), primes_batch[col].std(), primes_batch[col].min(), primes_batch[col].max(),
-                                          primes_batch[col].skew(), primes_batch[col].kurtosis()]
+                p_series = primes_batch[col]
+                stats_primes.loc[col] += [p_series.mean(), p_series.std(), p_series.min(), p_series.max(),
+                                          p_series.skew(), p_series.kurtosis()]
             if not composites_batch.empty:
-                stats_composites.loc[col] += [composites_batch[col].mean(), composites_batch[col].std(), composites_batch[col].min(), composites_batch[col].max(),
-                                              composites_batch[col].skew(), composites_batch[col].kurtosis()]
+                c_series = composites_batch[col]
+                stats_composites.loc[col] += [c_series.mean(), c_series.std(), c_series.min(), c_series.max(),
+                                              c_series.skew(), c_series.kurtosis()]
 
         count_batches += 1
-
-        # Histograms/KDEs (save per batch or aggregate)
-        # For now, skip per-batch plots; aggregate later
 
         # Var(O) binning
         for i in range(len(bin_edges)-1):
             mask = (df_batch['num'] >= bin_edges[i]) & (df_batch['num'] < bin_edges[i+1])
-            if mask.sum() > 0:
+            if mask.sum() > 1:  # Require >1 for var
                 var_o_bins[i] = (var_o_bins[i] * bin_counts[i] + df_batch.loc[mask, 'O'].var() * mask.sum()) / (bin_counts[i] + mask.sum())
                 bin_counts[i] += mask.sum()
 
@@ -181,8 +180,8 @@ def run_analysis(db_path='z_embeddings.db'):
         ks_stats = {}
         t_stats = {}
         cohens_d = {}
-        for col in columns[1:]:
-            if not primes_batch.empty and not composites_batch.empty:
+        for col in extended_columns:
+            if not primes_batch.empty and not composites_batch.empty and len(primes_batch[col].unique()) > 1 and len(composites_batch[col].unique()) > 1:
                 ks_stat, ks_p = stats.ks_2samp(primes_batch[col], composites_batch[col])
                 t_stat, t_p = stats.ttest_ind(primes_batch[col], composites_batch[col], equal_var=False)
                 mean_diff = primes_batch[col].mean() - composites_batch[col].mean()
@@ -192,19 +191,19 @@ def run_analysis(db_path='z_embeddings.db'):
                 t_stats[col] = (t_stat, t_p)
 
         # KL divergence proxy (on O for example)
-        o_hist_p, _ = np.histogram(primes_batch['O'], bins=BINS_HIST, density=True)
-        o_hist_c, _ = np.histogram(composites_batch['O'], bins=BINS_HIST, density=True)
-        kl_div = entropy(o_hist_p + 1e-10, o_hist_c + 1e-10)  # Avoid zero
+        if not primes_batch.empty and not composites_batch.empty:
+            o_hist_p, _ = np.histogram(primes_batch['O'], bins=BINS_HIST, density=True)
+            o_hist_c, _ = np.histogram(composites_batch['O'], bins=BINS_HIST, density=True)
+            kl_div = entropy(o_hist_p + 1e-10, o_hist_c + 1e-10)  # Avoid zero
 
         # Forbidden zone
-        df_batch['theta'] = df_batch['num'].apply(lambda n: float(theta_prime(n, K_STAR)) / float(PHI))  # Normalize to [0,1)
         theta_digit_p = np.digitize(primes_batch['theta'], theta_bins) - 1
         theta_digit_n = np.digitize(df_batch['theta'], theta_bins) - 1
         count_p += np.bincount(theta_digit_p, minlength=BINS_THETA)
         count_n += np.bincount(theta_digit_n, minlength=BINS_THETA)
 
         # Step 4: Correlations (Pearson on batch, average matrix)
-        corr_batch = df_batch[columns[1:]].corr(method='pearson').values
+        corr_batch = df_batch[extended_columns].corr(method='pearson').values
         corr_matrix += corr_batch
         # Sorted corr example: sort by num, r(delta vs kappa), delta proxy as {O}
         df_sorted = df_batch.sort_values('num')
@@ -220,7 +219,8 @@ def run_analysis(db_path='z_embeddings.db'):
 
         # Step 5: Clustering (accumulate subsample)
         if len(subsample) < subsample_size:
-            subsample = pd.concat([subsample, df_batch[features].sample(min(len(df_batch), subsample_size - len(subsample)))])
+            to_add = min(len(df_batch), subsample_size - len(subsample))
+            subsample = pd.concat([subsample, df_batch[features].sample(to_add)])
 
         # Fourier asymmetry on theta_norm
         theta_norm_batch = df_batch['theta']
@@ -237,21 +237,19 @@ def run_analysis(db_path='z_embeddings.db'):
         disruption_scores.append(score_batch)
 
         # Prime gap proxy: for primes, ΔO
-        if not primes_batch.empty:
+        if len(primes_batch) > 1:
             primes_sorted = primes_batch.sort_values('num')
             gaps = np.diff(primes_sorted['num'])
             delta_o = np.diff(primes_sorted['O'])
-            r_gap_delta, _ = stats.pearsonr(gaps, np.abs(delta_o)) if len(gaps) > 1 else (0, 1)
-
-        # Append batch if needed for all_data (but to save memory, skip unless required)
-        # all_data.append(df_batch)
+            r_gap_delta, _ = stats.pearsonr(gaps, np.abs(delta_o))
 
         print(f"Processed batch {start}-{end}")
 
     # Normalize accumulated stats
-    stats_primes /= count_batches
-    stats_composites /= count_batches
-    corr_matrix /= count_batches
+    if count_batches > 0:
+        stats_primes /= count_batches
+        stats_composites /= count_batches
+        corr_matrix /= count_batches
 
     # Step 1 output
     prime_prop = prime_count / total_rows
@@ -273,29 +271,30 @@ def run_analysis(db_path='z_embeddings.db'):
     print(f"Max prime density enhancement: {max_e:.2f}%")
     # Forbidden zone [0.3,0.7) : bins 3-7 if [0,1) in 10 bins
     forb_zone = slice(3,7)
-    prime_in_forb = count_p[forb_zone].sum() / count_p.sum() * 100
+    prime_in_forb = count_p[forb_zone].sum() / count_p.sum() * 100 if count_p.sum() > 0 else 0
     print(f"Primes in forbidden zone [0.3,0.7): {prime_in_forb:.2f}%")
 
     # Correlation heatmap
-    corr_df = pd.DataFrame(corr_matrix, index=columns[1:], columns=columns[1:])
+    corr_df = pd.DataFrame(corr_matrix, index=extended_columns, columns=extended_columns)
     sns.heatmap(corr_df, annot=True, cmap='coolwarm')
     plt.savefig(os.path.join(RESULTS_DIR, 'corr_heatmap.png'))
 
     # Step 5: GMM on subsample
-    scaler = StandardScaler()
-    sub_scaled = scaler.fit_transform(subsample)
-    gmm = GaussianMixture(n_components=GMM_COMPONENTS)
-    gmm.fit(sub_scaled)
-    bic = gmm.bic(sub_scaled)
-    aic = gmm.aic(sub_scaled)
-    avg_sigma = np.mean(np.sqrt(gmm.covariances_.diagonal(axis1=1, axis2=2)))
-    print(f"GMM BIC: {bic}, AIC: {aic}, avg sigma: {avg_sigma:.3f}")
+    if not subsample.empty:
+        scaler = StandardScaler()
+        sub_scaled = scaler.fit_transform(subsample)
+        gmm = GaussianMixture(n_components=GMM_COMPONENTS)
+        gmm.fit(sub_scaled)
+        bic = gmm.bic(sub_scaled)
+        aic = gmm.aic(sub_scaled)
+        avg_sigma = np.mean(np.sqrt(gmm.covariances_.diagonal(axis1=1, axis2=2)))
+        print(f"GMM BIC: {bic}, AIC: {aic}, avg sigma: {avg_sigma:.3f}")
 
-    # PCA
-    pca = PCA(n_components=2)
-    sub_pca = pca.fit_transform(sub_scaled)
-    plt.scatter(sub_pca[:,0], sub_pca[:,1])  # Color by prime if flagged in subsample
-    plt.savefig(os.path.join(RESULTS_DIR, 'pca_2d.png'))
+        # PCA
+        pca = PCA(n_components=2)
+        sub_pca = pca.fit_transform(sub_scaled)
+        plt.scatter(sub_pca[:,0], sub_pca[:,1])  # Color by prime if flagged in subsample
+        plt.savefig(os.path.join(RESULTS_DIR, 'pca_2d.png'))
 
     # Average S_b
     avg_s_b = np.mean(s_b_values)
