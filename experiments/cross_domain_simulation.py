@@ -204,7 +204,76 @@ class CrossDomainSimulation:
                 }
         
         print(f"GMM converged with {len(self.cluster_stats)} active clusters")
-        return self.gmm, self.cluster_stats
+    def overlap_analysis(self):
+        """Analyze overlap clusters between orbital, prime, and zeta domains."""
+        print("\nPerforming overlap cluster analysis...")
+        
+        # Create feature vectors for each domain
+        min_len = min(len(self.theta_transformed), len(self.prime_gaps), len(self.zeta_spacings))
+        
+        # Normalize features for fair comparison
+        from sklearn.preprocessing import MinMaxScaler
+        scaler = MinMaxScaler()
+        
+        # Orbital features (theta-transformed ratios)
+        orbital_features = self.theta_transformed[:min_len].reshape(-1, 1)
+        orbital_norm = scaler.fit_transform(orbital_features).flatten()
+        
+        # Prime gap features
+        prime_features = self.prime_gaps[:min_len].reshape(-1, 1)
+        prime_norm = scaler.fit_transform(prime_features).flatten()
+        
+        # Zeta spacing features  
+        zeta_features = self.zeta_spacings[:min_len].reshape(-1, 1)
+        zeta_norm = scaler.fit_transform(zeta_features).flatten()
+        
+        # Compute pairwise overlaps (correlation-based similarity)
+        orbital_prime_overlap = np.corrcoef(orbital_norm, prime_norm)[0, 1]
+        orbital_zeta_overlap = np.corrcoef(orbital_norm, zeta_norm)[0, 1]
+        prime_zeta_overlap = np.corrcoef(prime_norm, zeta_norm)[0, 1]
+        
+        # Find common high-value regions (top quartile overlap)
+        orbital_q75 = np.percentile(orbital_norm, 75)
+        prime_q75 = np.percentile(prime_norm, 75)
+        zeta_q75 = np.percentile(zeta_norm, 75)
+        
+        # Identify overlap regions
+        orbital_high = orbital_norm >= orbital_q75
+        prime_high = prime_norm >= prime_q75
+        zeta_high = zeta_norm >= zeta_q75
+        
+        orbital_prime_common = np.sum(orbital_high & prime_high)
+        orbital_zeta_common = np.sum(orbital_high & zeta_high)
+        prime_zeta_common = np.sum(prime_high & zeta_high)
+        all_three_common = np.sum(orbital_high & prime_high & zeta_high)
+        
+        self.overlap_results = {
+            'correlations': {
+                'orbital_prime': orbital_prime_overlap,
+                'orbital_zeta': orbital_zeta_overlap,
+                'prime_zeta': prime_zeta_overlap
+            },
+            'high_value_overlaps': {
+                'orbital_prime': orbital_prime_common,
+                'orbital_zeta': orbital_zeta_common,
+                'prime_zeta': prime_zeta_common,
+                'all_three': all_three_common,
+                'total_points': min_len
+            }
+        }
+        
+        print(f"Overlap correlations:")
+        print(f"  Orbital-Prime: {orbital_prime_overlap:.3f}")
+        print(f"  Orbital-Zeta: {orbital_zeta_overlap:.3f}")
+        print(f"  Prime-Zeta: {prime_zeta_overlap:.3f}")
+        
+        print(f"High-value region overlaps (top quartile):")
+        print(f"  Orbital-Prime: {orbital_prime_common}/{min_len} points ({100*orbital_prime_common/min_len:.1f}%)")
+        print(f"  Orbital-Zeta: {orbital_zeta_common}/{min_len} points ({100*orbital_zeta_common/min_len:.1f}%)")
+        print(f"  Prime-Zeta: {prime_zeta_common}/{min_len} points ({100*prime_zeta_common/min_len:.1f}%)")
+        print(f"  All three domains: {all_three_common}/{min_len} points ({100*all_three_common/min_len:.1f}%)")
+        
+        return self.overlap_results
     
     def generate_results_table(self):
         """Generate the required output table."""
@@ -267,6 +336,23 @@ class CrossDomainSimulation:
         print(f"  Zeta Spacings - Sorted r: {self.correlations['zeta_spacings']['sorted_r']:.3f} (p={self.correlations['zeta_spacings']['sorted_p']:.2e})")
         print(f"  Zeta Spacings - Unsorted r: {self.correlations['zeta_spacings']['unsorted_r']:.3f} (p={self.correlations['zeta_spacings']['unsorted_p']:.2e})")
         
+        print(f"\nOverlap Cluster Analysis:")
+        if hasattr(self, 'overlap_results'):
+            overlaps = self.overlap_results['correlations']
+            high_overlaps = self.overlap_results['high_value_overlaps']
+            total = high_overlaps['total_points']
+            
+            print(f"  Cross-domain correlations:")
+            print(f"    Orbital-Prime: {overlaps['orbital_prime']:.3f}")
+            print(f"    Orbital-Zeta: {overlaps['orbital_zeta']:.3f}")
+            print(f"    Prime-Zeta: {overlaps['prime_zeta']:.3f}")
+            
+            print(f"  High-value region overlaps:")
+            print(f"    Orbital-Prime: {high_overlaps['orbital_prime']}/{total} ({100*high_overlaps['orbital_prime']/total:.1f}%)")
+            print(f"    Orbital-Zeta: {high_overlaps['orbital_zeta']}/{total} ({100*high_overlaps['orbital_zeta']/total:.1f}%)")
+            print(f"    Prime-Zeta: {high_overlaps['prime_zeta']}/{total} ({100*high_overlaps['prime_zeta']/total:.1f}%)")
+            print(f"    All three: {high_overlaps['all_three']}/{total} ({100*high_overlaps['all_three']/total:.1f}%)")
+        
         print(f"\nGMM Cluster Analysis:")
         for cluster_id, stats in self.cluster_stats.items():
             print(f"  Cluster {cluster_id}: {stats['count']} points")
@@ -294,9 +380,9 @@ class CrossDomainSimulation:
         print("\n" + "="*80)
     
     def create_visualizations(self):
-        """Create visualization plots."""
+        """Create comprehensive visualization plots."""
         plt.style.use('default')
-        fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+        fig, axes = plt.subplots(3, 2, figsize=(15, 18))
         fig.suptitle('Cross-Domain Simulation: Orbital Resonances vs. Primes', fontsize=16)
         
         # Plot 1: Orbital ratios
@@ -339,6 +425,51 @@ class CrossDomainSimulation:
         axes[1,1].set_ylabel('Frequency')
         axes[1,1].legend()
         
+        # Plot 5: Overlap analysis heatmap
+        if hasattr(self, 'overlap_results'):
+            overlaps = self.overlap_results['correlations']
+            overlap_matrix = np.array([
+                [1.0, overlaps['orbital_prime'], overlaps['orbital_zeta']],
+                [overlaps['orbital_prime'], 1.0, overlaps['prime_zeta']],
+                [overlaps['orbital_zeta'], overlaps['prime_zeta'], 1.0]
+            ])
+            
+            im = axes[2,0].imshow(overlap_matrix, cmap='coolwarm', vmin=-1, vmax=1)
+            axes[2,0].set_title('Cross-Domain Overlap Correlations')
+            axes[2,0].set_xticks([0, 1, 2])
+            axes[2,0].set_yticks([0, 1, 2])
+            axes[2,0].set_xticklabels(['Orbital', 'Prime', 'Zeta'])
+            axes[2,0].set_yticklabels(['Orbital', 'Prime', 'Zeta'])
+            
+            # Add correlation values as text
+            for i in range(3):
+                for j in range(3):
+                    text = axes[2,0].text(j, i, f'{overlap_matrix[i, j]:.3f}',
+                                        ha="center", va="center", color="black" if abs(overlap_matrix[i, j]) < 0.5 else "white")
+            
+            plt.colorbar(im, ax=axes[2,0])
+        
+        # Plot 6: Domain comparison scatter plot
+        min_len = min(len(self.theta_transformed), len(self.prime_gaps), len(self.zeta_spacings))
+        scatter_data = {
+            'orbital': self.theta_transformed[:min_len],
+            'prime': self.prime_gaps[:min_len],
+            'zeta': self.zeta_spacings[:min_len]
+        }
+        
+        # Normalize for comparison
+        from sklearn.preprocessing import MinMaxScaler
+        scaler = MinMaxScaler()
+        orbital_norm = scaler.fit_transform(scatter_data['orbital'].reshape(-1, 1)).flatten()
+        prime_norm = scaler.fit_transform(scatter_data['prime'].reshape(-1, 1)).flatten()
+        
+        axes[2,1].scatter(orbital_norm, prime_norm, alpha=0.7, color='red', label='Orbital vs Prime')
+        axes[2,1].plot([0, 1], [0, 1], 'k--', alpha=0.5, label='Perfect correlation')
+        axes[2,1].set_title('Normalized Domain Comparison')
+        axes[2,1].set_xlabel('Orbital (normalized)')
+        axes[2,1].set_ylabel('Prime Gaps (normalized)')
+        axes[2,1].legend()
+        
         plt.tight_layout()
         
         # Save plot
@@ -364,6 +495,7 @@ class CrossDomainSimulation:
         # Step 3: Analysis
         self.correlation_analysis()
         self.gmm_analysis()
+        self.overlap_analysis()
         
         # Step 4: Results
         self.generate_results_table()
