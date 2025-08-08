@@ -1,0 +1,30 @@
+{
+  "claimed": {
+    "k_star": 0.3,
+    "enhancement": 15.0,
+    "confidence_interval": [
+      14.6,
+      15.4
+    ]
+  },
+  "computed": {
+    "k_star": 0.10404040404040404,
+    "enhancement": 647.3841554559042,
+    "confidence_interval": [
+      17.838106583760293,
+      2142.152466367713
+    ]
+  },
+  "at_claimed_k": {
+    "enhancement": 273.69207772795215,
+    "confidence_interval": [
+      36.77224590593264,
+      1021.0762331838564
+    ]
+  },
+  "discrepancies": {
+    "k_star": 0.19595959595959594,
+    "enhancement": 632.3841554559042
+  },
+  "validation_status": "MAJOR_DISCREPANCIES"
+}
