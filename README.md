@@ -229,3 +229,21 @@ Finite samples (mitigated to \( N = 10^9 \)), lack of full proofs, and GMM rando
 
 ### How Can I Reproduce or Extend Z?
 Use `proof.py` for sweeps, `hologram.py` for visuals. Extend via other irrationals or zeta cascades, testing invariance across \( N = 10^4-10^9 \).
+
+## Test Artifacts and LLM Navigation
+
+All test artifacts, experimental results, and validation materials have been centralized in the `test-finding/` directory for optimal LLM comprehension:
+
+- **`test-finding/scripts/`** - Test execution scripts, analysis tools, validation runners (44+ Python files)
+- **`test-finding/results/`** - Output files from tests and experiments (JSON, CSV, NPY formats)
+- **`test-finding/readme/`** - Documentation related to experiments and empirical findings (30+ Markdown files)
+- **`test-finding/datasets/`** - Validation datasets and test harnesses
+- **`test-finding/logs/`** - Log files and run outputs (for future use)
+
+Key entry points:
+- Comprehensive test suite: `test-finding/scripts/test.py`
+- Validation scripts: `test-finding/scripts/validation_tests.py`
+- Prime curvature analysis: `test-finding/scripts/test_5d_curvature_geodesics.py`
+- Result analysis: Files in `test-finding/results/`
+
+Each subfolder contains detailed README.md files explaining contents and usage, optimized for both human and LLM navigation.
