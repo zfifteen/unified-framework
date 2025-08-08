@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GMM and Fourier Analysis Results</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #333; 
+            text-align: center;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .results-summary {
+            background-color: #e8f5e8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .metric {
+            display: inline-block;
+            margin: 10px 20px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .metric-label {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .metric-value {
+            font-size: 1.2em;
+            color: #333;
+        }
+        img { 
+            max-width: 100%; 
+            height: auto; 
+            display: block; 
+            margin: 20px auto;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        .image-caption {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GMM and Fourier Analysis for θ' Distributions</h1>
+        
+        <div class="results-summary">
+            <h2>Key Results Summary</h2>
+            
+            <div class="metric">
+                <div class="metric-label">Fourier Sine Asymmetry (S_b)</div>
+                <div class="metric-value">2.325</div>
+                <div>CI: [2.058, 2.343]</div>
+            </div>
+            
+            <div class="metric">
+                <div class="metric-label">Mean GMM Sigma (bar_σ)</div>
+                <div class="metric-value">0.062</div>
+                <div>CI: [0.061, 0.063]</div>
+            </div>
+            
+            <div class="metric">
+                <div class="metric-label">Parameters</div>
+                <div class="metric-value">k = 0.3</div>
+                <div>N = 78,498 primes</div>
+            </div>
+            
+            <div class="metric">
+                <div class="metric-label">Model Criteria</div>
+                <div class="metric-value">BIC: 194,851.5</div>
+                <div>AIC: 194,721.7</div>
+            </div>
+        </div>
+
+        <h2>Key Results Visualization</h2>
+        <img src="gmm_fourier_key_results.png" alt="GMM and Fourier Analysis Key Results">
+        <div class="image-caption">
+            Four-panel summary showing θ' distribution with GMM fit, Fourier coefficients, 
+            bootstrap distribution of S_b, and GMM component parameters
+        </div>
+
+        <h2>Comprehensive Analysis</h2>
+        <img src="gmm_fourier_comprehensive_analysis.png" alt="GMM and Fourier Analysis Comprehensive Results">
+        <div class="image-caption">
+            Comprehensive 12-panel analysis including distribution histograms, bootstrap distributions,
+            Fourier reconstructions, residual analysis, and detailed component visualizations
+        </div>
+        
+        <div style="margin-top: 40px; padding: 20px; background-color: #f0f8ff; border-radius: 5px;">
+            <h3>Analysis Summary</h3>
+            <p><strong>Objective:</strong> Fit GMM to θ' distributions and compute Fourier asymmetry at k=0.3</p>
+            <p><strong>Data:</strong> 78,498 primes up to 10⁶, transformed using θ'(p,k=0.3) = φ·((p mod φ)/φ)^k</p>
+            <p><strong>Methods:</strong> 5-component GMM with StandardScaler, 5-harmonic Fourier series, 1000-iteration bootstrap</p>
+            <p><strong>Key Finding:</strong> Strong Fourier asymmetry (S_b = 2.325) and tight GMM clustering (bar_σ = 0.062) 
+               demonstrate non-uniform prime distributions under golden ratio curvature transformation</p>
+        </div>
+    </div>
+</body>
+</html>
