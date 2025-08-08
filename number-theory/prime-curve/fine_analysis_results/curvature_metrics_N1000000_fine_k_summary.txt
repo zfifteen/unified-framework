@@ -1,0 +1,45 @@
+=== FINE K-SWEEP ANALYSIS SUMMARY ===
+
+Dataset: 100000 numbers, 7224 primes
+Prime ratio: 0.072240
+
+OPTIMAL K ANALYSIS:
+  Optimal k* = 0.302000
+  Maximum enhancement = 176.85%
+  Confidence interval = [201.78%, 240.39%]
+  Pearson correlation = 0.955717 (p = 0.000e+00)
+
+TARGET VALIDATION (k≈0.3, enhancement≥15.0%):
+  ✓ TARGET ACHIEVED: Optimal k≈0.3 with ≥15% enhancement
+
+ANALYSIS AROUND k=0.3 (±0.02):
+  Found 20 k values in range [0.28, 0.32]
+  k=0.280000: 9.20% enhancement, r=0.952
+  k=0.282000: 10.07% enhancement, r=0.952
+  k=0.284000: 31.14% enhancement, r=0.952
+  k=0.286000: 24.58% enhancement, r=0.953
+  k=0.288000: 19.79% enhancement, r=0.953
+  k=0.290000: 28.17% enhancement, r=0.954
+  k=0.292000: 23.60% enhancement, r=0.954
+  k=0.294000: 30.15% enhancement, r=0.954
+  k=0.296000: 57.56% enhancement, r=0.955
+  k=0.298000: 41.70% enhancement, r=0.955
+  k=0.300000: 36.33% enhancement, r=0.955
+  k=0.302000: 176.85% enhancement, r=0.956
+  k=0.304000: 130.71% enhancement, r=0.956
+  k=0.306000: 130.71% enhancement, r=0.956
+  k=0.308000: 130.71% enhancement, r=0.957
+  k=0.310000: 97.75% enhancement, r=0.957
+  k=0.312000: 97.75% enhancement, r=0.957
+  k=0.314000: 73.03% enhancement, r=0.958
+  k=0.316000: 73.03% enhancement, r=0.958
+  k=0.318000: 53.81% enhancement, r=0.958
+
+TOP 5 K VALUES BY ENHANCEMENT:
+  1. k=0.302000: 176.85% enhancement, r=0.956
+  2. k=0.304000: 130.71% enhancement, r=0.956
+  3. k=0.306000: 130.71% enhancement, r=0.956
+  4. k=0.308000: 130.71% enhancement, r=0.957
+  5. k=0.310000: 97.75% enhancement, r=0.957
+
+=== END SUMMARY ===

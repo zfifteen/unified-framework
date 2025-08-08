@@ -1,0 +1,50 @@
+=== Histogram Analysis Descriptions ===
+
+K = 0.200:
+  Maximum enhancement: 97.8%
+  Confidence interval: [326.5%, 374.6%]
+  Primes analyzed: 7224
+  Pearson correlation: r = 0.935 (p = 0.000e+00)
+  Best bin: bin 2 (center θ' = 0.202) shows 97.8% enhancement
+
+K = 0.240:
+  Maximum enhancement: 97.8%
+  Confidence interval: [265.9%, 310.2%]
+  Primes analyzed: 7224
+  Pearson correlation: r = 0.944 (p = 0.000e+00)
+  Best bin: bin 1 (center θ' = 0.121) shows 97.8% enhancement
+
+K = 0.280:
+  Maximum enhancement: 9.2%
+  Confidence interval: [221.9%, 263.4%]
+  Primes analyzed: 7224
+  Pearson correlation: r = 0.952 (p = 0.000e+00)
+  Best bin: bin 11 (center θ' = 0.930) shows 9.2% enhancement
+
+K = 0.300:
+  Maximum enhancement: 36.3%
+  Confidence interval: [204.6%, 244.5%]
+  Primes analyzed: 7224
+  Pearson correlation: r = 0.955 (p = 0.000e+00)
+  Best bin: bin 2 (center θ' = 0.202) shows 36.3% enhancement
+
+K = 0.320:
+  Maximum enhancement: 53.8%
+  Confidence interval: [185.9%, 222.2%]
+  Primes analyzed: 7224
+  Pearson correlation: r = 0.959 (p = 0.000e+00)
+  Best bin: bin 0 (center θ' = 0.040) shows 53.8% enhancement
+
+K = 0.360:
+  Maximum enhancement: 36.5%
+  Confidence interval: [155.7%, 191.4%]
+  Primes analyzed: 7224
+  Pearson correlation: r = 0.965 (p = 0.000e+00)
+  Best bin: bin 1 (center θ' = 0.121) shows 36.5% enhancement
+
+K = 0.400:
+  Maximum enhancement: 9.5%
+  Confidence interval: [128.3%, 161.8%]
+  Primes analyzed: 7224
+  Pearson correlation: r = 0.971 (p = 0.000e+00)
+  Best bin: bin 2 (center θ' = 0.202) shows 9.5% enhancement
