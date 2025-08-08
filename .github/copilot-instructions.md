@@ -9,9 +9,11 @@ Always reference these instructions first and fallback to search or bash command
 ### Environment Setup and Dependencies
 - Install Python dependencies:
   - `pip3 install numpy pandas matplotlib mpmath sympy scikit-learn statsmodels scipy seaborn plotly`
-- Set Python path for imports:
+  - Takes: ~45-50 seconds. NEVER CANCEL. Set timeout to 300+ seconds.
+- Set Python path for imports (required when working outside repository root):
   - `export PYTHONPATH=/home/runner/work/unified-framework/unified-framework`
   - OR prefix commands: `PYTHONPATH=/home/runner/work/unified-framework/unified-framework python3 script.py`
+  - **Note**: PYTHONPATH is only required when working from directories other than the repository root
 
 ### Core Mathematical Computations
 - Test basic framework:
@@ -19,7 +21,7 @@ Always reference these instructions first and fallback to search or bash command
   - Takes: ~0.1 seconds
 - Test discrete zeta shift computations:
   - `python3 -c "from core.domain import DiscreteZetaShift; dz = DiscreteZetaShift(10); print('Works')"`
-  - Takes: ~0.7 seconds (includes high-precision mpmath initialization)
+  - Takes: ~1.1 seconds (includes high-precision mpmath initialization)
 
 ### Key Computational Scripts
 - Run prime curvature proof analysis:
@@ -33,13 +35,13 @@ Always reference these instructions first and fallback to search or bash command
   - `PYTHONPATH=/home/runner/work/unified-framework/unified-framework python3 experiments/lab/golden-curve/brute_force.py`
   - Takes: ~0.8 seconds. Tests Bell inequality violation in prime distributions.
 - Run comprehensive data generation:
-  - `PYTHONPATH=/home/runner/work/unified-framework/unified-framework python3 applications/test.py`
-  - Takes: ~27 seconds. NEVER CANCEL. Set timeout to 60+ minutes for larger datasets.
+  - `PYTHONPATH=/home/runner/work/unified-framework/unified-framework python3 experiments/test.py`
+  - Takes: ~143 seconds (2 minutes 23 seconds). NEVER CANCEL. Set timeout to 1800+ seconds (30+ minutes) for larger datasets.
 
 ### Performance Scaling
 - 100 DiscreteZetaShift instances: ~0.01 seconds
 - 1000 DiscreteZetaShift instances with full computation: ~2 seconds
-- Large-scale analysis (applications/test.py): ~27 seconds
+- Large-scale analysis (experiments/test.py): ~143 seconds (2 minutes 23 seconds)
 - Prime hologram bootstrap (1000 primes): ~0.3 seconds
 
 ## Repository Structure
@@ -50,12 +52,14 @@ Always reference these instructions first and fallback to search or bash command
 - `orbital.py` - Orbital mechanics and geometric projections
 
 ### Applications (/applications/)
-- `test.py` - Main comprehensive test suite (27 seconds runtime)
-- `helix_hologram.py` - Helical visualization system (~0.01 seconds)
-- `load_data.py` - Data loading utilities
+- `vortex_filter.py` - Vortex filtering system
+- `wave-crispr-signal.py` and `wave-crispr-signal-2.py` - CRISPR signal analysis tools
+- `z_embeddings_csv.py` - Z framework CSV embedding utilities
+- `Prime Density Curve/` - Prime density curve analysis tools
 - Various visualization and encryption tools
 
 ### Research Experiments (/experiments/)
+- `test.py` - Main comprehensive test suite (143 seconds runtime)
 - `/lab/golden-curve/` - Golden ratio curvature analysis
 - `/lab/light_primes/` - Prime hologram and density analysis
 - `/lab/universal_frame_shift_transformer/` - Frame shift computations
@@ -78,11 +82,18 @@ Always test these core mathematical scenarios after making changes:
 - Run prime curvature proof: Verify k* = 0.200 and max enhancement = 495.2%
 - Test golden ratio transformations: Verify φ ≈ 1.618 calculations
 - Validate Mersenne prime generation in proof.py output
+- Test Bell inequality violation: Run golden-curve/brute_force.py and verify quantum entanglement detection
 
 ### Computational Performance Validation
 - Benchmark DiscreteZetaShift: 1000 instances should complete in <3 seconds
 - Test visualization generation: hologram.py should complete in <2 seconds
 - Verify memory usage remains reasonable for large computations
+- Test comprehensive analysis: experiments/test.py should complete in ~143 seconds
+
+### Critical Timing Requirements
+- **NEVER CANCEL** long-running scripts: experiments/test.py can take up to 143 seconds
+- **ALWAYS** set appropriate timeouts: 30+ seconds for proof.py, 1800+ seconds for experiments/test.py
+- Dependency installation takes ~45-50 seconds and should never be cancelled
 
 ## Common Tasks and Timing
 
@@ -93,6 +104,17 @@ ls -la  # Shows main directories and documentation
 find . -name "*.py" | head -20  # Browse Python scripts
 cat README.md  # Comprehensive framework documentation (13.9KB)
 ```
+
+### Python Syntax and Environment Verification
+- Check all Python files compile: `find . -name "*.py" -exec python3 -m py_compile {} \;`
+- Verify high precision: `python3 -c "import mpmath as mp; mp.mp.dps = 50; print('Precision:', mp.mp.dps)"`
+- Test golden ratio: `python3 -c "import mpmath as mp; mp.mp.dps = 50; phi = (1 + mp.sqrt(5)) / 2; print('φ ≈', float(phi))"`
+
+### Essential Computational Workflows
+- **Always** set PYTHONPATH before running scripts: `export PYTHONPATH=/home/runner/work/unified-framework/unified-framework`
+- **Always** use high precision for mathematical computations: `mp.mp.dps = 50`
+- **Always** allow sufficient timeout for zeta computations (experiments/test.py: 1800+ seconds)
+- **Never** cancel dependency installation or long mathematical computations
 
 ### Documentation Files
 - `README.md` - Complete framework description with mathematical foundations
@@ -109,10 +131,13 @@ cat README.md  # Comprehensive framework documentation (13.9KB)
 
 ### Known Dependencies and Limitations
 - No traditional build system (pure Python research repository)
-- No formal test suite beyond applications/test.py
+- No formal test suite beyond experiments/test.py
+- No GitHub Actions workflows or CI/CD pipeline
 - Requires PYTHONPATH setup for core module imports
 - Some scripts require command-line arguments (use --help to check)
 - Visualization scripts use matplotlib with 'Agg' backend for headless environments
+- High precision arithmetic (mpmath) requires sufficient timeout for large computations
+- Zeta zero computations can take several minutes depending on dataset size
 
 ## Validation Requirements
 
@@ -137,7 +162,7 @@ cat README.md  # Comprehensive framework documentation (13.9KB)
 - Main proof script: `number-theory/prime-curve/proof.py`
 - Core mathematical functions: `core/axioms.py`
 - Primary computation class: `core/domain.py`
-- Comprehensive test: `applications/test.py`
+- Comprehensive test: `experiments/test.py`
 - Visualization tools: `number-theory/prime-curve/hologram.py`
 
 ### Key Mathematical Constants
@@ -148,7 +173,24 @@ cat README.md  # Comprehensive framework documentation (13.9KB)
 - Euler's constant e (e² normalization factor)
 
 ### Repository Statistics
-- 119 Python files
-- 61 documentation files  
-- ~109MB repository size
+- 126 Python files
+- 65 documentation files  
+- ~72MB repository size
 - Mathematical research focus (not software application)
+
+## Troubleshooting
+
+### Import Errors
+- **"ModuleNotFoundError: No module named 'core'"**: Set PYTHONPATH or run from repository root
+- **"ModuleNotFoundError: No module named 'numpy'"**: Install dependencies with pip3
+
+### Performance Issues
+- **Scripts taking too long**: Ensure adequate timeout (experiments/test.py needs 1800+ seconds)
+- **Memory errors**: High precision arithmetic requires sufficient memory for large datasets
+- **Precision errors**: Verify mpmath.mp.dps is set to 50 decimal places
+
+### Common Mistakes
+- **Never cancel** long-running mathematical computations
+- **Always use** appropriate timeouts for zeta computations
+- **Always run** from repository root or set PYTHONPATH properly
+- **Always verify** dependencies are installed before running scripts
