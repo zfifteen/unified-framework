@@ -1,0 +1,147 @@
+{
+  "gene_name": "APOE_Fragment",
+  "description": "APOE (Apolipoprotein E) - Lipid metabolism",
+  "clinical_relevance": "Variants affect Alzheimer's disease risk",
+  "sequence_length": 158,
+  "analysis_results": [
+    {
+      "position": 120,
+      "original_base": "T",
+      "mutated_base": "A",
+      "delta_f1": 18.594778694461684,
+      "delta_peaks": 7,
+      "delta_entropy": 0.7877903250446963,
+      "composite_score": 7.787791829668987,
+      "z_factor": 8.091649356950386e-08,
+      "zeta_shift": 1.2273245782752742,
+      "spectral_order_base": 105.05861246415317,
+      "spectral_order_mut": 108.8366898569151
+    },
+    {
+      "position": 40,
+      "original_base": "C",
+      "mutated_base": "A",
+      "delta_f1": -29.455421641795386,
+      "delta_peaks": 6,
+      "delta_entropy": 0.42014632510318606,
+      "composite_score": 6.420146464734968,
+      "z_factor": 4.740444175640995e-09,
+      "zeta_shift": 4.989230982727593,
+      "spectral_order_base": 105.05861246415317,
+      "spectral_order_mut": 106.61885612098483
+    },
+    {
+      "position": 40,
+      "original_base": "C",
+      "mutated_base": "T",
+      "delta_f1": -15.79392226727399,
+      "delta_peaks": 4,
+      "delta_entropy": 0.6781507955146218,
+      "composite_score": 4.678150870384829,
+      "z_factor": 4.740444175640995e-09,
+      "zeta_shift": 4.989230982727593,
+      "spectral_order_base": 105.05861246415317,
+      "spectral_order_mut": 107.57697431538958
+    },
+    {
+      "position": 0,
+      "original_base": "A",
+      "mutated_base": "C",
+      "delta_f1": 18.013434048115812,
+      "delta_peaks": 3,
+      "delta_entropy": -0.20771381549104717,
+      "composite_score": 2.792286184508953,
+      "z_factor": 0.0,
+      "zeta_shift": 39.944554869713315,
+      "spectral_order_base": 105.05861246415317,
+      "spectral_order_mut": 104.9146362185822
+    },
+    {
+      "position": 40,
+      "original_base": "C",
+      "mutated_base": "G",
+      "delta_f1": -10.878361745925185,
+      "delta_peaks": 1,
+      "delta_entropy": 0.4734433306871644,
+      "composite_score": 1.473443382255431,
+      "z_factor": 4.740444175640995e-09,
+      "zeta_shift": 4.989230982727593,
+      "spectral_order_base": 105.05861246415317,
+      "spectral_order_mut": 106.81677839216047
+    },
+    {
+      "position": 0,
+      "original_base": "A",
+      "mutated_base": "T",
+      "delta_f1": 27.767859261344594,
+      "delta_peaks": 3,
+      "delta_entropy": -1.578329999212201,
+      "composite_score": 1.421670000787799,
+      "z_factor": 0.0,
+      "zeta_shift": 39.944554869713315,
+      "spectral_order_base": 105.05861246415317,
+      "spectral_order_mut": 103.96459747520605
+    },
+    {
+      "position": 80,
+      "original_base": "T",
+      "mutated_base": "A",
+      "delta_f1": -6.68484907926399,
+      "delta_peaks": 0,
+      "delta_entropy": 0.8287414994249325,
+      "composite_score": 0.8287418684843415,
+      "z_factor": 5.5208338237132024e-08,
+      "zeta_shift": 0.2747448326142201,
+      "spectral_order_base": 105.05861246415317,
+      "spectral_order_mut": 108.70047484574303
+    },
+    {
+      "position": 120,
+      "original_base": "T",
+      "mutated_base": "G",
+      "delta_f1": 21.144583719488285,
+      "delta_peaks": 0,
+      "delta_entropy": 0.6591186429649518,
+      "composite_score": 0.6591203539105244,
+      "z_factor": 8.091649356950386e-08,
+      "zeta_shift": 1.2273245782752742,
+      "spectral_order_base": 105.05861246415317,
+      "spectral_order_mut": 108.21960742051104
+    },
+    {
+      "position": 80,
+      "original_base": "T",
+      "mutated_base": "C",
+      "delta_f1": 0.36788813403887144,
+      "delta_peaks": 0,
+      "delta_entropy": 0.5192702192597203,
+      "composite_score": 0.5192702395702128,
+      "z_factor": 5.5208338237132024e-08,
+      "zeta_shift": 0.2747448326142201,
+      "spectral_order_base": 105.05861246415317,
+      "spectral_order_mut": 107.34051904022562
+    },
+    {
+      "position": 80,
+      "original_base": "T",
+      "mutated_base": "G",
+      "delta_f1": -26.05442813385117,
+      "delta_peaks": -1,
+      "delta_entropy": 0.5647933125817026,
+      "composite_score": -0.4352052489966164,
+      "z_factor": 5.5208338237132024e-08,
+      "zeta_shift": 0.2747448326142201,
+      "spectral_order_base": 105.05861246415317,
+      "spectral_order_mut": 107.54056795919247
+    }
+  ],
+  "summary_statistics": {
+    "total_mutations": 24,
+    "score_range": [
+      -12.884140741255324,
+      7.787791829668987
+    ],
+    "mean_score": -2.9484923475724814,
+    "score_std": 5.558292516487518
+  }
+}
