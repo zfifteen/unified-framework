@@ -151,7 +151,7 @@ python3 experiments/demo_discrete_variance.py
 The implementation includes comprehensive tests:
 
 ```bash
-python3 test_discrete_variance_propagation.py
+python3 test-finding/scripts/test_discrete_variance_propagation.py
 ```
 
 Tests cover:
@@ -205,7 +205,7 @@ The `var(O) ~ log log N` scaling was predicted by the framework and is now compu
 
 - `experiments/discrete_variance_propagation.py` - Main implementation
 - `experiments/demo_discrete_variance.py` - Comprehensive demonstration
-- `test_discrete_variance_propagation.py` - Test suite
+- `test-finding/scripts/test_discrete_variance_propagation.py` - Test suite
 - This documentation file
 
 ## Future Extensions

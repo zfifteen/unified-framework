@@ -35,13 +35,13 @@ Always reference these instructions first and fallback to search or bash command
   - `PYTHONPATH=/home/runner/work/unified-framework/unified-framework python3 experiments/lab/golden-curve/brute_force.py`
   - Takes: ~0.8 seconds. Tests Bell inequality violation in prime distributions.
 - Run comprehensive data generation:
-  - `PYTHONPATH=/home/runner/work/unified-framework/unified-framework python3 experiments/test.py`
+  - `PYTHONPATH=/home/runner/work/unified-framework/unified-framework python3 test-finding/scripts/test.py`
   - Takes: ~143 seconds (2 minutes 23 seconds). NEVER CANCEL. Set timeout to 1800+ seconds (30+ minutes) for larger datasets.
 
 ### Performance Scaling
 - 100 DiscreteZetaShift instances: ~0.01 seconds
 - 1000 DiscreteZetaShift instances with full computation: ~2 seconds
-- Large-scale analysis (experiments/test.py): ~143 seconds (2 minutes 23 seconds)
+- Large-scale analysis (test-finding/scripts/test.py): ~143 seconds (2 minutes 23 seconds)
 - Prime hologram bootstrap (1000 primes): ~0.3 seconds
 
 ## Repository Structure
@@ -88,11 +88,11 @@ Always test these core mathematical scenarios after making changes:
 - Benchmark DiscreteZetaShift: 1000 instances should complete in <3 seconds
 - Test visualization generation: hologram.py should complete in <2 seconds
 - Verify memory usage remains reasonable for large computations
-- Test comprehensive analysis: experiments/test.py should complete in ~143 seconds
+- Test comprehensive analysis: test-finding/scripts/test.py should complete in ~143 seconds
 
 ### Critical Timing Requirements
-- **NEVER CANCEL** long-running scripts: experiments/test.py can take up to 143 seconds
-- **ALWAYS** set appropriate timeouts: 30+ seconds for proof.py, 1800+ seconds for experiments/test.py
+- **NEVER CANCEL** long-running scripts: test-finding/scripts/test.py can take up to 143 seconds
+- **ALWAYS** set appropriate timeouts: 30+ seconds for proof.py, 1800+ seconds for test-finding/scripts/test.py
 - Dependency installation takes ~45-50 seconds and should never be cancelled
 
 ## Common Tasks and Timing
@@ -113,7 +113,7 @@ cat README.md  # Comprehensive framework documentation (13.9KB)
 ### Essential Computational Workflows
 - **Always** set PYTHONPATH before running scripts: `export PYTHONPATH=/home/runner/work/unified-framework/unified-framework`
 - **Always** use high precision for mathematical computations: `mp.mp.dps = 50`
-- **Always** allow sufficient timeout for zeta computations (experiments/test.py: 1800+ seconds)
+- **Always** allow sufficient timeout for zeta computations (test-finding/scripts/test.py: 1800+ seconds)
 - **Never** cancel dependency installation or long mathematical computations
 
 ### Documentation Files
@@ -131,7 +131,7 @@ cat README.md  # Comprehensive framework documentation (13.9KB)
 
 ### Known Dependencies and Limitations
 - No traditional build system (pure Python research repository)
-- No formal test suite beyond experiments/test.py
+- No formal test suite beyond test-finding/scripts/test.py
 - No GitHub Actions workflows or CI/CD pipeline
 - Requires PYTHONPATH setup for core module imports
 - Some scripts require command-line arguments (use --help to check)
@@ -162,7 +162,7 @@ cat README.md  # Comprehensive framework documentation (13.9KB)
 - Main proof script: `number-theory/prime-curve/proof.py`
 - Core mathematical functions: `core/axioms.py`
 - Primary computation class: `core/domain.py`
-- Comprehensive test: `experiments/test.py`
+- Comprehensive test: `test-finding/scripts/test.py`
 - Visualization tools: `number-theory/prime-curve/hologram.py`
 
 ### Key Mathematical Constants
@@ -185,7 +185,7 @@ cat README.md  # Comprehensive framework documentation (13.9KB)
 - **"ModuleNotFoundError: No module named 'numpy'"**: Install dependencies with pip3
 
 ### Performance Issues
-- **Scripts taking too long**: Ensure adequate timeout (experiments/test.py needs 1800+ seconds)
+- **Scripts taking too long**: Ensure adequate timeout (test-finding/scripts/test.py needs 1800+ seconds)
 - **Memory errors**: High precision arithmetic requires sufficient memory for large datasets
 - **Precision errors**: Verify mpmath.mp.dps is set to 50 decimal places
 
