@@ -31,7 +31,7 @@ def helical_embedding(unfolded):
 def compute_spacings(unfolded):
     return [float(unfolded[j] - unfolded[j-1]) for j in range(1, len(unfolded))]
 
-def phi_modular_predictions(unfolded, k=0.3):
+def phi_modular_predictions(unfolded, k=3.33):
     phi = mpmath.phi()
     preds = []
     for u in unfolded[:-1]:
@@ -93,7 +93,7 @@ print("Spectral form factor plot saved as 'spectral_form_factor.png'.")
 # Falsifiability tests
 # 1. Pearson correlation test
 spacings = compute_spacings(unfolded)
-preds = phi_modular_predictions(unfolded, k=0.3)
+preds = phi_modular_predictions(unfolded, k=3.33)
 corr, _ = pearsonr(spacings, preds)
 print(f"Pearson correlation between unfolded spacings and φ-modular predictions: {corr}")
 if abs(corr) < 0.9:
