@@ -14,8 +14,8 @@ from sympy import divisors, isprime
 import sys
 import os
 
-# Add the core modules to path
-sys.path.insert(0, '/home/runner/work/unified-framework/unified-framework')
+# Add the core modules to path - adjust for new location in test-finding/
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from core.domain import DiscreteZetaShift, PHI, E_SQUARED
 from core.axioms import theta_prime, curvature
@@ -184,8 +184,8 @@ def test_bootstrap_functionality():
     mock_enhancements = np.array([100.0, 200.0, 150.0, 300.0, 250.0, 180.0])
     
     try:
-        # Import the bootstrap function from proof.py
-        sys.path.insert(0, '/home/runner/work/unified-framework/unified-framework/number-theory/prime-curve')
+        # Import the bootstrap function from proof.py - adjust for new location in test-finding/
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'number-theory', 'prime-curve'))
         from proof import bootstrap_confidence_interval, compute_e_max_robust
         
         # Test bootstrap CI

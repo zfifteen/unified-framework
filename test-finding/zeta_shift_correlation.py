@@ -18,6 +18,7 @@ from scipy.optimize import minimize_scalar
 from sympy import divisors, isprime, nextprime
 import mpmath as mp
 import pandas as pd
+import os
 from core.axioms import curvature
 from core.domain import DiscreteZetaShift
 
@@ -389,7 +390,9 @@ def create_correlation_visualization(results):
     plt.grid(True, alpha=0.3)
     
     plt.tight_layout()
-    plt.savefig('/home/runner/work/unified-framework/unified-framework/zeta_shift_correlation_analysis.png', 
+    # Save to the results directory from new test-finding location
+    output_path = os.path.join(os.path.dirname(__file__), 'results', 'zeta_shift_correlation_analysis.png')
+    plt.savefig(output_path, 
                 dpi=300, bbox_inches='tight')
     plt.show()
 

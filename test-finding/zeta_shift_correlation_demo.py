@@ -16,6 +16,7 @@ from zeta_shift_correlation import ZetaShiftPrimeGapAnalyzer, main as run_main_a
 from validate_zeta_shift_correlation import main as run_validation
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 from scipy.stats import pearsonr
 
 def print_theoretical_foundation():
@@ -173,7 +174,9 @@ def create_final_visualization():
     ax.grid(True, alpha=0.3)
     
     plt.tight_layout()
-    plt.savefig('/home/runner/work/unified-framework/unified-framework/zeta_shift_final_demo.png', 
+    # Save to the results directory from new test-finding location
+    output_path = os.path.join(os.path.dirname(__file__), 'results', 'zeta_shift_final_demo.png')
+    plt.savefig(output_path, 
                 dpi=300, bbox_inches='tight')
     plt.show()
 

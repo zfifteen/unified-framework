@@ -11,7 +11,8 @@ Usage: python3 test_symbolic_statistical.py
 
 import sys
 import os
-sys.path.append('/home/runner/work/unified-framework/unified-framework')
+# Add framework path - adjust for new location in test-finding/
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import numpy as np
 import matplotlib

@@ -11,8 +11,8 @@ import os
 import time
 import json
 
-# Add framework path
-sys.path.append('/home/runner/work/unified-framework/unified-framework')
+# Add framework path - adjust for new location in test-finding/
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 def test_basic_framework():
     """Test basic framework components"""

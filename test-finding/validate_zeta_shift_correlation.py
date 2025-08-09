@@ -9,6 +9,7 @@ analysis across different parameter ranges and dataset sizes.
 import numpy as np
 from zeta_shift_correlation import ZetaShiftPrimeGapAnalyzer
 import matplotlib.pyplot as plt
+import os
 
 def test_reproducibility():
     """Test reproducibility across multiple runs."""
@@ -173,7 +174,9 @@ def create_comprehensive_visualization():
     ax.grid(True, alpha=0.3)
     
     plt.tight_layout()
-    plt.savefig('/home/runner/work/unified-framework/unified-framework/zeta_shift_comprehensive_analysis.png', 
+    # Save to the results directory from new test-finding location
+    output_path = os.path.join(os.path.dirname(__file__), 'results', 'zeta_shift_comprehensive_analysis.png')
+    plt.savefig(output_path, 
                 dpi=300, bbox_inches='tight')
     plt.show()
     
