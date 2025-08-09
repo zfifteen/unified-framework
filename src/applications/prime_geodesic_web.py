@@ -113,7 +113,7 @@ class PrimeGeodesicVisualizer:
                 colorscale=colorscale,
                 colorbar=dict(title=color_label),
                 opacity=0.8,
-                symbol=['diamond' if p.is_prime else 'circle' for p in points]
+                symbol=['cross' if p.is_prime else 'circle' for p in points]
             ),
             text=[str(p.n) for p in points],
             hovertext=hover_text,
@@ -138,7 +138,7 @@ class PrimeGeodesicVisualizer:
                         marker=dict(
                             size=12,
                             color=cluster_colors[i % len(cluster_colors)],
-                            symbol='star',
+                            symbol='cross',
                             opacity=0.9,
                             line=dict(width=2, color='black')
                         ),
@@ -198,7 +198,7 @@ class PrimeGeodesicVisualizer:
                 colorscale='Hot',
                 colorbar=dict(title='Density Enhancement (%)'),
                 opacity=0.7,
-                symbol=['diamond' if p.is_prime else 'circle' for p in points]
+                symbol=['cross' if p.is_prime else 'circle' for p in points]
             ),
             text=[f"n={p.n}, Prime: {p.is_prime}" for p in points],
             hoverinfo='text',
@@ -456,7 +456,6 @@ def get_statistics():
 
 
 # Create templates directory and HTML template
-@app.before_first_request
 def create_template():
     """Create the HTML template for the web interface."""
     import os
@@ -852,8 +851,7 @@ def create_template():
 
 if __name__ == '__main__':
     # Create templates before running
-    with app.app_context():
-        create_template()
+    create_template()
     
     print("Starting Prime Geodesic Search Engine Web Interface...")
     print("Access the application at: http://localhost:5000")
