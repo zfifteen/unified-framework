@@ -113,14 +113,34 @@ class GeodesicClusteringAnalyzer:
         """
         print(f"Generating {dim}D prime geodesics for {self.n_primes} integers...")
         
-        # Use a larger N to ensure we get enough primes
-        search_limit = max(self.n_primes * 10, 10000)
-        coords, is_prime = DiscreteZetaShift.get_coordinates_array(
-            dim=dim, N=search_limit, seed=2, v=1.0
-        )
-        
-        # Extract only prime coordinates
-        prime_coords = coords[is_prime][:self.n_primes]
+        # Check dimension support
+        if dim <= 4:
+            # Use efficient batch generation for 3D and 4D
+            search_limit = max(self.n_primes * 10, 10000)
+            coords, is_prime = DiscreteZetaShift.get_coordinates_array(
+                dim=dim, N=search_limit, seed=2, v=1.0
+            )
+            
+            # Extract only prime coordinates
+            prime_coords = coords[is_prime][:self.n_primes]
+            
+        else:
+            # For 5D, generate coordinates individually
+            prime_coords = []
+            from sympy import isprime
+            
+            n = 2  # Start with first prime
+            count = 0
+            
+            while count < self.n_primes and n < 100000:  # Safety limit
+                if isprime(n):
+                    dzs = DiscreteZetaShift(n, v=1.0)
+                    coords_5d = dzs.get_5d_coordinates()
+                    prime_coords.append(coords_5d)
+                    count += 1
+                n += 1
+            
+            prime_coords = np.array(prime_coords)
         
         print(f"  Generated {len(prime_coords)} prime geodesic coordinates")
         return prime_coords
