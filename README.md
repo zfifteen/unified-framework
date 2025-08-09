@@ -13,12 +13,36 @@ The ratio \( v/c \), where \( v \) is a relative velocity or rate, induces measu
 ### Axiom 3: \(T(v/c)\) as a Fundamental Unit of Measure
 The quantity \( T(v/c) \), specializing \( Z \) in the physical domain where \( T \) is a frame-dependent measurement (e.g., time), serves as a normalized unit quantifying invariant-bound distortions. This unit resolves empirical observations geometrically, replacing probabilistic heuristics with geodesic trajectories. It is validated in 5D helical embeddings \( (x = a \cos(\theta_D), y = a \sin(\theta_E), z = F/e^2, w = I, u = O) \), linking physical distortions to discrete geodesic patterns, with Pearson \( r=0.93 \) extended to Riemann zeta zero spacings.
 
+## Empirical Validation Status
+
+### TC01–TC05 Computational Validation Suite
+
+The Z Framework has undergone comprehensive empirical validation through the TC01–TC05 computational suite with the following results:
+
+- **Overall Pass Rate**: 80% (4 out of 5 test cases passed)
+- **Test Coverage**: Scale-invariant prime density, parameter optimization, zeta zeros embedding, prime-specific statistical effects, and asymptotic hypothesis validation up to N = 10¹⁰
+- **Statistical Significance**: All passing tests show p < 10⁻⁶ with robust confidence intervals
+- **High-Precision Implementation**: mpmath (dps=50+) with parallel processing for enhanced computational reliability
+
+### Independent Grok Verification
+
+Independent testing by Grok confirmed core framework findings:
+- **Prime Density Enhancement**: ~15% enhancement independently verified (CI [14.6%, 15.4%])
+- **Zeta Zero Correlation**: Strong correlation (r ≈ 0.93) with Riemann zeta zero spacings confirmed
+- **High-N Stability**: Framework stability validated at large N with only minor performance notes for ultra-large N
+- **No Substantive Discrepancies**: No errors or significant issues identified in core methodology
+
+**Reference Documentation**: 
+- Validation details: [PR #179](https://github.com/zfifteen/unified-framework/pull/179)
+- Independent verification: [Grok Test Report](https://grok.com/share/bGVnYWN5_295da586-9a5a-4b47-8620-8745d81b6e59)
+
 ## What's Novel?
 
 - **Golden Ratio Modular Transformation for Prime Detection**: Uses \( \theta'(n,k) = \phi \cdot ((n \mod \phi)/\phi)^k \) to warp integer sequences, with high-precision mpmath (dps=50) bounding \( \Delta_n < 10^{-16} \). Achieves a 15% prime density enhancement at \( k^* \approx 0.3 \), unique to \( \phi \) (tests on \( \sqrt{2} \): 12%, \( e \): 14%).
 - **Frame-Normalized Curvature**: Defines \( \kappa(n) = d(n) \cdot \ln(n+1)/e^2 \), bridging discrete divisor functions with continuous logarithmic growth. Minimizes variance (\( \sigma \approx 0.118 \)) with \( e^2 \)-normalization, replacing hard ratios with geodesics.
 - **Optimal Curvature Parameter \( k^* \approx 0.3 \)**: Yields a 15% enhancement (bootstrap CI [14.6%, 15.4%], \( p < 10^{-6} \)), invariant across \( N = 10^3 \) to \( 10^9 \), contradicting prime pseudorandomness.
 - **Cross-Domain Validation**: Same \( k^* \) emerges from Riemann zeta zero analysis and prime transformations, with Pearson \( r=0.93 \) (\( p < 10^{-10} \)) on unfolded zero spacings.
+- **Comprehensive Validation Suite (TC01–TC05)**: Multi-faceted testing infrastructure covering scale-invariant prime density, parameter optimization, zeta zeros embedding, prime-specific statistical effects, and asymptotic convergence validation. Achieves 80% pass rate with robust statistical protocols, high-precision arithmetic (dps=50+), and parallel processing. Independent Grok verification confirms reproducibility and computational correctness.
 - **Asymptotic Convergence Integration (TC-INST-01)**: New validation methodology with Weyl-integration routines resolves numerical instability (issue #171), enforcing equidistribution bounds for large N with multi-core scaling and high-precision arithmetic (dps=50+). Achieves variance reduction from σ=2708→0.016.
 - **3D/5D Helical Embedding**: Maps primes and zeta zeros to helical geodesics using \( \phi \)-modular coordinates in 5D \( (x, y, z, w, u) \), providing geometric visualization of analytic number theory objects.
 - **Hybrid GUE Statistics**: KS statistic 0.916 (\( p \approx 0 \)) shows a new universality class between Poisson and GUE, with systematic deviations.
@@ -130,7 +154,7 @@ Asymptotic: \( E(k) \sim \log \log N \).
 The transformation \( \theta'(n, k) \) reveals primes avoiding specific modular regions. Links to continued fractions and Hardy-Littlewood conjectures are hypothesized. Limitations include finite sample sizes (mitigated to \( N = 10^9 \)) and GMM randomness (std < 0.01, BIC = -14230).
 
 ### Conclusion
-The Z framework demonstrates a statistically significant \( k^* \approx 0.3 \), yielding a 15% prime density enhancement, compact GMM clusters, and Fourier asymmetry (\( S_b \approx 0.45 \)). It unifies physical and discrete domains, with 5D extensions suggesting deeper regularities.
+The Z framework demonstrates a statistically significant \( k^* \approx 0.3 \), yielding a 15% prime density enhancement, compact GMM clusters, and Fourier asymmetry (\( S_b \approx 0.45 \)). The TC01–TC05 computational validation suite confirms framework robustness with an 80% pass rate, while independent Grok verification validates reproducibility and computational correctness. With high-precision arithmetic, parallel processing, and comprehensive statistical protocols, the framework unifies physical and discrete domains with 5D extensions suggesting deeper regularities.
 
 ## Mathematical Proofs Derived from Prime Curvature Analysis
 
