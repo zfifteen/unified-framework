@@ -53,6 +53,27 @@ The Z Framework provides a novel approach to analyzing phenomena across differen
 - [Code of Conduct](contributing/code-of-conduct.md) - Community standards
 - [Development Setup](contributing/development.md) - Development environment
 
+### 🏭 [Industry Applications](industry/README.md)
+**Commercial Impact** - Industrial applications and impact analysis:
+- [Industrial Impact Analysis](industry/INDUSTRY.md) - Comprehensive impact assessment
+
+### 📊 [Reports](reports/README.md)
+**Analysis Reports** - Comprehensive analysis reports and validation summaries:
+- [Comprehensive Z-Model Report](reports/comprehensive_z_model_report.txt) - Complete analysis
+- [Numerical Stability Report](reports/NUMERICAL_STABILITY_VALIDATION_REPORT.md) - Stability validation
+
+### 🧪 [Testing Documentation](testing/README.md)
+**Testing & Validation** - Testing methodologies and validation procedures:
+- [Testing Framework](testing/frame-shift-mitigation-README.md) - Core testing documentation
+- [Validation Procedures](testing/VALIDATION_README.md) - Validation methodologies
+
+### 📋 [Knowledge Base](knowledge-base/README.md)
+**Structured Knowledge** - LLM-optimized knowledge base for automated processing:
+- [KBLLM Knowledge Base](knowledge-base/KBLLM.txt) - Token-chain structured knowledge
+
+### 📤 [Output Templates](outputs/README.md)
+**Report Templates** - Standard formats for analysis outputs and reports.
+
 ## Quick Reference
 
 ### Universal Form

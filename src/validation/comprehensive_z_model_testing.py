@@ -752,7 +752,7 @@ def main():
         print("\n" + report)
         
         # Save report
-        with open('comprehensive_z_model_report.txt', 'w') as f:
+        with open('docs/reports/comprehensive_z_model_report.txt', 'w') as f:
             f.write(report)
         
         # Save JSON results for reproducibility
@@ -763,7 +763,7 @@ def main():
         
         print("\n=== COMPREHENSIVE TESTING COMPLETED ===")
         print("Files generated:")
-        print("- comprehensive_z_model_report.txt")
+        print("- docs/reports/comprehensive_z_model_report.txt")
         print("- comprehensive_z_model_results.json")
         print("- numerical_instability_analysis.png")
         print("- distribution_analysis.png")
