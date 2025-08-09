@@ -262,7 +262,7 @@ def demonstration():
     print("• src/validation/numerical_instability_test.py")
     print("• src/validation/comprehensive_z_model_testing.py")
     print("• src/validation/quick_z_model_test.py")
-    print("• src/validation/README.md")
+    print("• docs/validation/README.md")
     print()
     print("For full testing, run the comprehensive framework:")
     print("python3 src/validation/comprehensive_z_model_testing.py")
