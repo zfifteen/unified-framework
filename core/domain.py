@@ -185,8 +185,21 @@ class DiscreteZetaShift(UniversalZetaShift):
         self.vortex = collections.deque()  # Instance-level vortex
         n = mp.mpmathify(n)
         d_n = len(divisors(int(n)))  # sympy for divisors, cast to int if needed
+        
+        # Enhanced discrete curvature κ(n) = d(n) · ln(n+1)/e² with proper bounds
         kappa = d_n * mp.log(n + 1) / E_SQUARED
-        delta_n = v * kappa
+        
+        # Apply bounds: κ(n) bounded by e² or φ for numerical stability
+        kappa_bounded = min(kappa, E_SQUARED, PHI)
+        
+        # Discrete domain: Z = n(Δ_n/Δ_max) where Δ_n = v * κ(n)
+        delta_n = v * kappa_bounded
+        
+        # Store unbounded kappa for analysis
+        self.kappa_raw = kappa
+        self.kappa_bounded = kappa_bounded
+        self.delta_n = delta_n
+        
         super().__init__(a=n, b=delta_n, c=delta_max)
         self.v = v
         self.f = round(float(self.getG()))  # Cast to float for rounding

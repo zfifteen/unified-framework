@@ -1,0 +1,147 @@
+{
+  "gene_name": "BRCA1_Fragment",
+  "description": "BRCA1 (Breast cancer 1) - DNA repair pathway component",
+  "clinical_relevance": "Mutations increase breast and ovarian cancer risk",
+  "sequence_length": 158,
+  "analysis_results": [
+    {
+      "position": 40,
+      "original_base": "T",
+      "mutated_base": "C",
+      "delta_f1": 91.68840666000118,
+      "delta_peaks": 17,
+      "delta_entropy": 0.8130878557953665,
+      "composite_score": 17.81308829043914,
+      "z_factor": 4.740444175640995e-09,
+      "zeta_shift": 4.989230982727593,
+      "spectral_order_base": 121.62162236063422,
+      "spectral_order_mut": 124.64108270969238
+    },
+    {
+      "position": 40,
+      "original_base": "T",
+      "mutated_base": "G",
+      "delta_f1": 76.1094792168139,
+      "delta_peaks": 13,
+      "delta_entropy": 0.5271347453537416,
+      "composite_score": 13.52713510614648,
+      "z_factor": 4.740444175640995e-09,
+      "zeta_shift": 4.989230982727593,
+      "spectral_order_base": 121.62162236063422,
+      "spectral_order_mut": 123.57917522636916
+    },
+    {
+      "position": 60,
+      "original_base": "A",
+      "mutated_base": "T",
+      "delta_f1": -29.20763900802375,
+      "delta_peaks": 12,
+      "delta_entropy": 1.2077253617962214,
+      "composite_score": 13.207725702989467,
+      "z_factor": 1.1681644187548343e-08,
+      "zeta_shift": 14.050319331849217,
+      "spectral_order_base": 121.62162236063422,
+      "spectral_order_mut": 126.58642898554156
+    },
+    {
+      "position": 40,
+      "original_base": "T",
+      "mutated_base": "A",
+      "delta_f1": 61.79799494092403,
+      "delta_peaks": 12,
+      "delta_entropy": 0.43489552572664536,
+      "composite_score": 12.43489581867659,
+      "z_factor": 4.740444175640995e-09,
+      "zeta_shift": 4.989230982727593,
+      "spectral_order_base": 121.62162236063422,
+      "spectral_order_mut": 123.23663823690737
+    },
+    {
+      "position": 60,
+      "original_base": "A",
+      "mutated_base": "G",
+      "delta_f1": -3.3347804676487987,
+      "delta_peaks": 11,
+      "delta_entropy": 0.996441231266779,
+      "composite_score": 11.996441270222498,
+      "z_factor": 1.1681644187548343e-08,
+      "zeta_shift": 14.050319331849217,
+      "spectral_order_base": 121.62162236063422,
+      "spectral_order_mut": 125.71786657543349
+    },
+    {
+      "position": 60,
+      "original_base": "A",
+      "mutated_base": "C",
+      "delta_f1": -4.796606398984361,
+      "delta_peaks": 9,
+      "delta_entropy": 1.236413307467263,
+      "composite_score": 10.236413363499512,
+      "z_factor": 1.1681644187548343e-08,
+      "zeta_shift": 14.050319331849217,
+      "spectral_order_base": 121.62162236063422,
+      "spectral_order_mut": 126.70436151161748
+    },
+    {
+      "position": 140,
+      "original_base": "C",
+      "mutated_base": "T",
+      "delta_f1": -48.110562728387805,
+      "delta_peaks": 3,
+      "delta_entropy": 0.05573333327008356,
+      "composite_score": 3.0557406128782136,
+      "z_factor": 1.5130997679139674e-07,
+      "zeta_shift": 0.11470216107664195,
+      "spectral_order_base": 121.62162236063422,
+      "spectral_order_mut": 121.89743324487829
+    },
+    {
+      "position": 0,
+      "original_base": "A",
+      "mutated_base": "G",
+      "delta_f1": 3.646048897473562,
+      "delta_peaks": 2,
+      "delta_entropy": 0.5958024359049716,
+      "composite_score": 2.5958024359049716,
+      "z_factor": 0.0,
+      "zeta_shift": 39.944554869713315,
+      "spectral_order_base": 121.62162236063422,
+      "spectral_order_mut": 122.0346011392525
+    },
+    {
+      "position": 0,
+      "original_base": "A",
+      "mutated_base": "C",
+      "delta_f1": -31.76162595267919,
+      "delta_peaks": 2,
+      "delta_entropy": 0.11936795387126153,
+      "composite_score": 2.1193679538712615,
+      "z_factor": 0.0,
+      "zeta_shift": 39.944554869713315,
+      "spectral_order_base": 121.62162236063422,
+      "spectral_order_mut": 121.70436192130929
+    },
+    {
+      "position": 100,
+      "original_base": "C",
+      "mutated_base": "G",
+      "delta_f1": -62.98553861415986,
+      "delta_peaks": 1,
+      "delta_entropy": 0.033589363229015845,
+      "composite_score": 1.033591638565778,
+      "z_factor": 3.6124748826251517e-08,
+      "zeta_shift": 12.165227917792944,
+      "spectral_order_base": 121.62162236063422,
+      "spectral_order_mut": 121.77664132002008
+    }
+  ],
+  "summary_statistics": {
+    "total_mutations": 24,
+    "score_range": [
+      -9.271566942461485,
+      17.81308829043914
+    ],
+    "mean_score": 1.0142983724156398,
+    "score_std": 7.937965119986747
+  }
+}
