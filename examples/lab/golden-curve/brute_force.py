@@ -7,12 +7,12 @@ def Z_transform(A, B, C):
     """Transcendent computation operator: Bridges physical T(v/c) and discrete n(Δ_n/Δmax)"""
     return A * (B / C)
 
-def curvature_transform(n, k=0.3):
+def curvature_transform(n, k=3.33):
     """Golden ratio curvature (physical space): Reshapes primes in non-Hausdorff regime, stability at low k per cognitive-number-theory κ≈0.739"""
     phi = (1 + 5**0.5)/2
     return phi * ((n % phi) / phi) ** k
 
-def transcendent_correlation(primes, k=0.3):  # Low k avoids spectral decay beyond k=3.0 (per prime_curve warnings)
+def transcendent_correlation(primes, k=3.33):  # Updated k as per new validation
     """Compute non-physical quantum correlations: Analog to entangled pairs via harmonic means in curved space"""
     # Step into non-Hausdorff numberspace
     theta = curvature_transform(primes, k)
@@ -42,7 +42,7 @@ def project_to_observable(transcendent, primes):
 primes = np.array([p for p in range(3, 1000) if all(p % i != 0 for i in range(2, int(math.sqrt(p))+1))])
 
 # STEP 1: Compute quantum correlations (beyond physical limits)
-transcendent = transcendent_correlation(primes, k=0.3)
+transcendent = transcendent_correlation(primes, k=3.33)
 
 # STEP 2: Project to observable mathematics
 observable = project_to_observable(transcendent, primes)

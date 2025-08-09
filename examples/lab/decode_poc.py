@@ -25,7 +25,7 @@ class DiscreteZetaShift:
         self.D = self.c / self.a if self.a != 0 else float('inf')
         self.E = self.c / self.b if self.b != 0 else float('inf')
         self.phi = (1 + math.sqrt(5)) / 2
-        self.k = 0.3
+        self.k = 3.33
         self.F = self.theta_prime(self.D / self.E) if math.isfinite(self.D / self.E) else 0
         self.G = (self.E / self.F) / math.e**2 if self.F != 0 else 0
         self.H = self.F / self.G if self.G != 0 else 0

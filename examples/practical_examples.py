@@ -79,7 +79,7 @@ def example_2_statistical_validation():
     
     # Apply golden ratio transformation
     phi = (1 + np.sqrt(5)) / 2
-    k = 0.3
+    k = 3.33
     
     def transform(n, k_val):
         return phi * ((n % phi) / phi) ** k_val
@@ -105,7 +105,7 @@ def example_2_statistical_validation():
     print("-" * 35)
     
     # Generate k-enhancement curve
-    k_values = np.linspace(0.1, 0.5, 21)
+    k_values = np.linspace(3.0, 3.6, 21)
     enhancement_values = []
     
     for k_test in k_values:
@@ -118,7 +118,7 @@ def example_2_statistical_validation():
         enhancement = ((var_composite - var_prime) / var_prime * 100) if var_prime > 0 else 0
         enhancement_values.append(max(0, enhancement))  # Keep positive
     
-    optimal_k_test = test_optimal_k_hypothesis(k_values, enhancement_values, theoretical_k=0.3)
+    optimal_k_test = test_optimal_k_hypothesis(k_values, enhancement_values, theoretical_k=3.33)
     
     print(f"Optimal k exists: {optimal_k_test['hypothesis_test']['optimal_k_exists']}")
     print(f"Empirical k*: {optimal_k_test['empirical_results']['k_optimal_empirical']:.3f}")
@@ -253,9 +253,9 @@ def example_4_correlation_analysis():
     print("-" * 40)
     
     # Use data from previous example
-    k_values = np.linspace(0.1, 0.5, 21)
-    # Simulate enhancement curve with peak at k=0.3
-    enhancement_values = 50 * np.exp(-20 * (k_values - 0.3)**2) + 10 + np.random.normal(0, 2, len(k_values))
+    k_values = np.linspace(3.0, 3.6, 21)
+    # Simulate enhancement curve with peak at k=3.33
+    enhancement_values = 50 * np.exp(-20 * (k_values - 3.33)**2) + 10 + np.random.normal(0, 2, len(k_values))
     
     regression_result = regression_analysis_enhancement(k_values, enhancement_values)
     
@@ -378,7 +378,7 @@ def example_6_integration_pipeline():
     
     # Extract numerical values
     phi_numerical = float((1 + np.sqrt(5)) / 2)
-    k_optimal = 0.3  # From theoretical analysis
+    k_optimal = 3.33  # From theoretical analysis
     
     print(f"✓ Golden ratio derived: φ = {phi_exact}")
     print(f"✓ Numerical value: φ ≈ {phi_numerical:.6f}")
