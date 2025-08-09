@@ -1,0 +1,2 @@
+regime,M_zeta_zeros,tau_max,tau_steps,N_sequences,crispr_scores_computed,min_K_tau,max_K_tau,mean_K_tau,bootstrap_band_width,confidence_level
+small_scale,100,5.0,50,10000,5000,26.26277057433002,99.0,69.29088431113924,3.031970174731561,0.9
