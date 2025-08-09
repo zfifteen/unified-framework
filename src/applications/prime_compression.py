@@ -47,7 +47,7 @@ import warnings
 mp.mp.dps = 50
 PHI = mp.mpf((1 + mp.sqrt(5)) / 2)  # Golden ratio
 E_SQUARED = mp.exp(2)
-K_OPTIMAL = mp.mpf(0.200)  # Empirically validated optimal curvature
+K_OPTIMAL = mp.mpf(0.300)  # Empirically validated optimal curvature (updated to 0.3)
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
@@ -96,7 +96,7 @@ class PrimeGeodesicTransform:
         
         # Pre-computed constants for performance (avoid repeated float conversions)
         phi_float = 1.61803398875  # Pre-computed golden ratio
-        k_float = 0.2  # Optimal curvature parameter
+        k_float = 0.3  # Optimal curvature parameter (updated to match K_OPTIMAL)
         
         # Optimized computation using approximate frame shift for speed
         # Original: mod_phi = np.mod(indices_array, phi_float) / phi_float
@@ -385,17 +385,27 @@ class PrimeDrivenCompressor:
             first_value = data_array[0]
             if len(data_array) > 1:
                 differences = np.diff(data_array.astype(np.int32))
+                
+                # Handle large differences by splitting them if needed
+                # For now, use a simpler approach: store as signed differences with offset
+                # Range: differences can be -255 to +255, map to 0-510, then clip if needed
+                safe_differences = np.clip(differences + 255, 0, 510)
+                
                 # Create encoded array: [first_value, diff1, diff2, ...]
-                data_encoded = np.concatenate([[first_value], differences + 128])
+                data_encoded = np.concatenate([[first_value], safe_differences])
             else:
                 data_encoded = np.array([first_value], dtype=np.int32)
         else:
             data_encoded = np.array([], dtype=np.int32)
         
-        data_compressed = np.clip(data_encoded, 0, 255).astype(np.uint8)
+        # Store as uint16 to handle the extended range
+        if len(data_encoded) > 0:
+            data_compressed = data_encoded.astype(np.uint16).tobytes()
+        else:
+            data_compressed = b''
         
         # Combine: header + labels + data
-        result = header.tobytes() + labels_compressed.tobytes() + data_compressed.tobytes()
+        result = header.tobytes() + labels_compressed.tobytes() + data_compressed
         
         return result
     
@@ -419,15 +429,22 @@ class PrimeDrivenCompressor:
         if version != 1:
             return b''  # Unsupported version
             
-        if len(compressed_data) < 8 + 2 * data_length:
-            return b''  # Insufficient data
+        if len(compressed_data) < 8 + data_length:
+            return b''  # Insufficient data for labels
         
         # Read cluster labels and data
         offset = 8
         labels = np.frombuffer(compressed_data[offset:offset + data_length], dtype=np.uint8)
         offset += data_length
         
-        data_encoded = np.frombuffer(compressed_data[offset:offset + data_length], dtype=np.uint8).astype(np.int32)
+        # Read data differences (stored as uint16 for extended range)
+        data_bytes_remaining = len(compressed_data) - offset
+        data_uint16_count = data_bytes_remaining // 2
+        
+        if data_uint16_count < data_length:
+            return b''  # Insufficient data
+            
+        data_encoded = np.frombuffer(compressed_data[offset:offset + data_length * 2], dtype=np.uint16).astype(np.int32)
         
         # Reconstruct original data with proper differential decoding
         output_array = np.zeros(data_length, dtype=np.uint8)
@@ -437,7 +454,7 @@ class PrimeDrivenCompressor:
             
             # Subsequent values are cumulative differences
             for i in range(1, data_length):
-                diff = data_encoded[i] - 128  # Undo the +128 offset
+                diff = data_encoded[i] - 255  # Undo the +255 offset
                 next_val = int(output_array[i-1]) + diff
                 output_array[i] = np.clip(next_val, 0, 255)
         
@@ -642,7 +659,9 @@ class PrimeDrivenCompressor:
         original_size = len(data)
         
         if original_size == 0:
-            return data, CompressionMetrics(0, 0, 1.0, 0.0, 0.0, True, 0, 0, 1.0)
+            # Handle empty data case
+            empty_metrics = CompressionMetrics(0, 0, 1.0, 0.0, 0.0, True, 0, 0, 1.0)
+            return data, empty_metrics
         
         # Generate indices for modular-geodesic transformation
         indices = np.arange(len(data))
@@ -711,6 +730,12 @@ class PrimeDrivenCompressor:
         start_time = time.time()
         
         try:
+            # Handle empty data case
+            if len(compressed_data) == 0:
+                metrics.decompression_time = time.time() - start_time
+                metrics.integrity_verified = True
+                return b'', True
+                
             # Decode using simplified cluster-based compression
             decompressed_data = self._decode_clusters_simple(compressed_data)
             

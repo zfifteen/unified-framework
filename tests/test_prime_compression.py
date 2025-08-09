@@ -33,7 +33,7 @@ class TestPrimeGeodesicTransform(unittest.TestCase):
         
     def test_optimal_k_parameter(self):
         """Test that optimal curvature parameter is correctly set."""
-        self.assertAlmostEqual(float(self.transformer.k), 0.200, places=3)
+        self.assertAlmostEqual(float(self.transformer.k), 0.300, places=3)
         
     def test_golden_ratio_value(self):
         """Test that golden ratio is correctly computed."""
@@ -258,7 +258,7 @@ class TestMathematicalFoundations(unittest.TestCase):
     
     def test_k_optimal_constant(self):
         """Test that optimal k parameter is correctly defined."""
-        self.assertAlmostEqual(float(K_OPTIMAL), 0.200, places=3)
+        self.assertAlmostEqual(float(K_OPTIMAL), 0.300, places=3)
         
     def test_golden_ratio_constant(self):
         """Test that golden ratio is correctly computed."""
