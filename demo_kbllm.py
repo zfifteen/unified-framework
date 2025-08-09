@@ -6,7 +6,7 @@ This script shows how to parse and utilize the token-chain structured knowledge
 base for automated LLM instruction generation and concept extraction.
 """
 
-def parse_kbllm_file(filepath="KBLLM.txt"):
+def parse_kbllm_file(filepath="docs/knowledge-base/KBLLM.txt"):
     """Parse KBLLM.txt file and extract structured knowledge."""
     
     with open(filepath, 'r') as f:
@@ -110,7 +110,7 @@ def main():
         print(f"\nKNOWLEDGE BASE READY FOR LLM PROCESSING")
         
     except FileNotFoundError:
-        print("✗ KBLLM.txt not found. Please ensure file exists in current directory.")
+        print("✗ KBLLM.txt not found. Please ensure file exists in docs/knowledge-base/ directory.")
     except Exception as e:
         print(f"✗ Error processing knowledge base: {e}")
 
