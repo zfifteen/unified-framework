@@ -165,11 +165,19 @@ class TestPrimeDrivenCompressor(unittest.TestCase):
         # Compress
         compressed_data, metrics = self.compressor.compress(test_data)
         
-        # Decompress
-        decompressed_data, integrity_verified = self.compressor.decompress(compressed_data, metrics)
+        # Decompress with hash verification
+        import hashlib
+        original_hash = hashlib.sha256(test_data).hexdigest()
+        decompressed_data, integrity_verified = self.compressor.decompress(compressed_data, original_hash)
         
         # Size should match
         self.assertEqual(len(decompressed_data), len(test_data))
+        
+        # Data should match exactly (lossless)
+        self.assertEqual(decompressed_data, test_data)
+        
+        # Integrity should be verified
+        self.assertTrue(integrity_verified)
         
     def test_mathematical_properties(self):
         """Test mathematical properties of the algorithm."""
@@ -296,6 +304,131 @@ class TestMathematicalFoundations(unittest.TestCase):
         self.assertEqual(metrics.compressed_size, len(compressed_data))
         self.assertEqual(metrics.geodesic_mappings, len(test_data))
         self.assertGreater(metrics.enhancement_factor, 0)
+
+
+class TestCompressionFixes(unittest.TestCase):
+    """Test the specific fixes implemented for issue #189."""
+    
+    def setUp(self):
+        """Set up test fixtures."""
+        self.compressor = PrimeDrivenCompressor()
+        
+    def test_lossless_reconstruction(self):
+        """Test that compression-decompression is truly lossless."""
+        import hashlib
+        
+        test_cases = [
+            b"Hello, World!",
+            b"ABCD" * 25,  # Repetitive
+            bytes(range(100)),  # Sequential
+            b"\x00" * 50 + b"test" + b"\x00" * 50,  # Sparse
+            b"Mixed data with 123 numbers and symbols @#$%"
+        ]
+        
+        for i, test_data in enumerate(test_cases):
+            with self.subTest(case=i):
+                # Compress
+                compressed_data, metrics = self.compressor.compress(test_data)
+                
+                # Decompress
+                original_hash = hashlib.sha256(test_data).hexdigest()
+                decompressed_data, integrity_verified = self.compressor.decompress(compressed_data, original_hash)
+                
+                # Verify perfect reconstruction
+                self.assertEqual(len(decompressed_data), len(test_data), "Length mismatch")
+                self.assertEqual(decompressed_data, test_data, "Content mismatch")
+                self.assertTrue(integrity_verified, "Integrity check failed")
+    
+    def test_position_preservation(self):
+        """Test that byte positions are correctly preserved."""
+        import hashlib
+        
+        # Create data where position matters
+        test_data = b"A_B_C_D_E_F_G_H_I_J"
+        
+        compressed_data, metrics = self.compressor.compress(test_data)
+        original_hash = hashlib.sha256(test_data).hexdigest()
+        decompressed_data, integrity_verified = self.compressor.decompress(compressed_data, original_hash)
+        
+        # Every character should be in exactly the right position
+        self.assertEqual(decompressed_data, test_data)
+        self.assertTrue(integrity_verified)
+        
+        # Check specific positions
+        self.assertEqual(decompressed_data[0], ord('A'))
+        self.assertEqual(decompressed_data[2], ord('B'))
+        self.assertEqual(decompressed_data[18], ord('J'))
+    
+    def test_differential_encoding_correctness(self):
+        """Test that differential encoding works correctly."""
+        import hashlib
+        
+        # Test with data that would expose off-by-one errors
+        test_data = bytes([10, 20, 30, 40, 50])  # Clear arithmetic progression
+        
+        compressed_data, metrics = self.compressor.compress(test_data)
+        original_hash = hashlib.sha256(test_data).hexdigest()
+        decompressed_data, integrity_verified = self.compressor.decompress(compressed_data, original_hash)
+        
+        # Should reconstruct exactly
+        self.assertEqual(decompressed_data, test_data)
+        self.assertTrue(integrity_verified)
+        
+        # Verify each byte value
+        decompressed_array = list(decompressed_data)
+        self.assertEqual(decompressed_array, [10, 20, 30, 40, 50])
+    
+    def test_compression_improvement(self):
+        """Test that compression ratios are actually > 1.0 for suitable data."""
+        
+        # Repetitive data should compress well
+        repetitive_data = b"PATTERN" * 100
+        compressed_data, metrics = self.compressor.compress(repetitive_data)
+        
+        # Should achieve actual compression (ratio > 1.0)
+        self.assertGreater(metrics.compression_ratio, 1.0, 
+                          "Should achieve compression on repetitive data")
+        self.assertLess(metrics.compressed_size, metrics.original_size,
+                       "Compressed size should be smaller than original")
+    
+    def test_data_aware_clustering(self):
+        """Test that clustering now considers actual data content."""
+        
+        # Create data with clear patterns that should cluster differently
+        # Pattern A: low values
+        pattern_a = bytes([i for i in range(0, 50, 2)])  # 0, 2, 4, 6, ...
+        # Pattern B: high values  
+        pattern_b = bytes([i for i in range(200, 250, 2)])  # 200, 202, 204, ...
+        
+        # Interleave patterns
+        test_data = b''.join(pattern_a[i:i+1] + pattern_b[i:i+1] 
+                           for i in range(min(len(pattern_a), len(pattern_b))))
+        
+        compressed_data, metrics = self.compressor.compress(test_data)
+        
+        # Should complete successfully with reasonable results
+        self.assertIsInstance(compressed_data, bytes)
+        self.assertGreater(metrics.enhancement_factor, 1.0)
+        self.assertEqual(metrics.prime_clusters_found, 5)  # Default n_components
+    
+    def test_stream_self_description(self):
+        """Test that compressed stream is fully self-describing."""
+        import hashlib
+        
+        test_data = b"Self-describing stream test data"
+        
+        # Compress with one compressor instance
+        compressor1 = PrimeDrivenCompressor()
+        compressed_data, metrics = compressor1.compress(test_data)
+        
+        # Decompress with a completely new instance
+        compressor2 = PrimeDrivenCompressor() 
+        original_hash = hashlib.sha256(test_data).hexdigest()
+        decompressed_data, integrity_verified = compressor2.decompress(compressed_data, original_hash)
+        
+        # Should work perfectly with new instance
+        self.assertEqual(decompressed_data, test_data)
+        self.assertTrue(integrity_verified)
 
 
 if __name__ == '__main__':
