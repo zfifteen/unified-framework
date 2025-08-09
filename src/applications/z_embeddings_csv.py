@@ -10,7 +10,7 @@ import csv
 import argparse
 import time
 import os
-from domain import DiscreteZetaShift
+from core.domain import DiscreteZetaShift
 
 
 def main():
