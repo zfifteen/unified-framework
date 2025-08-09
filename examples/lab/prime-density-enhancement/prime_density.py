@@ -12,7 +12,7 @@ np.random.seed(42)
 
 # Constants
 PHI = (1 + math.sqrt(5)) / 2
-K_STAR = 0.3
+K_STAR = 3.33
 E = math.exp(1)
 NUM_BINS = 100
 NUM_BOOTSTRAP = 1000

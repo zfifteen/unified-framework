@@ -6,12 +6,12 @@ from sympy import isprime, primerange
 
 PHI = (1 + 5 ** 0.5) / 2
 
-def prime_curvature_transform(n, k=0.3):
+def prime_curvature_transform(n, k=3.33):
     frac = math.modf(n / PHI)[0]
     if frac == 0: frac = 1e-10
     return (frac ** k) * math.log(n + 1)
 
-def forecast_next_primes(primes, num_forecast=100, k=0.3, window=100):
+def forecast_next_primes(primes, num_forecast=100, k=3.33, window=100):
     """Forecast next primes based on curvature minima relative to recent history."""
     transformed = [prime_curvature_transform(p, k) for p in primes]
     next_primes = []
@@ -36,7 +36,7 @@ def compression_ratio(data):
     compressed = zlib.compress(raw)
     return len(compressed) / len(raw)
 
-def falsification_tests(true_primes, forecasted, k=0.3):
+def falsification_tests(true_primes, forecasted, k=3.33):
     print("\n🔬 Running Falsification Tests...")
 
     # 1. Forecast Accuracy Test
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     # 1. Historical primes and long-range forecast
     known = list(primerange(2, 10000))      # Training data
     true_future = list(primerange(10000, 10100))  # Ground truth for testing
-    forecasted, all_curvatures, forecast_domain = forecast_next_primes(known, num_forecast=100, k=0.3)
+    forecasted, all_curvatures, forecast_domain = forecast_next_primes(known, num_forecast=100, k=3.33)
 
     # 2. Merge full prime sequence for plotting
     all_primes = known + forecast_domain

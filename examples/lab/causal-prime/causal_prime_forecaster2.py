@@ -68,8 +68,8 @@ x = AU * np.cos(theta)
 y = AU * np.sin(theta)
 z = v_galactic * t
 
-# φ-modulated helix for hypothesis test: scale pitch by φ^k* (k*≈0.3)
-k_star = 0.3
+# φ-modulated helix for hypothesis test: scale pitch by φ^k* (k*≈3.33)
+k_star = 3.33
 phi_k = float(phi ** k_star)  # ≈1.618^0.3 ≈1.156
 z_mod = v_galactic * t * phi_k  # Modulated for golden resonance
 

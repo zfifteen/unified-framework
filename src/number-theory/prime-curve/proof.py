@@ -5,7 +5,7 @@ Second‐Pass Prime Curvature Proof: NaN Handling & Optimal k Selection
 Enhancements over the previous version:
 1. Binning resolution: 20 bins.
 2. GMM components: 5.
-3. k sweep: [0.2, 0.4] in Δk=0.002.
+3. k sweep: [3.2, 3.4] in Δk=0.002.
 4. Robust NaN handling: exclude bins with zero all-density.
 5. Correct best‐k selection: ignore NaN/-inf enhancements.
 
@@ -239,8 +239,8 @@ def compute_e_max_robust(enhancements):
 # ------------------------------------------------------------------------------
 # 3. Enhanced high-resolution k‐sweep with bootstrap confidence intervals
 # ------------------------------------------------------------------------------
-# Define the range of k values to sweep: from 0.2 to 0.4 with step 0.002 for fine-grained optimization.
-k_values = np.arange(0.2, 0.4001, 0.002)
+# Define the range of k values to sweep: from 3.2 to 3.4 with step 0.002 for fine-grained optimization around k* ≈ 3.33.
+k_values = np.arange(3.2, 3.4001, 0.002)
 # Initialize an empty list to store results for each k.
 results = []
 

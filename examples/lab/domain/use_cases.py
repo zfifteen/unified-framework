@@ -230,7 +230,7 @@ plt.show()
 
 # 6. Golden-Ratio Transform & Helical Geodesics
 phi = (1 + np.sqrt(5)) / 2
-k_opt = 0.3
+k_opt = 3.33
 df['theta_phi'] = phi * ((df['n'] % phi) / phi) ** k_opt
 
 # Helical coords

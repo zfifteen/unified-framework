@@ -114,7 +114,7 @@ f_Y(y) = (1/k)y^(1/k-1) for y ∈ [0,1]
 ### Statistical Analysis of Prime Enhancement
 
 **Computational Contradiction**:
-- **Documentation**: k* ≈ 0.3, enhancement ≈ 15%
+- **Documentation**: k* ≈ 3.33, enhancement ≈ 15%
 - **proof.py Output**: k* = 0.200, enhancement = 495.2%
 
 **Investigation Required**:
