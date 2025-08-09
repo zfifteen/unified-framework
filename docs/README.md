@@ -62,6 +62,11 @@ The Z Framework provides a novel approach to analyzing phenomena across differen
 - [Comprehensive Z-Model Report](reports/comprehensive_z_model_report.txt) - Complete analysis
 - [Numerical Stability Report](reports/NUMERICAL_STABILITY_VALIDATION_REPORT.md) - Stability validation
 
+### 📈 [Generated Documentation](generated/README.md)
+**Automatically Generated Reports** - Computational analysis outputs and generated reports:
+- [Geodesic Clustering Reports](generated/geodesic-clustering/) - Clustering analysis across dimensions
+- [Variance Analysis Reports](generated/variance-analysis/) - Statistical variance relationship analysis
+
 ### 🧪 [Testing Documentation](testing/README.md)
 **Testing & Validation** - Testing methodologies and validation procedures:
 - [Testing Framework](testing/frame-shift-mitigation-README.md) - Core testing documentation

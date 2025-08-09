@@ -58,11 +58,21 @@ This file provides an index of all documentation that has been consolidated into
 
 ## 🔍 What Remains Outside docs/
 
-### Generated Reports (Intentionally Preserved)
-These files remain in their original locations as they are dynamically generated analysis results:
-- `*_output/geodesic_clustering_report.md` - Generated clustering reports
-- `variance_analysis_results/variance_analysis_report.md` - Generated variance reports
-- `enhanced_variance_analysis_results/comprehensive_variance_report.md` - Generated comprehensive reports
+### Generated Reports (`docs/generated/`)
+**Previously located**: Various `*_output/` and `*_results/` directories  
+Generated analysis reports have been organized into a centralized structure:
+
+#### Geodesic Clustering Reports (`docs/generated/geodesic-clustering/`)
+- `basic/` - Basic example clustering analysis reports
+- `advanced/` - Multi-dimensional clustering analysis (3D, 4D, 5D)
+- `demos/` - Demonstration and example reports
+- `tests/` - Test execution clustering reports
+- `production/` - Production-level clustering analysis
+- `validation/` - Validation clustering reports
+
+#### Variance Analysis Reports (`docs/generated/variance-analysis/`)
+- `basic/` - Standard variance analysis reports
+- `enhanced/` - Comprehensive variance analysis reports
 
 ### Root Directory
 - `README.md` - New consolidated project overview pointing to docs/
