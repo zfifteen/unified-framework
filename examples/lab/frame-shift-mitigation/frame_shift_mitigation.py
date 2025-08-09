@@ -19,7 +19,7 @@ agenda = [
 # Constants for POC
 phi = (1 + math.sqrt(5)) / 2
 e_squared = math.exp(2)  # ~7.389056
-k_star = 0.3
+k_star = 3.33
 
 def kappa(n):
     """Frame-normalized curvature: kappa(n) = d(n) * ln(n+1) / e^2"""

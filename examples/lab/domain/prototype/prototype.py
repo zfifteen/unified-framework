@@ -82,7 +82,7 @@ phi = (1 + np.sqrt(5)) / 2
 n = np.arange(n_zeros)
 angles = 2 * pi * n / phi
 radii = scaled_zeros
-theta_prime = phi * ((n % phi) / phi)**0.3  # θ'(n, k*=0.3)
+theta_prime = phi * ((n % phi) / phi)**3.33  # θ'(n, k*=3.33)
 
 # Polar plot
 fig = plt.figure(figsize=(6, 6))
@@ -90,6 +90,6 @@ ax = fig.add_subplot(111, projection='polar')
 sc = ax.scatter(angles, radii, c=theta_prime, cmap='viridis', s=15)
 ax.set_title('Helical Embedding on Golden-Ratio Spiral')
 cbar = plt.colorbar(sc, ax=ax, pad=0.1)
-cbar.set_label("θ'(n, k*=0.3)")
+cbar.set_label("θ'(n, k*=3.33)")
 plt.savefig('helical_embedding_cluster2.png')
 plt.close()

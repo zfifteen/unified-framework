@@ -3,8 +3,8 @@ from wave_crispr import *
 # Use Case 1: Disruption in Prime Sequences via Curvature Transformation
 primes = list(primerange(2, 1000))
 uniform = list(range(2, 1000))
-prime_theta = [golden_transform(p, k=0.3) for p in primes]
-uniform_theta = [golden_transform(u, k=0.3) for u in uniform]
+prime_theta = [golden_transform(p, k=3.33) for p in primes]
+uniform_theta = [golden_transform(u, k=3.33) for u in uniform]
 prime_wfs = encode_waveform(prime_theta, window_size=128)
 uniform_wfs = encode_waveform(uniform_theta, window_size=128)
 score1 = disruption_score(prime_wfs, ref_waveforms=uniform_wfs)

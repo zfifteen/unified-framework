@@ -81,13 +81,13 @@ class QuantumNonlocalityAnalyzer:
         """
         return np.array([float(shift.getO()) for shift in cascade])
         
-    def apply_theta_prime_transformation(self, cascade, k=0.3):
+    def apply_theta_prime_transformation(self, cascade, k=3.33):
         """
         Apply θ'(n,k) transformation to cascade elements.
         
         Args:
             cascade: List of DiscreteZetaShift objects  
-            k: Curvature exponent parameter (default optimal k* ≈ 0.3)
+            k: Curvature exponent parameter (default optimal k* ≈ 3.33)
             
         Returns:
             numpy array of transformed values
@@ -191,7 +191,7 @@ class QuantumNonlocalityAnalyzer:
         
         Args:
             N: Cascade length for analysis
-            k_values: List of k values to test (default: around optimal k* ≈ 0.3)
+            k_values: List of k values to test (default: around optimal k* ≈ 3.33)
             
         Returns:
             Dictionary containing geodesic effect analysis
@@ -422,7 +422,7 @@ class QuantumNonlocalityAnalyzer:
             'quantum_nonlocality': nonlocality_results,
             'summary': {
                 'var_scaling_confirmed': scaling_results['correlation'] > 0.8,
-                'optimal_k_near_expected': abs(geodesic_results['optimal_k'] - 0.3) < 0.1,
+                'optimal_k_near_expected': abs(geodesic_results['optimal_k'] - 3.33) < 0.1,
                 'quantum_nonlocality_detected': nonlocality_results['quantum_advantage']
             }
         }

@@ -37,7 +37,7 @@ FRAMEWORK_PARAMETERS = {
         'speed_of_light': 299792458.0                     # c in m/s
     },
     'analysis_parameters': {
-        'curvature_exponent_k': 0.3,                      # Optimal k* ≈ 0.3
+        'curvature_exponent_k': 3.33,                     # Optimal k* ≈ 3.33
         'bootstrap_samples': 1000,                        # Standard bootstrap size
         'confidence_level': 0.95,                         # 95% confidence intervals
         'significance_level': 0.05,                       # α = 0.05
