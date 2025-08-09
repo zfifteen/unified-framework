@@ -31,3 +31,7 @@ debug_*.png
 test_harness_*
 /experiments/z_embeddings.db
 /applications/z_embeddings.db
+
+# Test outputs that shouldn't be committed
+tests/test_output_*.txt
+tests/output/*.csv
