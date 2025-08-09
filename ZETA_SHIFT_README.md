@@ -16,19 +16,19 @@ Successfully implements the zeta shift formula Z(n) = n / exp(v · κ(n)) and co
 
 ## Files
 
-1. **`zeta_shift_correlation.py`** - Main implementation
+1. **`test-finding/zeta_shift_correlation.py`** - Main implementation
    - ZetaShiftPrimeGapAnalyzer class
    - Optimization of velocity parameter v
    - Multiple correlation approaches
    - Framework integration validation
 
-2. **`validate_zeta_shift_correlation.py`** - Validation suite
+2. **`test-finding/validate_zeta_shift_correlation.py`** - Validation suite
    - Reproducibility testing across multiple runs
    - Dataset scaling analysis (1K to 20K primes)
    - Parameter sensitivity testing
    - Comprehensive visualization
 
-3. **`zeta_shift_correlation_demo.py`** - Demonstration script
+3. **`test-finding/zeta_shift_correlation_demo.py`** - Demonstration script
    - Theoretical foundation explanation
    - Empirical results summary
    - Correlation approaches comparison
@@ -57,17 +57,20 @@ Where:
 
 ### Basic Analysis
 ```bash
-python3 zeta_shift_correlation.py
+cd test-finding
+PYTHONPATH=/home/runner/work/unified-framework/unified-framework python3 zeta_shift_correlation.py
 ```
 
 ### Validation Suite
 ```bash
-python3 validate_zeta_shift_correlation.py
+cd test-finding
+PYTHONPATH=/home/runner/work/unified-framework/unified-framework python3 validate_zeta_shift_correlation.py
 ```
 
 ### Demonstration
 ```bash
-python3 zeta_shift_correlation_demo.py
+cd test-finding
+PYTHONPATH=/home/runner/work/unified-framework/unified-framework python3 zeta_shift_correlation_demo.py
 ```
 
 ## Requirements

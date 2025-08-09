@@ -229,3 +229,21 @@ Finite samples (mitigated to \( N = 10^9 \)), lack of full proofs, and GMM rando
 
 ### How Can I Reproduce or Extend Z?
 Use `proof.py` for sweeps, `hologram.py` for visuals. Extend via other irrationals or zeta cascades, testing invariance across \( N = 10^4-10^9 \).
+
+## Testing and Validation
+
+All validation scripts, test artifacts, and experimental results are centralized in the [`test-finding/`](test-finding/) directory for optimal organization and documentation consistency.
+
+### Core Testing Scripts
+- [`test-finding/test_cross_validation.py`](test-finding/test_cross_validation.py) - CRISPR-Quantum cross-validation pipeline
+- [`test-finding/test_discrete_transforms.py`](test-finding/test_discrete_transforms.py) - Discrete domain transforms and geodesic validation  
+- [`test-finding/validate_zeta_shift_correlation.py`](test-finding/validate_zeta_shift_correlation.py) - Zeta shift correlation validation
+- [`test-finding/zeta_shift_correlation.py`](test-finding/zeta_shift_correlation.py) - Main correlation analysis implementation
+- [`test-finding/simple_test.py`](test-finding/simple_test.py) - Basic framework validation
+
+### Results and Artifacts
+- [`test-finding/results/`](test-finding/results/) - All experimental results, validation outputs, and cross-validation data
+- [`test-finding/scripts/`](test-finding/scripts/) - Analysis tools and validation runners
+- [`test-finding/datasets/`](test-finding/datasets/) - Validation datasets and test harnesses
+
+See [`test-finding/README.md`](test-finding/README.md) for complete documentation of testing infrastructure and usage guidelines.
