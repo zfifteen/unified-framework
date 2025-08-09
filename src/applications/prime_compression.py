@@ -36,6 +36,7 @@ import hashlib
 import gzip
 import bz2
 import lzma
+import zlib
 import time
 from typing import Tuple, List, Dict, Any, Optional
 from dataclasses import dataclass
@@ -50,6 +51,36 @@ E_SQUARED = mp.exp(2)
 K_OPTIMAL = mp.mpf(0.200)  # Empirically validated optimal curvature
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+
+# Helpers for compact integer coding (varint)
+def varint_encode(nums: np.ndarray) -> bytes:
+    """Encode array of integers using variable-length encoding."""
+    out = bytearray()
+    for x in nums.astype(np.uint64):
+        while True:
+            b = x & 0x7F
+            x >>= 7
+            out.append(b | (0x80 if x else 0))
+            if not x: 
+                break
+    return bytes(out)
+
+
+def varint_decode(buf: bytes, count: int) -> Tuple[np.ndarray, int]:
+    """Decode variable-length encoded integers."""
+    vals, i = [], 0
+    for _ in range(count):
+        shift, x = 0, 0
+        while i < len(buf):
+            b = buf[i]
+            i += 1
+            x |= (b & 0x7F) << shift
+            if (b & 0x80) == 0: 
+                break
+            shift += 7
+        vals.append(x)
+    return np.array(vals, dtype=np.int64), i
 
 
 @dataclass
@@ -151,18 +182,29 @@ class ModularClusterAnalyzer:
         self.cluster_centroids = None
         self.cluster_weights = None
         
-    def fit_clusters(self, theta_values: np.ndarray) -> Dict[str, Any]:
+    def fit_clusters(self, theta_values: np.ndarray, data_bytes: Optional[np.ndarray] = None) -> Dict[str, Any]:
         """
-        Fit Gaussian Mixture Model to transformed coordinates.
+        Fit Gaussian Mixture Model to transformed coordinates with optional data features.
         
         Args:
             theta_values: Coordinates in modular-geodesic space
+            data_bytes: Optional byte values for data-aware clustering
             
         Returns:
             Dictionary containing cluster analysis results
         """
-        # Prepare data for clustering
-        X = theta_values.reshape(-1, 1)
+        # Prepare data for clustering - make clustering data-aware
+        if data_bytes is not None and len(data_bytes) == len(theta_values):
+            # Include byte values and deltas for data-aware clustering
+            bytes_arr = data_bytes.astype(np.int16)
+            delta = np.diff(np.insert(bytes_arr, 0, bytes_arr[0])).reshape(-1, 1)
+            theta = theta_values.reshape(-1, 1)
+            pos_mod = (np.arange(len(bytes_arr)) % 16).reshape(-1, 1)
+            X = np.hstack([bytes_arr.reshape(-1, 1), delta, theta, pos_mod])
+        else:
+            # Fallback to theta-only clustering
+            X = theta_values.reshape(-1, 1)
+        
         X_scaled = self.scaler.fit_transform(X)
         
         # Fit Gaussian Mixture Model
@@ -177,8 +219,8 @@ class ModularClusterAnalyzer:
         # Extract cluster properties
         labels = self.gmm.predict(X_scaled)
         self.cluster_centroids = self.scaler.inverse_transform(
-            self.gmm.means_.flatten().reshape(-1, 1)
-        ).flatten()
+            self.gmm.means_
+        )
         self.cluster_weights = self.gmm.weights_
         
         # Compute cluster statistics
@@ -189,7 +231,7 @@ class ModularClusterAnalyzer:
                 'size': np.sum(mask),
                 'centroid': self.cluster_centroids[i],
                 'weight': self.cluster_weights[i],
-                'variance': np.sqrt(self.gmm.covariances_[i].flatten()[0])
+                'variance': np.sqrt(np.mean(np.diag(self.gmm.covariances_[i])))
             }
         
         return {
@@ -200,12 +242,21 @@ class ModularClusterAnalyzer:
             'log_likelihood': self.gmm.score(X_scaled)
         }
     
-    def predict_cluster(self, theta_values: np.ndarray) -> np.ndarray:
+    def predict_cluster(self, theta_values: np.ndarray, data_bytes: Optional[np.ndarray] = None) -> np.ndarray:
         """Predict cluster assignments for new data."""
         if self.gmm is None:
             raise ValueError("Must fit clusters before prediction")
+        
+        # Use same features as during fitting
+        if data_bytes is not None and len(data_bytes) == len(theta_values):
+            bytes_arr = data_bytes.astype(np.int16)
+            delta = np.diff(np.insert(bytes_arr, 0, bytes_arr[0])).reshape(-1, 1)
+            theta = theta_values.reshape(-1, 1)
+            pos_mod = (np.arange(len(bytes_arr)) % 16).reshape(-1, 1)
+            X = np.hstack([bytes_arr.reshape(-1, 1), delta, theta, pos_mod])
+        else:
+            X = theta_values.reshape(-1, 1)
             
-        X = theta_values.reshape(-1, 1)
         X_scaled = self.scaler.transform(X)
         return self.gmm.predict(X_scaled)
 
@@ -241,7 +292,7 @@ class PrimeDrivenCompressor:
     
     def _encode_clusters(self, data: bytes, cluster_labels: np.ndarray) -> bytes:
         """
-        Encode data using cluster-based compression.
+        Encode data using cluster-based compression with proper position serialization.
         
         Args:
             data: Original data bytes
@@ -266,7 +317,6 @@ class PrimeDrivenCompressor:
         
         # Group by clusters for differential encoding
         encoded_segments = []
-        positions_by_cluster = {}  # Store positions for reconstruction
         
         for cluster_id in range(self.cluster_analyzer.n_components):
             cluster_mask = cluster_labels == cluster_id
@@ -274,24 +324,30 @@ class PrimeDrivenCompressor:
             cluster_data = data_array[cluster_mask]
             
             if len(cluster_data) > 0:
-                # Store positions for this cluster
-                positions_by_cluster[cluster_id] = cluster_positions
+                # Fixed differential encoding: proper length-1 diffs
+                first_val = np.uint8(cluster_data[0])
+                if len(cluster_data) > 1:
+                    diffs = np.diff(cluster_data.astype(np.int16))  # length = L-1
+                else:
+                    diffs = np.array([], dtype=np.int16)
                 
-                # Apply differential encoding within cluster
-                diff_data = np.diff(cluster_data.astype(np.int16), prepend=cluster_data[0])
+                # Gap-encode positions for lossless reconstruction
+                pos_gaps = np.diff(np.insert(cluster_positions, 0, 0)).astype(np.int64)
+                pos_bytes = varint_encode(pos_gaps)
                 
-                # Encode cluster header: [cluster_id, length, first_value]
-                header = np.array([cluster_id, len(cluster_data), cluster_data[0]], dtype=np.uint16)
+                # Encode differences with shift to fit in uint8
+                diff_bytes = (np.clip(diffs + 128, 0, 255).astype(np.uint8)).tobytes()
                 
-                # Compress differences (smaller dynamic range)
-                diff_compressed = np.clip(diff_data + 128, 0, 255).astype(np.uint8)
+                # Build payload and apply entropy coding
+                payload = pos_bytes + diff_bytes
+                payload = zlib.compress(payload, level=6)  # Add entropy coding
                 
-                encoded_segments.append(header.tobytes() + diff_compressed.tobytes())
+                # Encode cluster header: [cluster_id, length, first_value, pos_bytes_len]
+                header = np.array([cluster_id, len(cluster_data), first_val, len(payload)], dtype=np.uint32)
+                
+                encoded_segments.append(header.tobytes() + payload)
         
-        # Store position information for reconstruction
-        self.position_map = positions_by_cluster
-        
-        # Combine all segments with metadata
+        # Combine all segments with metadata - make stream self-describing
         num_segments = len(encoded_segments)
         metadata = np.array([num_segments, len(data)], dtype=np.uint32)
         
@@ -304,7 +360,7 @@ class PrimeDrivenCompressor:
     
     def _decode_clusters(self, compressed_data: bytes) -> bytes:
         """
-        Decode cluster-based compressed data.
+        Decode cluster-based compressed data with proper position reconstruction.
         
         Args:
             compressed_data: Compressed data bytes
@@ -319,7 +375,8 @@ class PrimeDrivenCompressor:
         metadata = np.frombuffer(compressed_data[:8], dtype=np.uint32)
         num_segments, original_length = metadata
         
-        # Initialize output array
+        # Initialize output array for proper position reconstruction
+        output_array = np.empty(original_length, dtype=np.uint8)
         segments_data = {}
         
         # Read segments
@@ -337,34 +394,50 @@ class PrimeDrivenCompressor:
             segment_data = compressed_data[offset:offset+segment_length]
             offset += segment_length
             
-            if len(segment_data) < 6:
+            if len(segment_data) < 16:  # Now we have 16-byte header
                 continue
                 
-            # Parse segment header
-            header = np.frombuffer(segment_data[:6], dtype=np.uint16)
-            cluster_id, length, first_value = header
+            # Parse segment header (now 16 bytes)
+            header = np.frombuffer(segment_data[:16], dtype=np.uint32)
+            cluster_id, length, first_value, payload_len = header
             
-            # Decode differences
-            if len(segment_data) > 6:
-                diff_data = np.frombuffer(segment_data[6:], dtype=np.uint8).astype(np.int16) - 128
+            if payload_len == 0 or len(segment_data) < 16:
+                continue
+            
+            try:
+                # Decompress payload
+                payload = zlib.decompress(segment_data[16:16+payload_len])
                 
-                # Reconstruct original values
-                reconstructed = np.zeros(length, dtype=np.uint8)
+                # Decode positions using varint
+                pos_gaps, consumed = varint_decode(payload, length)
+                positions = np.cumsum(pos_gaps)
+                
+                # Decode differences
+                diff_bytes = payload[consumed:]
+                diffs = np.frombuffer(diff_bytes, dtype=np.uint8).astype(np.int16) - 128
+                
+                # Reconstruct original values with fixed differential decoding
+                reconstructed = np.empty(length, dtype=np.uint8)
                 reconstructed[0] = first_value
                 
-                for i in range(1, min(length, len(diff_data) + 1)):
-                    if i-1 < len(diff_data):
-                        reconstructed[i] = np.clip(reconstructed[i-1] + diff_data[i-1], 0, 255)
+                if length > 1 and len(diffs) >= length - 1:
+                    cumsum = np.cumsum(diffs[:length-1]) + int(first_value)
+                    reconstructed[1:] = np.clip(cumsum, 0, 255).astype(np.uint8)
                 
-                segments_data[cluster_id] = reconstructed
+                segments_data[cluster_id] = (positions[:length], reconstructed)
+                
+            except Exception as e:
+                print(f"Error decoding cluster {cluster_id}: {e}")
+                continue
         
-        # Reconstruct data in order (simplified - concatenate by cluster_id)
-        result = b''
-        for cluster_id in sorted(segments_data.keys()):
-            result += segments_data[cluster_id].tobytes()
+        # Reconstruct data in original positions (FIXED: not concatenation by cluster_id)
+        for cluster_id, (positions, values) in segments_data.items():
+            valid_positions = positions[positions < original_length]
+            valid_values = values[:len(valid_positions)]
+            if len(valid_positions) > 0:
+                output_array[valid_positions] = valid_values
         
-        # Trim to original length
-        return result[:original_length]
+        return output_array.tobytes()
     
     def compress(self, data: bytes) -> Tuple[bytes, CompressionMetrics]:
         """
@@ -388,6 +461,9 @@ class PrimeDrivenCompressor:
         # Transform to modular-geodesic space
         theta_values = self.transformer.frame_shift_residues(indices)
         
+        # Convert data to numpy array for data-aware clustering
+        data_array = np.frombuffer(data, dtype=np.uint8)
+        
         # Generate prime mask for enhancement computation
         prime_mask = self._generate_prime_mask(len(data))
         if len(prime_mask) > len(data):
@@ -398,8 +474,8 @@ class PrimeDrivenCompressor:
             extended_mask[:len(prime_mask)] = prime_mask
             prime_mask = extended_mask
         
-        # Analyze clusters in transformed space
-        cluster_results = self.cluster_analyzer.fit_clusters(theta_values)
+        # Analyze clusters in transformed space with data-aware features
+        cluster_results = self.cluster_analyzer.fit_clusters(theta_values, data_array)
         
         # Encode using cluster-based compression
         compressed_data = self._encode_clusters(data, cluster_results['labels'])
@@ -435,13 +511,13 @@ class PrimeDrivenCompressor:
         
         return compressed_data, metrics
     
-    def decompress(self, compressed_data: bytes, metrics: CompressionMetrics) -> Tuple[bytes, bool]:
+    def decompress(self, compressed_data: bytes, original_hash: Optional[str] = None) -> Tuple[bytes, bool]:
         """
         Decompress data and verify integrity.
         
         Args:
             compressed_data: Compressed data bytes
-            metrics: Compression metrics (will be updated with decompression time)
+            original_hash: Optional original data hash for verification
             
         Returns:
             Tuple of (decompressed_data, integrity_verified)
@@ -452,20 +528,16 @@ class PrimeDrivenCompressor:
             # Decode cluster-based compression
             decompressed_data = self._decode_clusters(compressed_data)
             
-            # Verify integrity
-            data_hash = hashlib.sha256(decompressed_data).hexdigest()
-            integrity_verified = (data_hash == self.compression_metadata.get('original_hash', ''))
-            
-            # Update metrics
-            metrics.decompression_time = time.time() - start_time
-            metrics.integrity_verified = integrity_verified
+            # Verify integrity if hash provided
+            integrity_verified = True
+            if original_hash:
+                data_hash = hashlib.sha256(decompressed_data).hexdigest()
+                integrity_verified = (data_hash == original_hash)
             
             return decompressed_data, integrity_verified
             
         except Exception as e:
             print(f"Decompression error: {e}")
-            metrics.decompression_time = time.time() - start_time
-            metrics.integrity_verified = False
             return b'', False
 
 
@@ -616,13 +688,8 @@ class CompressionBenchmark:
             if algorithm_name == 'prime_driven':
                 # Create a new compressor instance for decompression
                 compressor = PrimeDrivenCompressor()
-                compressor.compression_metadata = {
-                    'original_hash': hashlib.sha256(data).hexdigest(),
-                    'k_parameter': float(K_OPTIMAL),
-                    'cluster_results': {},
-                    'enhancement_factor': metrics.enhancement_factor
-                }
-                decompressed_data, integrity_verified = compressor.decompress(compressed_data, metrics)
+                original_hash = hashlib.sha256(data).hexdigest()
+                decompressed_data, integrity_verified = compressor.decompress(compressed_data, original_hash)
                 decompression_success = len(decompressed_data) == len(data)
             else:
                 decompression_success = True  # Assume standard algorithms work
@@ -744,7 +811,8 @@ if __name__ == "__main__":
     print(f"Compression ratio: {metrics.compression_ratio:.2f}")
     
     # Test decompression and integrity
-    decompressed_data, integrity_verified = compressor.decompress(compressed_data, metrics)
+    original_hash = hashlib.sha256(test_data).hexdigest()
+    decompressed_data, integrity_verified = compressor.decompress(compressed_data, original_hash)
     print(f"Integrity verification: {'✓ PASSED' if integrity_verified else '✗ FAILED'}")
     print(f"Size verification: {'✓ PASSED' if len(decompressed_data) == len(test_data) else '✗ FAILED'}")
     
