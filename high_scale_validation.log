@@ -53,3 +53,123 @@
 2025-08-09 11:16:23,100 - INFO - [run_high_scale_validation] - HIGH-SCALE VALIDATION COMPLETE
 2025-08-09 11:16:23,100 - INFO - [run_high_scale_validation] - Total Duration: 0.37 seconds
 2025-08-09 11:16:23,100 - INFO - [run_high_scale_validation] - ============================================================
+2025-08-09 11:18:49,189 - INFO - [__init__] - Initialized HighScaleValidator:
+2025-08-09 11:18:49,189 - INFO - [__init__] -   Max N: 10,000
+2025-08-09 11:18:49,189 - INFO - [__init__] -   Bootstrap samples: 1000
+2025-08-09 11:18:49,189 - INFO - [__init__] -   Chunk size: 1,000,000
+2025-08-09 11:18:49,190 - INFO - [__init__] -   Parallel jobs: 4
+2025-08-09 11:18:49,190 - INFO - [run_high_scale_validation] - === Starting High-Scale Computational Validation ===
+2025-08-09 11:18:49,190 - INFO - [run_high_scale_validation] - Test cases: ['TC01']
+2025-08-09 11:18:49,190 - INFO - [run_high_scale_validation] - Max N: 10,000
+2025-08-09 11:18:49,190 - INFO - [run_high_scale_validation] - 
+============================================================
+2025-08-09 11:18:49,190 - INFO - [run_high_scale_validation] - Executing TC01
+2025-08-09 11:18:49,190 - INFO - [run_high_scale_validation] - ============================================================
+2025-08-09 11:18:49,190 - INFO - [tc01_advanced_scale_invariance] - Starting TC01: Advanced Scale-Invariant Validation
+2025-08-09 11:18:49,190 - INFO - [tc01_advanced_scale_invariance] - TC01: Testing k=0.1
+2025-08-09 11:18:49,190 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=1,000 with k=0.1
+2025-08-09 11:18:49,191 - INFO - [tc01_advanced_scale_invariance] - TC01: N=1,000, k=0.1, Enhancement=398.81%
+2025-08-09 11:18:49,191 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=10,000 with k=0.1
+2025-08-09 11:18:49,197 - INFO - [tc01_advanced_scale_invariance] - TC01: N=10,000, k=0.1, Enhancement=149.92%
+2025-08-09 11:18:49,197 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=100,000 with k=0.1
+2025-08-09 11:18:49,265 - INFO - [tc01_advanced_scale_invariance] - TC01: N=100,000, k=0.1, Enhancement=399.98%
+2025-08-09 11:18:49,265 - INFO - [tc01_advanced_scale_invariance] - TC01: Testing k=0.2
+2025-08-09 11:18:49,265 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=1,000 with k=0.2
+2025-08-09 11:18:49,267 - INFO - [tc01_advanced_scale_invariance] - TC01: N=1,000, k=0.2, Enhancement=398.81%
+2025-08-09 11:18:49,267 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=10,000 with k=0.2
+2025-08-09 11:18:49,273 - INFO - [tc01_advanced_scale_invariance] - TC01: N=10,000, k=0.2, Enhancement=149.92%
+2025-08-09 11:18:49,273 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=100,000 with k=0.2
+2025-08-09 11:18:49,340 - INFO - [tc01_advanced_scale_invariance] - TC01: N=100,000, k=0.2, Enhancement=66.66%
+2025-08-09 11:18:49,340 - INFO - [tc01_advanced_scale_invariance] - TC01: Testing k=0.3
+2025-08-09 11:18:49,340 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=1,000 with k=0.3
+2025-08-09 11:18:49,341 - INFO - [tc01_advanced_scale_invariance] - TC01: N=1,000, k=0.3, Enhancement=149.40%
+2025-08-09 11:18:49,341 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=10,000 with k=0.3
+2025-08-09 11:18:49,347 - INFO - [tc01_advanced_scale_invariance] - TC01: N=10,000, k=0.3, Enhancement=66.61%
+2025-08-09 11:18:49,347 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=100,000 with k=0.3
+2025-08-09 11:18:49,414 - INFO - [tc01_advanced_scale_invariance] - TC01: N=100,000, k=0.3, Enhancement=149.99%
+2025-08-09 11:18:49,414 - INFO - [tc01_advanced_scale_invariance] - TC01: Testing k=0.4
+2025-08-09 11:18:49,414 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=1,000 with k=0.4
+2025-08-09 11:18:49,416 - INFO - [tc01_advanced_scale_invariance] - TC01: N=1,000, k=0.4, Enhancement=149.40%
+2025-08-09 11:18:49,416 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=10,000 with k=0.4
+2025-08-09 11:18:49,421 - INFO - [tc01_advanced_scale_invariance] - TC01: N=10,000, k=0.4, Enhancement=66.61%
+2025-08-09 11:18:49,421 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=100,000 with k=0.4
+2025-08-09 11:18:49,488 - INFO - [tc01_advanced_scale_invariance] - TC01: N=100,000, k=0.4, Enhancement=39.99%
+2025-08-09 11:18:49,488 - INFO - [tc01_advanced_scale_invariance] - TC01: Testing k=0.5
+2025-08-09 11:18:49,488 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=1,000 with k=0.5
+2025-08-09 11:18:49,490 - INFO - [tc01_advanced_scale_invariance] - TC01: N=1,000, k=0.5, Enhancement=149.40%
+2025-08-09 11:18:49,490 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=10,000 with k=0.5
+2025-08-09 11:18:49,495 - INFO - [tc01_advanced_scale_invariance] - TC01: N=10,000, k=0.5, Enhancement=24.96%
+2025-08-09 11:18:49,495 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=100,000 with k=0.5
+2025-08-09 11:18:49,560 - INFO - [tc01_advanced_scale_invariance] - TC01: N=100,000, k=0.5, Enhancement=6.07%
+2025-08-09 11:18:49,560 - INFO - [tc01_advanced_scale_invariance] - TC01 Complete: Optimal scale-invariant k=0.3
+2025-08-09 11:18:49,561 - INFO - [run_high_scale_validation] - TC01 completed in 0.37 seconds
+2025-08-09 11:18:49,561 - INFO - [run_high_scale_validation] - 
+============================================================
+2025-08-09 11:18:49,561 - INFO - [run_high_scale_validation] - HIGH-SCALE VALIDATION COMPLETE
+2025-08-09 11:18:49,561 - INFO - [run_high_scale_validation] - Total Duration: 0.37 seconds
+2025-08-09 11:18:49,561 - INFO - [run_high_scale_validation] - ============================================================
+2025-08-09 11:19:01,955 - INFO - [__init__] - Initialized HighScaleValidator:
+2025-08-09 11:19:01,955 - INFO - [__init__] -   Max N: 1,000,000
+2025-08-09 11:19:01,955 - INFO - [__init__] -   Bootstrap samples: 100
+2025-08-09 11:19:01,955 - INFO - [__init__] -   Chunk size: 1,000,000
+2025-08-09 11:19:01,955 - INFO - [__init__] -   Parallel jobs: 4
+2025-08-09 11:19:01,955 - INFO - [run_high_scale_validation] - === Starting High-Scale Computational Validation ===
+2025-08-09 11:19:01,955 - INFO - [run_high_scale_validation] - Test cases: ['TC01']
+2025-08-09 11:19:01,955 - INFO - [run_high_scale_validation] - Max N: 1,000,000
+2025-08-09 11:19:01,955 - INFO - [run_high_scale_validation] - 
+============================================================
+2025-08-09 11:19:01,955 - INFO - [run_high_scale_validation] - Executing TC01
+2025-08-09 11:19:01,955 - INFO - [run_high_scale_validation] - ============================================================
+2025-08-09 11:19:01,955 - INFO - [tc01_advanced_scale_invariance] - Starting TC01: Advanced Scale-Invariant Validation
+2025-08-09 11:19:01,955 - INFO - [tc01_advanced_scale_invariance] - TC01: Testing k=0.1
+2025-08-09 11:19:01,955 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=1,000 with k=0.1
+2025-08-09 11:19:01,957 - INFO - [tc01_advanced_scale_invariance] - TC01: N=1,000, k=0.1, Enhancement=398.81%
+2025-08-09 11:19:01,957 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=10,000 with k=0.1
+2025-08-09 11:19:01,963 - INFO - [tc01_advanced_scale_invariance] - TC01: N=10,000, k=0.1, Enhancement=149.92%
+2025-08-09 11:19:01,963 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=100,000 with k=0.1
+2025-08-09 11:19:02,030 - INFO - [tc01_advanced_scale_invariance] - TC01: N=100,000, k=0.1, Enhancement=399.98%
+2025-08-09 11:19:02,030 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=1,000,000 with k=0.1
+2025-08-09 11:19:02,908 - INFO - [tc01_advanced_scale_invariance] - TC01: N=1,000,000, k=0.1, Enhancement=157464800.70%
+2025-08-09 11:19:02,908 - INFO - [tc01_advanced_scale_invariance] - TC01: Testing k=0.2
+2025-08-09 11:19:02,908 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=1,000 with k=0.2
+2025-08-09 11:19:02,913 - INFO - [tc01_advanced_scale_invariance] - TC01: N=1,000, k=0.2, Enhancement=398.81%
+2025-08-09 11:19:02,914 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=10,000 with k=0.2
+2025-08-09 11:19:02,919 - INFO - [tc01_advanced_scale_invariance] - TC01: N=10,000, k=0.2, Enhancement=149.92%
+2025-08-09 11:19:02,919 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=100,000 with k=0.2
+2025-08-09 11:19:02,986 - INFO - [tc01_advanced_scale_invariance] - TC01: N=100,000, k=0.2, Enhancement=66.66%
+2025-08-09 11:19:02,986 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=1,000,000 with k=0.2
+2025-08-09 11:19:03,862 - INFO - [tc01_advanced_scale_invariance] - TC01: N=1,000,000, k=0.2, Enhancement=66.67%
+2025-08-09 11:19:03,863 - INFO - [tc01_advanced_scale_invariance] - TC01: Testing k=0.3
+2025-08-09 11:19:03,863 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=1,000 with k=0.3
+2025-08-09 11:19:03,868 - INFO - [tc01_advanced_scale_invariance] - TC01: N=1,000, k=0.3, Enhancement=149.40%
+2025-08-09 11:19:03,868 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=10,000 with k=0.3
+2025-08-09 11:19:03,873 - INFO - [tc01_advanced_scale_invariance] - TC01: N=10,000, k=0.3, Enhancement=66.61%
+2025-08-09 11:19:03,874 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=100,000 with k=0.3
+2025-08-09 11:19:03,940 - INFO - [tc01_advanced_scale_invariance] - TC01: N=100,000, k=0.3, Enhancement=149.99%
+2025-08-09 11:19:03,940 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=1,000,000 with k=0.3
+2025-08-09 11:19:04,811 - INFO - [tc01_advanced_scale_invariance] - TC01: N=1,000,000, k=0.3, Enhancement=8.21%
+2025-08-09 11:19:04,812 - INFO - [tc01_advanced_scale_invariance] - TC01: Testing k=0.4
+2025-08-09 11:19:04,812 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=1,000 with k=0.4
+2025-08-09 11:19:04,816 - INFO - [tc01_advanced_scale_invariance] - TC01: N=1,000, k=0.4, Enhancement=149.40%
+2025-08-09 11:19:04,816 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=10,000 with k=0.4
+2025-08-09 11:19:04,822 - INFO - [tc01_advanced_scale_invariance] - TC01: N=10,000, k=0.4, Enhancement=66.61%
+2025-08-09 11:19:04,822 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=100,000 with k=0.4
+2025-08-09 11:19:04,888 - INFO - [tc01_advanced_scale_invariance] - TC01: N=100,000, k=0.4, Enhancement=39.99%
+2025-08-09 11:19:04,888 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=1,000,000 with k=0.4
+2025-08-09 11:19:05,756 - INFO - [tc01_advanced_scale_invariance] - TC01: N=1,000,000, k=0.4, Enhancement=3.53%
+2025-08-09 11:19:05,756 - INFO - [tc01_advanced_scale_invariance] - TC01: Testing k=0.5
+2025-08-09 11:19:05,756 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=1,000 with k=0.5
+2025-08-09 11:19:05,761 - INFO - [tc01_advanced_scale_invariance] - TC01: N=1,000, k=0.5, Enhancement=149.40%
+2025-08-09 11:19:05,761 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=10,000 with k=0.5
+2025-08-09 11:19:05,767 - INFO - [tc01_advanced_scale_invariance] - TC01: N=10,000, k=0.5, Enhancement=24.96%
+2025-08-09 11:19:05,767 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=100,000 with k=0.5
+2025-08-09 11:19:05,830 - INFO - [tc01_advanced_scale_invariance] - TC01: N=100,000, k=0.5, Enhancement=6.07%
+2025-08-09 11:19:05,830 - INFO - [tc01_advanced_scale_invariance] - TC01: Processing N=1,000,000 with k=0.5
+2025-08-09 11:19:06,682 - INFO - [tc01_advanced_scale_invariance] - TC01: N=1,000,000, k=0.5, Enhancement=1.95%
+2025-08-09 11:19:06,682 - INFO - [tc01_advanced_scale_invariance] - TC01 Complete: Optimal scale-invariant k=0.3
+2025-08-09 11:19:06,686 - INFO - [run_high_scale_validation] - TC01 completed in 4.73 seconds
+2025-08-09 11:19:06,686 - INFO - [run_high_scale_validation] - 
+============================================================
+2025-08-09 11:19:06,686 - INFO - [run_high_scale_validation] - HIGH-SCALE VALIDATION COMPLETE
+2025-08-09 11:19:06,686 - INFO - [run_high_scale_validation] - Total Duration: 4.73 seconds
+2025-08-09 11:19:06,686 - INFO - [run_high_scale_validation] - ============================================================
