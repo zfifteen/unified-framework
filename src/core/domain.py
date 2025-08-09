@@ -9,6 +9,16 @@ import numpy as np
 
 mp.mp.dps = 50  # High precision for large n and modular ops
 
+# Import system instruction for compliance validation
+try:
+    from .system_instruction import enforce_system_instruction, get_system_instruction
+    _SYSTEM_INSTRUCTION_AVAILABLE = True
+except ImportError:
+    _SYSTEM_INSTRUCTION_AVAILABLE = False
+    # Fallback no-op decorator if system instruction not available
+    def enforce_system_instruction(func):
+        return func
+
 PHI = (1 + mp.sqrt(5)) / 2
 E_SQUARED = mp.exp(2)
 
@@ -181,6 +191,22 @@ class UniversalZetaShift(ABC):
         }
 
 class DiscreteZetaShift(UniversalZetaShift):
+    """
+    Discrete domain implementation of Z Framework with system instruction compliance.
+    
+    Implements Z = n(Δ_n/Δ_max) where:
+    - n: frame-dependent integer
+    - Δ_n: measured frame shift κ(n) = d(n) · ln(n+1)/e²  
+    - Δ_max: maximum shift bounded by e² or φ
+    
+    SYSTEM INSTRUCTION COMPLIANCE:
+    - Follows discrete domain form Z = n(Δ_n/Δ_max)
+    - Uses e² normalization for variance minimization
+    - Implements curvature formula κ(n) = d(n) · ln(n+1)/e²
+    - Provides 5D helical embeddings for geometric analysis
+    """
+    
+    @enforce_system_instruction
     def __init__(self, n, v=1.0, delta_max=E_SQUARED):
         self.vortex = collections.deque()  # Instance-level vortex
         n = mp.mpmathify(n)
