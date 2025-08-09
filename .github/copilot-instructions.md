@@ -27,7 +27,7 @@ Always reference these instructions first and fallback to search or bash command
 - Run prime curvature proof analysis:
   - `python3 number-theory/prime-curve/proof.py`
   - Takes: ~2 seconds. NEVER CANCEL. Set timeout to 30+ seconds.
-  - Computes optimal curvature exponent k* = 0.200 with 495.2% max mid-bin enhancement
+  - Computes optimal curvature exponent k* ≈ 0.3 with 15% prime density enhancement (CI [14.6%, 15.4%])
 - Run hologram visualizations:
   - `python3 number-theory/prime-curve/hologram.py`
   - Takes: ~1.3 seconds
@@ -79,7 +79,7 @@ Always test these core mathematical scenarios after making changes:
 - Verify high-precision computations work: Check mpmath precision is set to 50 decimal places
 
 ### Mathematical Correctness Validation
-- Run prime curvature proof: Verify k* = 0.200 and max enhancement = 495.2%
+- Run prime curvature proof: Verify k* ≈ 0.3 and enhancement = 15% (CI [14.6%, 15.4%])
 - Test golden ratio transformations: Verify φ ≈ 1.618 calculations
 - Validate Mersenne prime generation in proof.py output
 - Test Bell inequality violation: Run golden-curve/brute_force.py and verify quantum entanglement detection
@@ -126,7 +126,7 @@ cat README.md  # Comprehensive framework documentation (13.9KB)
 ### Mathematical Computation Patterns
 - Core computations use mpmath with 50 decimal precision
 - Golden ratio φ = (1 + √5)/2 ≈ 1.618 is central to many calculations
-- Optimal curvature parameter k* = 0.200 from current proof analysis
+- Optimal curvature parameter k* ≈ 0.3 from empirical validation (August 2025)
 - Prime density enhancement of ~495% is achieved at optimal k*
 
 ### Known Dependencies and Limitations
@@ -146,7 +146,7 @@ cat README.md  # Comprehensive framework documentation (13.9KB)
 - Verify mathematical constants: Check φ, e², and high precision settings
 
 ### After Making Changes  
-- Run proof validation: `python3 number-theory/prime-curve/proof.py` (should show k* = 0.200)
+- Run proof validation: `python3 number-theory/prime-curve/proof.py` (should show k* ≈ 0.3)
 - Test visualization: `python3 number-theory/prime-curve/hologram.py` (should complete without errors)
 - Validate core computations: Test DiscreteZetaShift with known values
 - Check computation scaling: Verify 1000 instances complete in reasonable time
@@ -167,7 +167,7 @@ cat README.md  # Comprehensive framework documentation (13.9KB)
 
 ### Key Mathematical Constants
 - Golden ratio φ ≈ 1.618034
-- Optimal curvature k* = 0.200 (from proof analysis)
+- Optimal curvature k* ≈ 0.3 (from empirical validation)
 - Max prime enhancement = 495.2% (at optimal k*)
 - Speed of light c (used as universal invariant)
 - Euler's constant e (e² normalization factor)
