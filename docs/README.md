@@ -41,6 +41,18 @@ The Z Framework provides a novel approach to analyzing phenomena across differen
 - [Use Cases](examples/use-cases/) - Real-world application examples
 - [Code Samples](examples/code-samples/) - Reusable code snippets
 
+### 🎬 [Demo Scripts](demos/README.md)
+**Interactive Demonstrations** - Hands-on framework demonstrations and examples:
+- Core Z-Framework demonstrations with mathematical concepts
+- Prime analysis and geodesic visualization demonstrations
+- API integration and knowledge base (KBLLM) examples
+
+### 🔧 [Utility Scripts](scripts/README.md)
+**System Utilities** - Validation, testing, and service deployment scripts:
+- Bootstrap validation and statistical confidence interval scripts
+- Linear scaling validation and performance testing utilities
+- API server deployment and variance analysis execution tools
+
 ### 🔬 [Research](research/README.md)
 **Scientific Documentation** - Research papers, experiments, and validation:
 - [Papers](research/papers.md) - Published research and findings
@@ -62,10 +74,24 @@ The Z Framework provides a novel approach to analyzing phenomena across differen
 - [Comprehensive Z-Model Report](reports/comprehensive_z_model_report.txt) - Complete analysis
 - [Numerical Stability Report](reports/NUMERICAL_STABILITY_VALIDATION_REPORT.md) - Stability validation
 
+### 📈 [Generated Documentation](generated/README.md)
+**Automatically Generated Reports** - Computational analysis outputs and generated reports:
+- [Analysis Reports](generated/analysis/) - Core mathematical validation data and test results
+- [Cross-Validation Results](generated/cross-validation/) - Multi-method verification and independent validation  
+- [Demo Results](generated/demos/) - Interactive visualizations and demonstration outputs
+- [Geodesic Clustering Reports](generated/geodesic-clustering/) - Clustering analysis across dimensions
+- [Variance Analysis Reports](generated/variance-analysis/) - Statistical variance relationship analysis
+
 ### 🧪 [Testing Documentation](testing/README.md)
 **Testing & Validation** - Testing methodologies and validation procedures:
 - [Testing Framework](testing/frame-shift-mitigation-README.md) - Core testing documentation
 - [Validation Procedures](testing/VALIDATION_README.md) - Validation methodologies
+
+### ✅ [Validation Results](validation/README.md)
+**Comprehensive Validation** - Statistical validation, computational verification, and performance analysis:
+- [Computational Validation](validation/computational/) - High-precision computational validation logs and results
+- [Scaling Validation](validation/scaling/) - Large-scale computation validation and performance metrics
+- [Bootstrap Validation](validation/bootstrap/) - Statistical bootstrap analysis and confidence intervals
 
 ### 📋 [Knowledge Base](knowledge-base/README.md)
 **Structured Knowledge** - LLM-optimized knowledge base for automated processing:

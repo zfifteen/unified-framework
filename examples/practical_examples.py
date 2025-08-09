@@ -518,7 +518,7 @@ def main():
         print("Check the error messages above for troubleshooting.")
     
     print("\nFor detailed usage patterns and advanced features,")
-    print("refer to examples/SYMBOLIC_STATISTICAL_GUIDE.md")
+    print("refer to docs/examples/SYMBOLIC_STATISTICAL_GUIDE.md")
     
     return results
 
